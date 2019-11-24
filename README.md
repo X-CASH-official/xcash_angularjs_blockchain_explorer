@@ -16,6 +16,7 @@
 * [Cloning the Repository](#cloning-the-repository)  
 * [Build Instructions](#build-instructions)  
 
+[How To Setup and Install the Systemd Files](#how-to-setup-and-install-the-systemd-files)  
 [How To Setup the Firewall](#how-to-setup-the-firewall)  
 [How To Run Each Component](#how-to-run-each-component) 
 
@@ -253,6 +254,29 @@ for f in *.js; do echo "Processing $f file.."; uglifyjs $f --compress --mangle -
 cd ../
 rm -r /var/www/html/*  
 cp -a dist/* /var/www/html/
+```
+
+
+## How To Setup and Install the Systemd Files
+
+Edit the below systemd files to your paths
+
+Copy all of the service files in the systemd folder to `/lib/systemd/system/`  
+`cp -a /root/x-network/xcash_angularjs_blockchain_explorer/scripts/systemd/* /lib/systemd/system/`
+
+Reload systemd  
+`systemctl daemon-reload`
+
+Create a systemd PID folder  
+`mkdir /root/x-network/systemdpid/`
+
+Create a logs folder  
+`mkdir /root/x-network/logs/`
+
+Create a mongod pid file and a xcashd pid file
+```
+touch /root/x-network/systemdpid/mongod.pid
+touch /root/x-network/systemdpid/xcash_daemon.pid
 ```
 
 
