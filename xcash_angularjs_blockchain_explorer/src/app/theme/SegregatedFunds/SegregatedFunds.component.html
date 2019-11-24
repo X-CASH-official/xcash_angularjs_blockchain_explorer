@@ -1,0 +1,206 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h1 class="text-center" >Segregated Funds</h1>
+      <br><br>       
+      <div *ngIf="htmlcode === true">        
+        <h3 class="text-center text-primary" >Segregated Funds in General</h3>
+        <br><br>
+        <app-card [title]="' '"> 
+            <div *ngIf="htmlcodechart == true" class="">
+            <h4>Total Amount: <font color="#8af1f0">40000000000 (40 Billion)</font></h4>
+            <h4>Total Amount Spent: <font color="#d09ebb">{{verifyreserveproofresults_amountspent}}</font></h4>
+            </div>
+          <br><br>
+          <div class="row">
+              <div class="col-md-6 col-xl-12">
+                  <div align="center" *ngIf="htmlcodechart === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+              <div id="preminefundschart"></div>
+            </div>
+          </div>          
+          </app-card> 
+          
+          <h3 class="text-center text-primary" >{{verifypreminefundsairdroptitle}}</h3>
+        <br><br>
+        <app-card [title]="' '"> 
+            <div *ngIf="htmlcodeairdropchart == true" class="">
+            <h4>Total Amount: <font color="#8af1f0">20000000000 (20 Billion)</font></h4>
+            <h4>Total Amount Spent: <font color="#d09ebb">{{verifyreserveproofresults_airdrop_amountspent}}</font></h4>
+            </div>
+          <br><br>
+          <div class="row">
+              <div class="col-md-6 col-xl-12">
+                  <div align="center" *ngIf="htmlcodeairdropchart === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+              <div id="preminefundsairdropchart"></div>
+            </div>
+          </div>
+          <br><br>
+          <div *ngIf="htmlcodeairdropchart == true" class="">
+          <div *ngFor="let item of verifyreserveproofresults_airdrop">
+          <h5 *ngIf="item.settings == 1">   
+              Address: <font color="#8af1f0">{{item.address}}</font><br>              
+              Reserve Proof Settings: <font color="#8af1f0">valid</font><br>
+              Reserve Proof Amount: <font color="#8af1f0">{{item.amount | number}}</font><br>
+              Reserve Proof Spent Amount: <font color="#8af1f0">0</font><br>
+              Message: <font color="#8af1f0">{{item.message}}</font><br>
+              <br>
+              <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+              <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+              <br><br>
+            </h5>  
+            <h5 *ngIf="item.settings == 0">
+                Address: <font color="#d09ebb">{{item.address}}</font><br>  
+                Reserve Proof Settings: <font color="#d09ebb">{{item.settings}}</font><br>
+                Reserve Proof Amount: <font color="#d09ebb">{{item.amount | number}}</font><br>
+                Reserve Proof Spent Amount: <font color="#d09ebb">{{item.spentamount | number}}</font><br>
+                Message: <font color="#d09ebb">{{item.mesage}}</font><br>
+                <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+                <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+                <br><br>
+              </h5>                 
+              </div>             
+            </div>
+          </app-card> 
+
+          <h3 class="text-center text-primary" >{{verifypreminefundsxcashtitle}}</h3>
+        <br><br>
+        <app-card [title]="' '"> 
+            <div *ngIf="htmlcodexcashchart == true" class="">
+            <h4>Total Amount: <font color="#8af1f0">10000000000 (10 Billion)</font></h4>
+            <h4>Total Amount Spent: <font color="#d09ebb">{{verifyreserveproofresults_xcash_amountspent}}</font></h4>
+            </div>
+          <br><br>
+          <div class="row">
+              <div class="col-md-6 col-xl-12">
+                  <div align="center" *ngIf="htmlcodexcashchart === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+              <div id="preminefundsxcashchart"></div>
+            </div>
+          </div>
+          <br><br>
+          <div *ngIf="htmlcodexcashchart == true" class="">
+          <div *ngFor="let item of verifyreserveproofresults_xcash">
+          <h5 *ngIf="item.settings == 1">   
+              Address: <font color="#8af1f0">{{item.address}}</font><br>              
+              Reserve Proof Settings: <font color="#8af1f0">valid</font><br>
+              Reserve Proof Amount: <font color="#8af1f0">{{item.amount | number}}</font><br>
+              Reserve Proof Spent Amount: <font color="#8af1f0">0</font><br>
+              Message: <font color="#8af1f0">{{item.message}}</font><br>
+              <br>
+              <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+              <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+              <br><br>
+            </h5>  
+            <h5 *ngIf="item.settings == 0">
+                Address: <font color="#d09ebb">{{item.address}}</font><br>  
+                Reserve Proof Settings: <font color="#d09ebb">{{item.settings}}</font><br>
+                Reserve Proof Amount: <font color="#d09ebb">{{item.amount | number}}</font><br>
+                Reserve Proof Spent Amount: <font color="#d09ebb">{{item.spentamount | number}}</font><br>
+                Message: <font color="#d09ebb">{{item.mesage}}</font><br>
+                <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+                <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+                <br><br>
+              </h5>                 
+              </div>             
+            </div>
+          </app-card> 
+
+          <h3 class="text-center text-primary" >{{verifypreminefundsxcashrewardstitle}}</h3>
+          <br><br>
+          <app-card [title]="' '"> 
+              <div *ngIf="htmlcodexcashrewardschart == true" class="">
+              <h4>Total Amount: <font color="#8af1f0">5000000000 (5 Billion)</font></h4>
+              <h4>Total Amount Spent: <font color="#d09ebb">{{verifyreserveproofresults_xcashrewards_amountspent}}</font></h4>
+              </div>
+            <br><br>
+            <div class="row">
+                <div class="col-md-6 col-xl-12">
+                    <div align="center" *ngIf="htmlcodexcashrewardschart === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+                <div id="preminefundsxcashrewardschart"></div>
+              </div>
+            </div>
+            <br><br>
+            <div *ngIf="htmlcodexcashrewardschart == true" class="">
+            <div *ngFor="let item of verifyreserveproofresults_xcashrewards">
+            <h5 *ngIf="item.settings == 1">   
+                Address: <font color="#8af1f0">{{item.address}}</font><br>              
+                Reserve Proof Settings: <font color="#8af1f0">valid</font><br>
+                Reserve Proof Amount: <font color="#8af1f0">{{item.amount | number}}</font><br>
+                Reserve Proof Spent Amount: <font color="#8af1f0">0</font><br>
+                Message: <font color="#8af1f0">{{item.message}}</font><br>
+                <br>
+                <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+                <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+                <br><br>
+              </h5>  
+              <h5 *ngIf="item.settings == 0">
+                  Address: <font color="#d09ebb">{{item.address}}</font><br>  
+                  Reserve Proof Settings: <font color="#d09ebb">{{item.settings}}</font><br>
+                  Reserve Proof Amount: <font color="#d09ebb">{{item.amount | number}}</font><br>
+                  Reserve Proof Spent Amount: <font color="#d09ebb">{{item.spentamount | number}}</font><br>
+                  Message: <font color="#d09ebb">{{item.mesage}}</font><br>
+                  <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+                  <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+                  <br><br>
+                </h5>                 
+                </div>             
+              </div>
+            </app-card> 
+
+            <h3 class="text-center text-primary" >{{verifypreminefundsxcashinvestorstitle}}</h3>
+            <br><br>
+            <app-card [title]="' '"> 
+                <div *ngIf="htmlcodexcashinvestorschart == true" class="">
+                <h4>Total Amount: <font color="#8af1f0">5000000000 (5 Billion)</font></h4>
+                <h4>Total Amount Spent: <font color="#d09ebb">{{verifyreserveproofresults_xcashinvestors_amountspent}}</font></h4>
+                </div>
+              <br><br>
+              <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                      <div align="center" *ngIf="htmlcodexcashinvestorschart === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+                  <div id="preminefundsxcashinvestorschart"></div>
+                </div>
+              </div>
+              <br><br>
+              <div *ngIf="htmlcodexcashinvestorschart == true" class="">
+              <div *ngFor="let item of verifyreserveproofresults_xcashinvestors">
+              <h5 *ngIf="item.settings == 1">   
+                  Address: <font color="#8af1f0">{{item.address}}</font><br>              
+                  Reserve Proof Settings: <font color="#8af1f0">valid</font><br>
+                  Reserve Proof Amount: <font color="#8af1f0">{{item.amount | number}}</font><br>
+                  Reserve Proof Spent Amount: <font color="#8af1f0">0</font><br>
+                  Message: <font color="#8af1f0">{{item.message}}</font><br>
+                  <br>
+                  <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+                  <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+                  <br><br>
+                </h5>  
+                <h5 *ngIf="item.settings == 0">
+                    Address: <font color="#d09ebb">{{item.address}}</font><br>  
+                    Reserve Proof Settings: <font color="#d09ebb">{{item.settings}}</font><br>
+                    Reserve Proof Amount: <font color="#d09ebb">{{item.amount | number}}</font><br>
+                    Reserve Proof Spent Amount: <font color="#d09ebb">{{item.spentamount | number}}</font><br>
+                    Message: <font color="#d09ebb">{{item.mesage}}</font><br>
+                    <a style="color:#d09ebb;" [routerLink]="['/VerifyReserveProof']" [queryParams]="{'public_address':item.address,'reserve_proof':item.reserveproof}"><h4>Verify Reserve Proof In The Explorer</h4></a>  
+                    <a style="color:#d09ebb; cursor: pointer;" (click)="address_settings = item.address; reserve_proof_settings = item.reserveproof; this.openMyModal('verify_reserve_proof');"><h4>Verify Reserve Proof In The xcash-wallet-cli</h4></a>
+                    <br><br>
+                  </h5>                 
+                  </div>             
+                </div>
+              </app-card> 
+
+         
+
+
+            </div>
+      </div>
+    </div>
+  </div>
+  
+  <app-modal-animation [modalID]="'verify_reserve_proof'" [modalClass]="'md-effect-1'">
+      <h3>X-CASH Blockchain Explorer</h3>
+      <div>
+        <p style="word-wrap: break-word;">Create a file called verifyreserveproof.txt and save the reserve proof in the file. <br><br>Open any wallet in the xcash-wallet-cli and then run this command.<br><br>check_reserve_proof {{address_settings}} verifyreserveproof.txt</p>
+        <button (click)="copyMessage(reserve_proof_settings)" class="btn btn-primary text-dark md-close">Copy The Reserve Proof</button>
+      </div>
+      <button (click)="closeMyModal($event)" aria-label="Close" class="md-close-btn"><i class="fa fa-close fa-3x"></i></button>
+    </app-modal-animation>

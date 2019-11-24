@@ -1,0 +1,213 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center" >{{title}}</h2>
+        <br><br>
+        <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+        <div *ngIf="htmlcode === true"> 
+            <h3 class="text-center text-primary" >Current Price Data (Updated every hour so this is not the live price)</h3>
+        <app-card [title]="'Price'"> 
+            <div class="row">
+                <div class="col-md-6 col-xl-4">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                          <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                        <div class="col-10 notify-cont">
+                            <p>BTC Price</p>
+                            <br>
+                          <h4>{{btc_price | number : '1.8-8'}}</h4>                  
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="col-md-6 col-xl-4">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                            <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                          <div class="col-10 notify-cont">                             
+                              <p>LTC Price</p>
+                              <br>
+                            <h4>{{ltc_price | number : '1.8-8'}}</h4>                       
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+  
+                  <div class="col-md-6 col-xl-4">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                              <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                            <div class="col-10 notify-cont">
+                                <p>USD Price</p>
+                                <br>
+                              <h4>{{usd_price | number : '1.8-8'}}</h4>                       
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>              
+             </div>          
+          </app-card>
+
+          <app-card [title]="'Market Cap'"> 
+              <div class="row">
+                  <div class="col-md-6 col-xl-4">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                            <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                          <div class="col-10 notify-cont">
+                              <p>BTC Market Cap</p>
+                              <br>
+                            <h4>{{btc_marketcap | number}}</h4>                       
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+    
+                  <div class="col-md-6 col-xl-4">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                              <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                            <div class="col-10 notify-cont">                             
+                                <p>LTC Market Cap</p>
+                                <br>
+                              <h4>{{ltc_marketcap | number}}</h4>                       
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+    
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card bg-primary notification-card">
+                          <div class="card-block text-dark">
+                            <div class="row align-items-center">
+                                <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                              <div class="col-10 notify-cont">
+                                  <p>USD Market Cap</p>
+                                  <br>
+                                <h4>{{usd_marketcap | number}}</h4>                       
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>              
+               </div>          
+            </app-card>
+
+            <app-card [title]="'Volume'"> 
+                <div class="row">
+                    <div class="col-md-6 col-xl-4">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                              <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                            <div class="col-10 notify-cont">
+                                <p>BTC Volume</p>
+                                <br>
+                              <h4>{{btc_volume | number}}</h4>                       
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+      
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card bg-primary notification-card">
+                          <div class="card-block text-dark">
+                            <div class="row align-items-center">
+                                <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                              <div class="col-10 notify-cont">                             
+                                  <p>LTC Volume</p>
+                                  <br>
+                                <h4>{{ltc_volume | number}}</h4>                       
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+      
+                      <div class="col-md-6 col-xl-4">
+                          <div class="card bg-primary notification-card">
+                            <div class="card-block text-dark">
+                              <div class="row align-items-center">
+                                  <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                                <div class="col-10 notify-cont">
+                                    <p>USD Volume</p>
+                                    <br>
+                                  <h4>{{usd_volume | number}}</h4>                       
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>              
+                 </div>          
+              </app-card>
+
+              <app-card [title]="usd_total_volume_title"> 
+                  <div class="row">
+                        <div class="col-md-6 col-xl-12">
+                            <div class="card bg-primary notification-card">
+                              <div class="card-block text-dark">
+                                <div class="row align-items-center">
+                                    <div class="col-1 notify-icon"><i class="fa fa-database"></i></div>
+                                  <div class="col-11 notify-cont">
+                                      <p>30 Day Total Volume (In USD)</p>
+                                      <br>
+                                    <h4>{{usd_total_volume | number}}</h4>                       
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>              
+                   </div>          
+                </app-card>
+
+                <h3 class="text-center text-primary" >Historical Price Data</h3>
+                <br><br>
+
+                <app-card [title]="price_chart_title" > 
+                    <div class="row">
+                        <div class="col-md-6 col-xl-12">
+                        <div id="price_chart"></div>
+                      </div>
+                    </div>
+                 </app-card>    
+                 <br><br>  
+                 
+                 <app-card [title]="market_cap_chart_title" > 
+                    <div class="row">
+                        <div class="col-md-6 col-xl-12">
+                        <div id="market_cap_chart"></div>
+                      </div>
+                    </div>
+                 </app-card>    
+                 <br><br>  
+
+                 <app-card [title]="volume_chart_title" > 
+                    <div class="row">
+                        <div class="col-md-6 col-xl-12">
+                        <div id="volume_chart"></div>
+                      </div>
+                    </div>
+                 </app-card>    
+                 <br><br>  
+
+
+
+
+
+      
+      </div>
+    </div>
+  </div>
+  

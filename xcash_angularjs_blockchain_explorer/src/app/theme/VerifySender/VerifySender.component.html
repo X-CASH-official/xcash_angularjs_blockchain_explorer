@@ -1,0 +1,42 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center" >{{title}}</h2>
+      <br>
+      <h5 class="text-center" >Note these calculations are done client side, meaning your keys are not sent to the server.</h5>
+        <br><br>
+      <app-card [title]="' '">  
+         
+          <div class="form-group row">
+              <div class="col-sm-12">
+                <input type="text" class="form-control form-bg-primary" placeholder="Public Address" [value]="public_address" #public_address_textbox>
+              </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                  <input type="text" class="form-control form-bg-primary" placeholder="Transaction Private Key" [value]="tx_private_key" #tx_private_key_textbox>
+                </div>
+              </div>
+              <div class="form-group row">
+                  <div class="col-sm-12">
+                    <input type="text" class="form-control form-bg-primary" placeholder="Transaction Signature" [value]="tx_signature" #tx_signature_textbox>
+                  </div>
+                </div>
+             
+            <div class="text-center">
+              <button class="btn btn-primary text-dark" (click)="verifysender(public_address_textbox.value,tx_private_key_textbox.value,tx_signature_textbox.value);">Verify Sender</button>
+            </div>
+                      
+           <br><br>
+                <div *ngIf="verifysenderhtml == true" class="">
+                <h5 *ngIf="verifymessageaddressresults == true"><font color="#8af1f0">{{public_address}}</font> is the sender of this public transaction</h5>  
+                <h5 *ngIf="verifymessageaddressresults == false">{{public_address}} is not the sender of this public transaction</h5>                              
+                </div>
+
+
+            
+  
+        </app-card>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,33 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center" >Send Hexadecimal Transaction</h2>
+      <br>
+      <h5 class="text-center" >Send a hexadecimal transaction created from a TX blob. <br><br>In the CLI you can create one by starting the cli with the --do-not-relay command. In the RPC, you would have to set the do_not_relay and the get_tx_hex settings to true.</h5>
+        <br><br>
+      <app-card [title]="' '">    
+        
+          <div class="form-group row">
+              <div class="col-sm-12">
+                <textarea rows="10" cols="5" class="form-control form-bg-primary" placeholder="Transaction Hexadecimal Data" #tx_data></textarea>
+              </div>
+            </div>          
+             
+            <div class="form-group row">
+                <div class="col-sm-1 offset-sm-5">
+                    <button class="btn btn-primary text-dark" (click)="validatehexadecimaltransaction(tx_data.value);">Validate</button>
+                  </div>
+                <div class="col-sm-1">
+              <button class="btn btn-primary text-dark" (click)="sendhexadecimaltransaction(tx_data.value);">Send</button>
+            </div>
+          </div>
+                      
+           <br><br>
+           
+              <div class="text-center" *ngIf="senthexadecimaltransactionhtml == true"><h4 [innerHTML]="senthexadecimaltransactionhtmlresult"></h4></div>
+  
+        </app-card>
+      </div>
+    </div>
+  </div>
+  

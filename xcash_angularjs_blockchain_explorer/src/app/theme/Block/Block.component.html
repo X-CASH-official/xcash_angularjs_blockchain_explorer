@@ -1,0 +1,184 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center" >{{title}}</h2>
+        <br><br>
+        <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+        <div *ngIf="htmlcode === true"> 
+      <app-card [title]="' '">    
+        <h4 class="text-center" ></h4>
+        <br><br>
+
+        <div class="row">
+            <div class="col-md-6 col-xl-12">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div>
+                       <div class="col-11 notify-cont">
+                        <p>Block Hash</p>
+                        <br>
+                        <h4>{{block_hash}}</h4>      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+            <div class="row">
+              <div class="col-md-6 col-xl-12">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div>
+                         <div class="col-11 notify-cont">
+                            <p>Block Mining Reward Hash</p>
+                            <br>
+                            <a style="color:#0000FF;" [routerLink]="['/BlockRewardTransaction']" [queryParams]="{'data':block_mining_reward_hash}"><h4>{{block_mining_reward_hash}}</h4></a>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        
+          
+            
+          <div class="row">
+
+              <div class="col-md-6 col-xl-4">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Block Height</p>
+                          <br>
+                          <h4>{{block_height | number}}</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Block Time</p>
+                          <br>
+                          <h4>{{block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+               
+                <div class="col-md-6 col-xl-4">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-cloud"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Block Size</p>
+                          <br>
+                          <h4>{{block_size}}</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+      
+               
+            </div>
+
+                    
+              
+                
+              <div class="row">
+
+                  <div class="col-md-6 col-xl-4">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                            <div class="col-2 notify-icon"><i class="fa fa-bars"></i></div>
+                             <div class="col-10 notify-cont">
+                              <p>Block TX amount</p>
+                              <br>
+                              <h4>{{block_tx_amount | number}}</h4>      
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card bg-primary notification-card">
+                          <div class="card-block text-dark">
+                            <div class="row align-items-center">
+                              <div class="col-2 notify-icon"><i class="fa fa-cube"></i></div>
+                               <div class="col-10 notify-cont">
+                                <p>Block Difficulty</p>
+                                <br>
+                                <h4>{{block_difficulty | number}}</h4>      
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+    
+                  <div class="col-md-6 col-xl-4">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                            <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                             <div class="col-10 notify-cont">
+                              <p>Block Reward</p>
+                              <br>
+                              <h4>{{block_reward | number}}</h4>      
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+          
+                    
+                </div>
+                <div class="table-responsive" *ngIf="block_tx_amount != 0">
+                    <table class="table table-inverse">
+                      <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>TX Hash</th>
+                        <th>Ring Size</th>
+                        <th>Fee</th>
+                        <th>Transaction Size</th>
+                        <th>Payment ID Settings</th>
+                        <th>Privacy Settings</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of block_tx_array;" [ngClass]="item.block_tx_privacy_settings === 'public' ? 'bg-primary text-dark' : '' ">
+                        <td>{{item.id}}</td>
+                        <td *ngIf="item.block_tx_privacy_settings === 'private'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.block_tx_hash}">{{item.block_tx_hash}}</a></td>
+                        <td *ngIf="item.block_tx_privacy_settings === 'public'"><a class="text-dark" [routerLink]="['/Transaction']" [queryParams]="{'data':item.block_tx_hash}">{{item.block_tx_hash}}</a></td>
+                        <td>{{item.block_tx_ringsizes}}</td>
+                        <td>{{item.block_tx_fees}}</td>
+                        <td>{{item.block_tx_sizes}}</td>
+                        <td>{{item.block_tx_paymentid_settings}}</td>
+                        <td>{{item.block_tx_privacy_settings}}</td>
+                      </tr>                
+                      </tbody>
+                    </table>
+                  </div>  
+        </app-card>
+      </div>
+      </div>
+    </div>
+  </div>
+  

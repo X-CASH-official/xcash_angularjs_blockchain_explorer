@@ -1,0 +1,108 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h3 class="text-center">{{title}}</h3>
+        <br><br>
+        <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+        <div *ngIf="htmlcode === true"> 
+      <app-card [title]="' '" *ngIf="tx_privacy_settings === 'private'">        
+        <div class="table-responsive" *ngIf="txsearchresultshtml == true">
+          <table class="table table-inverse">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>TX Hash</th>
+              <th>Ring Size</th>
+              <th>Date and Time</th>
+              <th>Fee</th>
+              <th>Size</th>
+              <th>Payment ID Settings</th>
+              <th>Privacy Settings</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of tx_data_array">
+              <td>{{item._id}}</td>
+              <td><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx}">{{item.tx}}</a></td>
+              <td>{{item.tx_ringsize}}</td>
+              <td>{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+              <td>{{item.tx_fee}}</td>
+              <td>{{item.tx_size}}</td>
+              <td>{{item.tx_paymentid_settings}}</td>
+              <td>{{item.tx_privacy_settings}}</td>
+            </tr>                
+            </tbody>
+          </table>
+        </div>
+        </app-card>
+
+        <app-card [title]="public_tx_sender_data_title" *ngIf="tx_privacy_settings === 'public'">        
+          <div class="table-responsive" *ngIf="txsearchresultshtml == true">
+            <table class="table table-inverse">
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>TX Hash</th>
+                <th>Ring Size</th>
+                <th>Date and Time</th>
+                <th>Fee</th>
+                <th>Size</th>
+                <th>Payment ID Settings</th>
+                <th>Receiver</th>
+                <th>Amount</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of public_tx_sender_data_array">
+                <td>{{item._id}}</td>
+                <td><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx}">{{item.tx}}</a></td>
+                <td>{{item.tx_ringsize}}</td>
+                <td>{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+                <td>{{item.tx_fee}}</td>
+                <td>{{item.tx_size}}</td>
+                <td>{{item.tx_paymentid_settings}}</td>
+                <td><a style="color:#8af1f0;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'public_address|' + item.tx_receiver}">{{item.tx_receiver}}</a></td>
+                <td>{{item.tx_amount}}</td>
+              </tr>                
+              </tbody>
+            </table>
+          </div>
+          </app-card>
+
+          <app-card [title]="public_tx_receiver_data_title" *ngIf="tx_privacy_settings === 'public'">        
+            <div class="table-responsive" *ngIf="txsearchresultshtml == true">
+              <table class="table table-inverse">
+                <thead>
+                <tr>
+                  <th>#</th>
+                  <th>TX Hash</th>
+                  <th>Ring Size</th>
+                  <th>Date and Time</th>
+                  <th>Fee</th>
+                  <th>Size</th>
+                  <th>Payment ID Settings</th>
+                  <th>Sender</th>
+                  <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let item of public_tx_receiver_data_array">
+                  <td>{{item._id}}</td>
+                  <td><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx}">{{item.tx}}</a></td>
+                  <td>{{item.tx_ringsize}}</td>
+                  <td>{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+                  <td>{{item.tx_fee}}</td>
+                  <td>{{item.tx_size}}</td>
+                  <td>{{item.tx_paymentid_settings}}</td>
+                  <td><a style="color:#8af1f0;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'public_address|' + item.tx_sender}">{{item.tx_sender}}</a></td>
+                  <td>{{item.tx_amount}}</td>
+                </tr>                
+                </tbody>
+              </table>
+            </div>
+            </app-card>
+            </div>
+      </div>
+    </div>
+  </div>
+  

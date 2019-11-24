@@ -1,0 +1,57 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center" >{{title}}</h2>
+      <br>
+      <h5 class="text-center" >Decode all outputs for this transaction that correspond to your public address and view key.<br>Note these calculations are done client side, meaning your data is not sent to the server.</h5>
+        <br><br>
+      <app-card [title]="' '">       
+          
+          <div class="form-group row">
+            <div class="col-sm-12">
+              <input type="text" class="form-control form-bg-primary" placeholder="Transaction Hash" [value]="tx_hash" #tx_hash_textbox>
+            </div>
+          </div>
+          <div class="form-group row">
+              <div class="col-sm-12">
+                <input type="text" class="form-control form-bg-primary" placeholder="Public Address" [value]="receiver_address" #public_address_textbox>
+              </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                  <input type="text" class="form-control form-bg-primary" placeholder="Transaction Private Key or View Key" [value]="tx_private_key" #view_key_textbox>
+                </div>
+              </div>
+             
+            <div class="text-center">
+              <button class="btn btn-primary text-dark" (click)="decodetransaction(tx_hash_textbox.value,public_address_textbox.value,view_key_textbox.value);">Decode Transaction</button>
+            </div>
+                      
+           <br><br>
+           <div class="table-responsive" *ngIf="decodedtransactionhtml == true">
+              <table class="table table-inverse">
+                <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Stealth Address</th>
+                  <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let item of decoded_tx_array">
+                  <td>{{item.id}}</td>
+                  <td>{{item.address}}</td>
+                  <td *ngIf="item.amount !== 'RINGCT_AMOUNT'">{{item.amount | number}}</td>
+                  <td *ngIf="item.amount === 'RINGCT_AMOUNT'">{{item.amount}}</td>
+                </tr>                
+                </tbody>
+              </table>
+              <div class="text-center"><h5><font color="#8af1f0">{{receiver_address}}</font> received <font color="#8af1f0">{{total_amount | number}} X-CASH</font> in this transaction </h5></div>
+            </div>
+
+            
+  
+        </app-card>
+      </div>
+    </div>
+  </div>

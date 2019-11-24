@@ -1,0 +1,45 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center" >Transaction Pool - {{txpoolcount}} Total Transactions</h2>
+        <br><br>
+        <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+        <div *ngIf="htmlcode === true"> 
+      <app-card [title]="' '">        
+        <div class="table-responsive" *ngIf="txpoolhtml == true">
+          <table class="table table-inverse">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>TX Hash</th>
+              <th>Ring Size</th>
+              <th>Date and Time</th>
+              <th>Time In TX Pool</th>
+              <th>Fee</th>
+              <th>Size</th>
+              <th>Payment ID Settings</th>
+              <th>Privacy Settings</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of txpoolarray" [ngClass]="item.tx_privacy_settings == 'public' ? 'bg-primary text-dark' : '' ">
+              <td>{{item.tx_id}}</td>
+              <td *ngIf="item.tx_privacy_settings === 'private'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx_hash}">{{item.tx_hash}}</a></td>
+              <td *ngIf="item.tx_privacy_settings === 'public'"><a class="text-dark" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx_hash}">{{item.tx_hash}}</a></td>
+              <td>{{item.tx_ringsize}}</td>
+              <td>{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+              <td>{{item.tx_time_in_pool}}</td>
+              <td>{{item.tx_fee}}</td>
+              <td>{{item.tx_size}}</td>
+              <td>{{item.tx_paymentidsettings}}</td>
+              <td>{{item.tx_privacy_settings}}</td>
+            </tr>                
+            </tbody>
+          </table>
+        </div>
+        </app-card>
+        </div>
+      </div>
+    </div>
+  </div>
+  

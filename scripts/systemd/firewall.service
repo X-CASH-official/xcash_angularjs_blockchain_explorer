@@ -1,0 +1,11 @@
+[Unit]
+Description=firewall
+ 
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+ExecStart=/root/x-network/xcash_angularjs_blockchain_explorer/scripts/firewall/firewall_script.sh
+ 
+[Install]
+WantedBy=multi-user.target

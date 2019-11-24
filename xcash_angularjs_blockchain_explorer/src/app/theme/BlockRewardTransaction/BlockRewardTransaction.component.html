@@ -1,0 +1,207 @@
+<div class="page-body">
+  <div class="row">
+    <div class="col-sm-12">
+    <h2 class="text-center" >{{title}}</h2>
+      <br><br>
+      <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+      <div *ngIf="htmlcode === true"> 
+    <app-card [title]="' '">    
+      <h4 class="text-center" ></h4>
+      <br><br>
+
+      <div class="row">
+          <div class="col-md-6 col-xl-12">
+              <div class="card bg-primary notification-card">
+                <div class="card-block text-dark">
+                  <div class="row align-items-center">
+                    <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div>
+                     <div class="col-11 notify-cont">
+                      <p>Block Reward Transaction Hash</p>
+                      <br>
+                      <h4>{{tx_hash}}</h4>      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-xl-12">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-1 notify-icon"><i class="fa fa-key"></i></div>
+                       <div class="col-11 notify-cont">
+                        <p>Public Key</p>
+                        <br>
+                        <h4>{{tx_public_key}}</h4>      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 col-xl-12">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-1 notify-icon"><i class="fa fa-bars"></i></div>
+                         <div class="col-11 notify-cont">
+                          <p>Extra</p>
+                          <br>
+                          <h4>{{tx_extra}}</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+      
+        
+          
+        <div class="row">
+
+            <div class="col-md-6 col-xl-4">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
+                       <div class="col-10 notify-cont">
+                        <p>Block Height</p>
+                        <br>
+                        <a style="color:#0000FF;" [routerLink]="['/Block']" [queryParams]="{'data':tx_block_height}"><h4>{{tx_block_height | number}}</h4></a>                           
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+             
+              <div class="col-md-6 col-xl-4">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-2 notify-icon"><i class="fa fa-clock-o"></i></div>
+                       <div class="col-10 notify-cont">
+                        <p>Block Unlock Height</p>
+                        <br>
+                        <a *ngIf="unlockedblockprogress >= 100" style="color:#0000FF;" [routerLink]="['/Block']" [queryParams]="{'data':tx_unlock_block}"><h4>{{tx_unlock_block | number}}</h4></a>                        
+                        <h4 *ngIf="unlockedblockprogress < 100">{{tx_unlock_block | number}}</h4>  
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-default" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="unlockedblockprogress" [style.width.%]="unlockedblockprogress"></div>
+                          </div>    
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+    
+              <div class="col-md-6 col-xl-4">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
+                       <div class="col-10 notify-cont">
+                        <p>Block Time</p>
+                        <br>
+                        <h4>{{tx_block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</h4>      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+          <div class="row">
+
+              <div class="col-md-6 col-xl-4">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-2 notify-icon"><i class="fa fa-tag"></i></div>
+                       <div class="col-10 notify-cont">
+                        <p>Transaction Version</p>
+                        <br>
+                        <h4>{{tx_version}}</h4>      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+    
+              <div class="col-md-6 col-xl-4">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-2 notify-icon"><i class="fa fa-tag"></i></div>
+                       <div class="col-10 notify-cont">
+                        <p>RingCT Version</p>
+                        <br>
+                        <h4>{{tx_ringct_version}}</h4>      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+         
+
+          <div class="col-md-6 col-xl-4">
+              <div class="card bg-primary notification-card">
+                <div class="card-block text-dark">
+                  <div class="row align-items-center">
+                    <div class="col-2 notify-icon"><i class="fa fa-cloud"></i></div>
+                     <div class="col-10 notify-cont">
+                      <p>Block Reward Transaction Size</p>
+                      <br>
+                      <h4>{{tx_size}}</h4>      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+            
+              
+            <div class="row">
+  
+                <div class="col-md-6 col-xl-8">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                          <div class="col-2 notify-icon"><i class="fa fa-search"></i></div>
+                           <div class="col-10 notify-cont">
+                            <p>Stealth Address Receiving the Block Reward</p>
+                            <br>
+                            <h4>{{tx_address}}</h4>      
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                 
+                  <div class="col-md-6 col-xl-4">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                          <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
+                           <div class="col-10 notify-cont">
+                            <p>Block Reward</p>
+                            <br>
+                            <h4>{{tx_address_amount | number}}</h4>      
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+        
+                  
+              </div>
+      </app-card>
+    </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center" >{{title}}</h2>
+      <br>
+      <h5 class="text-center" >Note these calculations are done client side, meaning your data is not sent to the server.</h5>
+        <br><br>
+      <app-card [title]="' '">  
+         
+          <div class="form-group row">
+              <div class="col-sm-12">
+                <input type="text" class="form-control form-bg-primary" placeholder="Public Address" #public_address_textbox>
+              </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                  <input type="text" class="form-control form-bg-primary" placeholder="Payment ID (16 bytes, leave empty for a random payment ID)" #payment_id_textbox>
+                </div>
+              </div>
+             
+            <div class="text-center">
+              <button class="btn btn-primary text-dark" (click)="createintegratedaddress(public_address_textbox.value,payment_id_textbox.value);">Create Integrated Address</button>
+            </div>
+                      
+           <br><br>           
+              <div *ngIf="createintegratedaddresshtml == true" class="">
+                <h5>Public Address: {{public_address}}<br><br>Payment ID: {{payment_id}}<br><br>Integrated Address: <font color="#8af1f0">{{integrated_address}}</font></h5>
+                <br><br>
+                <div class="text-center">
+                    <button class="btn btn-primary text-dark" (click)="copyMessage(integrated_address);">Copy Integrated Address</button>
+                  </div>                 
+                </div>            
+  
+        </app-card>
+      </div>
+    </div>
+  </div>

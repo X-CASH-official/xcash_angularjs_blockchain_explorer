@@ -1,0 +1,469 @@
+<div class="page-body">
+    <div class="row">
+      <div class="col-sm-12">
+      <h2 class="text-center">{{title}}</h2>
+        <br><br>
+        <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
+        <div *ngIf="htmlcode === true">          
+      <app-card [title]="' '"> 
+        <br><br>
+  
+        <div class="row">
+            <div class="col-md-6 col-xl-12">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div>
+                       <div class="col-11 notify-cont">
+                        <p class="text-center">Transaction Hash</p>
+                        <br>
+                        <h4>{{tx_hash}}</h4>      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="col-md-6 col-xl-12">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-1 notify-icon"><i class="fa fa-key"></i></div>
+                         <div class="col-11 notify-cont">
+                          <p>Transaction Public Key</p>
+                          <br>
+                          <a style="color:#0000FF;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'tx_public_key|' + tx_public_key}"><h4>{{tx_public_key}}</h4></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" *ngIf="tx_privacy_settings === 'public'">
+                <div class="col-md-6 col-xl-12">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                          <div class="col-1 notify-icon"><i class="fa fa-key"></i></div>
+                           <div class="col-11 notify-cont">
+                            <p>Transaction Private Key</p>
+                            <br>
+                            <a style="color:#0000FF;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'tx_private_key|' + tx_private_key}"><h4>{{tx_private_key}}</h4></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row" *ngIf="tx_privacy_settings === 'public'">
+                    <div class="col-md-6 col-xl-12">
+                        <div class="card bg-primary notification-card">
+                          <div class="card-block text-dark">
+                            <div class="row align-items-center">
+                              <div class="col-1 notify-icon"><i class="fa fa-key"></i></div>
+                               <div class="col-11 notify-cont">
+                                <p>Transaction Signature</p>
+                                <br>
+                                <h4>{{tx_signature}}</h4>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+    
+
+              <div class="row" *ngIf="tx_payment_id !== 'none'">
+                <div class="col-md-6 col-xl-12">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                          <div class="col-1 notify-icon"><i class="fa fa-shopping-cart"></i></div>
+                           <div class="col-11 notify-cont">
+                            <p>Payment ID - {{tx_payment_id_settings}}</p>
+                            <br>
+                            <a *ngIf="tx_payment_id.length === 64" style="color:#0000FF;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'unencrypted_payment_id|' + tx_payment_id}"><h4>{{tx_payment_id}}</h4></a>
+                            <a *ngIf="tx_payment_id.length !== 64" style="color:#0000FF;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'encrypted_payment_id|' + tx_payment_id}"><h4>{{tx_payment_id}}</h4></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+  
+              <div class="row">
+                <div class="col-md-6 col-xl-12">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                          <div class="col-1 notify-icon"><i class="fa fa-bars"></i></div>
+                           <div class="col-11 notify-cont">
+                            <p>Extra</p>
+                            <br>
+                            <h4>{{tx_extra}}</h4>      
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>        
+                
+                <div class="row">
+                  <div class="col-md-6 col-xl-6">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                            <div class="col-1 notify-icon"><i class="fa fa-unlock" *ngIf="tx_privacy_settings === 'public'"></i><i class="fa fa-lock" *ngIf="tx_privacy_settings === 'private'"></i></div>
+                             <div class="col-11 notify-cont">
+                              <p>Transaction Privacy Settings</p>
+                              <br>
+                              <h4>{{tx_privacy_settings}}</h4>      
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-xl-6">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                            <div class="col-1 notify-icon"><i class="fa fa-check"></i></div>
+                             <div class="col-11 notify-cont">
+                              <p>Transaction Confirmations</p>
+                              <br>
+                              <h4 *ngIf="tx_block_height !== 'TX_POOL' && tx_confirmations !== Error">{{tx_confirmations | number}}</h4>
+                              <h4 *ngIf="tx_block_height !== 'TX_POOL' && tx_confirmations === Error">Error</h4>
+                              <h4 *ngIf="tx_block_height === 'TX_POOL'">TX_POOL</h4>         
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>          
+        
+          
+            
+          <div class="row">
+  
+              <div class="col-md-6 col-xl-3">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Block Height</p>
+                          <br>
+                          <a *ngIf="tx_block_height !== 'TX_POOL'" style="color:#0000FF;" [routerLink]="['/Block']" [queryParams]="{'data':tx_block_height}"><h4>{{tx_block_height | number}}</h4></a>  
+                          <h4 *ngIf="tx_block_height === 'TX_POOL'">TX_Pool</h4>     
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+               
+                <div class="col-md-6 col-xl-3">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-clock-o"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Block Unlock Height</p>
+                          <br>
+                          <a *ngIf="tx_block_height !== 'TX_POOL' && unlockedblockprogress >= 100" style="color:#0000FF;" [routerLink]="['/Block']" [queryParams]="{'data':tx_unlock_block}"><h4>{{tx_unlock_block | number}}</h4></a> 
+                          <h4 *ngIf="tx_block_height !== 'TX_POOL' && unlockedblockprogress < 100">{{tx_unlock_block | number}}</h4>
+                          <h4 *ngIf="tx_block_height === 'TX_POOL'">TX_Pool</h4> 
+                          <div class="progress">
+                              <div class="progress-bar progress-bar-default" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="unlockedblockprogress" [style.width.%]="unlockedblockprogress"></div>
+                            </div>       
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+      
+                <div class="col-md-6 col-xl-3">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Transaction Time</p>
+                          <br>
+                          <h4 *ngIf="tx_block_height !== 'TX_POOL'">{{tx_block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</h4> 
+                          <h4 *ngIf="tx_block_height === 'TX_POOL'">TX_Pool</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-edit"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Transaction Fee</p>
+                          <br>
+                          <h4>{{tx_fee | number}}</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+  
+            <div class="row">
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="card bg-primary notification-card">
+                      <div class="card-block text-dark">
+                        <div class="row align-items-center">
+                          <div class="col-2 notify-icon"><i class="fa fa-refresh"></i></div>
+                           <div class="col-10 notify-cont">
+                            <p>Transaction Ring Size</p>
+                            <br>
+                            <h4>{{tx_ringsize}}</h4>      
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+  
+                <div class="col-md-6 col-xl-3">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-tag"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>Transaction Version</p>
+                          <br>
+                          <h4>{{tx_version}}</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+      
+                <div class="col-md-6 col-xl-3">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                        <div class="col-2 notify-icon"><i class="fa fa-tag"></i></div>
+                         <div class="col-10 notify-cont">
+                          <p>RingCT Version</p>
+                          <br>
+                          <h4>{{tx_ringct_version}}</h4>      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+           
+  
+            <div class="col-md-6 col-xl-3">
+                <div class="card bg-primary notification-card">
+                  <div class="card-block text-dark">
+                    <div class="row align-items-center">
+                      <div class="col-2 notify-icon"><i class="fa fa-cloud"></i></div>
+                       <div class="col-10 notify-cont">
+                        <p>Transaction Size</p>
+                        <br>
+                        <h4>{{tx_size}}</h4>      
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+            </div>
+              
+                
+              <div class="row">    
+                  <div class="col-md-6 col-xl-12">
+                      <div class="card bg-primary notification-card">
+                        <div class="card-block text-dark">
+                          <div class="row align-items-center">
+                            <div class="col-1 notify-icon"><i class="fa fa-search"></i></div>
+                             <div class="col-11 notify-cont">
+                              <p>Stealth Address In This Transaction</p>
+                              <br>
+                              <a *ngFor="let item of tx_address_array" style="color:#0000FF;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'stealth_address|' + item}"><h4>{{item}}</h4></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row" *ngIf="tx_privacy_settings === 'public'">    
+                      <div class="col-md-6 col-xl-12">
+                          <div class="card bg-primary notification-card">
+                            <div class="card-block text-dark">
+                              <div class="row align-items-center">
+                                <div class="col-1 notify-icon"><i class="fa fa-envelope"></i></div>
+                                 <div class="col-11 notify-cont">
+                                  <p>Sender Address</p>
+                                  <br>
+                                  <a style="color:#0000FF;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'public_address|' + public_tx_address_array[0].sender_address}"><h4>{{public_tx_address_array[0].sender_address}}</h4></a>  
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        </div>
+
+                        <div class="row" *ngIf="tx_privacy_settings === 'public'">
+                        <div class="col-md-6 col-xl-12">
+                            <div class="card bg-primary notification-card">
+                              <div class="card-block text-dark">
+                                <div class="row align-items-center">
+                                  <div class="col-1 notify-icon"><i class="fa fa-arrow-down"></i></div>
+                                   <div class="col-11 notify-cont">
+                                    <p>{{amounttitle}}</p>
+                                    <br>
+                                    <h4>{{public_tx_address_array[0].amount | number}}</h4>        
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row" *ngIf="tx_privacy_settings === 'public'">
+                        <div class="col-md-6 col-xl-12">
+                            <div class="card bg-primary notification-card">
+                              <div class="card-block text-dark">
+                                <div class="row align-items-center">
+                                  <div class="col-1 notify-icon"><i class="fa fa-envelope"></i></div>
+                                   <div class="col-11 notify-cont">
+                                    <p>Receiver Address</p>
+                                    <br>
+                                    <a style="color:#0000FF;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'public_address|' + public_tx_address_array[0].receiver_address}"><h4>{{public_tx_address_array[0].receiver_address}}</h4></a> 
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+
+                      <div class="row" *ngIf="tx_privacy_settings === 'public' && public_tx_address_array[0].settings === 0">
+                        <div class="col-md-6 col-xl-12">
+                            <div class="card bg-primary notification-card">
+                              <div class="card-block text-dark">
+                                <div class="row align-items-center">
+                                  <div class="col-1 notify-icon"><i class="fa fa-refresh"></i></div>
+                                   <div class="col-11 notify-cont">
+                                    <p>Change Amount (the unspent remainder of the sender's spent output, sent back to the sender's address)</p>
+                                    <br>
+                                    <h4>{{public_tx_address_array[0].change_amount | number}}</h4>        
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+
+
+
+                      <div class="row" *ngIf="tx_privacy_settings === 'public'">
+                          <div class="col-md-6 col-xl-4">
+                          <a style="color:#d09ebb;" [routerLink]="['/DecodeTX']" [queryParams]="{'tx_hash':tx_hash,'tx_private_key':tx_private_key,'receiver_address':public_tx_address_array[0].receiver_address}"><h4>Decode This Transaction In The Explorer</h4></a>  
+                          </div>
+                          <div class="col-md-6 col-xl-4 offset-4">
+                          <a style="color:#d09ebb; cursor: pointer;" (click)="this.openMyModal('decode_tx_cli_modal_public_tx');"><h4>Decode This Transaction In The xcash-wallet-cli</h4></a>    
+                          </div>  
+                        </div>                        
+
+                        <div class="row" *ngIf="tx_privacy_settings === 'public'">
+                          <div class="col-md-6 col-xl-4">
+                            <a style="color:#d09ebb;" [routerLink]="['/VerifySender']" [queryParams]="{'public_address':public_tx_address_array[0].sender_address,'tx_private_key':tx_private_key,'tx_signature':tx_signature}"><h4>Verify The Sender Of This Transaction In The Explorer</h4></a>  
+                            </div>
+                            <div class="col-md-6 col-xl-4 offset-4">
+                            <a style="color:#d09ebb; cursor: pointer;" (click)="this.openMyModal('verify_sender_cli_modal_public_tx');"><h4>Verify The Sender Of This Transaction In The xcash-wallet-cli</h4></a>    
+                            </div>  
+                          </div> 
+
+                      <div class="row" *ngIf="tx_privacy_settings === 'private'">
+                          <div class="col-md-6 col-xl-4">
+                          <a style="color:#d09ebb;" [routerLink]="['/DecodeTX']" [queryParams]="{'tx_hash':tx_hash}"><h4>Decode This Transaction In The Explorer</h4></a>  
+                          </div>
+                          <div class="col-md-6 col-xl-4 offset-4">
+                          <a style="color:#d09ebb; cursor: pointer;" (click)="this.openMyModal('decode_tx_cli_modal_private_tx');"><h4>Decode This Transaction In The xcash-wallet-cli</h4></a>    
+                          </div>  
+                        </div>
+        </app-card>
+
+<h2 class="text-center">Inputs - {{tx_key_images.length}}</h2>
+        <app-card *ngFor="let item of tx_key_images; let count = index" [title]="item"> 
+            
+          <div class="table-responsive">
+            <table class="table table-inverse">
+              <thead>
+              <tr>
+                <th style="width: 5%">#</th>
+                <th style="width: 65%">Stealth Address / Addresses</th>
+                <th style="width: 10%">Block Height</th>
+                <th style="width: 10%">Ring Size</th>
+                <th style="width: 10%">Transaction Time</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item2 of tx_key_images_ring_address_array[count]; let count2 = index">
+                <td>{{count2 + 1}}</td>
+                <td *ngIf="item2.tx_key_images_ring_address_tx_ring_size !== '0'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.tx_key_images_ring_tx_hash}">{{item2.tx_key_images_ring_address}}</a></td>
+                <td *ngIf="item2.tx_key_images_ring_address_tx_ring_size === '0'"><a style="color:#8af1f0;" [routerLink]="['/BlockRewardTransaction']" [queryParams]="{'data':item2.tx_key_images_ring_tx_hash}">{{item2.tx_key_images_ring_address}}</a></td>
+                <td><a style="color:#8af1f0;" [routerLink]="['/Block']" [queryParams]="{'data':item2.tx_key_images_ring_address_tx_block_height}">{{item2.tx_key_images_ring_address_tx_block_height | number}}</a></td> 
+                <td>{{item2.tx_key_images_ring_address_tx_ring_size}}</td>
+                <td>{{item2.tx_key_images_ring_address_tx_block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+              </tr>                
+              </tbody>
+            </table>
+          </div>              
+
+               
+          </app-card>
+          </div>
+
+      </div>
+    </div>
+  </div>
+
+  <app-modal-animation [modalID]="'decode_tx_cli_modal_public_tx'" [modalClass]="'md-effect-1'">
+    <h3>X-CASH Blockchain Explorer</h3>
+    <div>
+      <p style="word-wrap: break-word;">Open any wallet in the xcash-wallet-cli and then run this command.
+        <br><br>
+        {{decode_tx_cli}}</p>
+      <button (click)="copyMessage(decode_tx_cli)" class="btn btn-primary text-dark md-close">Copy</button>
+    </div>
+    <button (click)="closeMyModal($event)" aria-label="Close" class="md-close-btn"><i class="fa fa-close fa-3x"></i></button>
+  </app-modal-animation>
+
+  <app-modal-animation [modalID]="'verify_sender_cli_modal_public_tx'" [modalClass]="'md-effect-1'">
+      <h3>X-CASH Blockchain Explorer</h3>
+      <div>
+        <p style="word-wrap: break-word;">Create a file called verifysender.txt and save {{tx_private_key}} in the file. <br><br>Open any wallet in the xcash-wallet-cli and then run this command.
+          <br><br>
+          {{verify_sender_cli}}</p>
+        <button (click)="copyMessage(verify_sender_cli)" class="btn btn-primary text-dark md-close">Copy</button>
+      </div>
+      <button (click)="closeMyModal($event)" aria-label="Close" class="md-close-btn"><i class="fa fa-close fa-3x"></i></button>
+    </app-modal-animation>
+
+  <app-modal-animation [modalID]="'decode_tx_cli_modal_private_tx'" [modalClass]="'md-effect-1'">
+      <h3>X-CASH Blockchain Explorer</h3>
+      <div>
+        <p style="word-wrap: break-word;">Open any wallet in the xcash-wallet-cli and then run this command.
+          <br><br>
+          check_tx_key {{tx_hash}} TX_PRIVATE_KEY RECEIVING_XCASH_ADDRESS</p>
+        <button (click)="closeMyModal($event)" class="btn btn-primary text-dark md-close">OK</button>
+      </div>
+      <button (click)="closeMyModal($event)" aria-label="Close" class="md-close-btn"><i class="fa fa-close fa-3x"></i></button>
+    </app-modal-animation>
+  

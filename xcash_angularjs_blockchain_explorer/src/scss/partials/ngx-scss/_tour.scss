@@ -1,0 +1,27 @@
+ngb-popover-window{
+  &:before{
+    content: "";
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1;
+    display: none;
+  }
+  .arrow,.popover-header,.popover-body{
+    position: relative;
+    z-index: 9;
+  }
+  .popover-body {
+    background: #fff;
+    border-radius: 0 0 3px 3px;
+  }
+}
+.touranchor--is-active{
+  z-index: 2999;
+  position: relative;
+  padding: 5px 10px;
+  background: #fff;
+}

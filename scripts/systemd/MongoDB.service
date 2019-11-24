@@ -1,0 +1,23 @@
+[Unit]
+Description=MongoDB Database Server
+After=network.target
+
+[Service]
+Type=forking
+User=root
+Type=oneshot
+RemainAfterExit=yes
+PIDFile=/root/x-network/systemdpid/mongod.pid
+ExecStart=/root/x-network/mongodb-linux-x86_64-ubuntu1804-4.2.1/bin/mongod --fork --syslog
+
+LimitFSIZE=infinity
+LimitCPU=infinity
+LimitAS=infinity
+LimitNOFILE=64000
+LimitNPROC=64000
+LimitMEMLOCK=infinity
+TasksMax=infinity
+TasksAccounting=false
+
+[Install]
+WantedBy=multi-user.target
