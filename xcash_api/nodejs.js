@@ -8,17 +8,34 @@ var MongoClient = require("mongodb").MongoClient;
 var exec = require('child_process').exec;
 var cryptocurrency = require('./cryptocurrency');
 
-// notes the callback in the middle will usually end last
-// notes make sure for each callback at the end you have res.end because if it errors and never makes it to the last callback, it still needs to res.end
+// Constants
 
-// constants
-const DAEMON_HOSTNAME_AND_PORT = {hostname: "localhost",port: 18281,path: "/json_rpc",method: "POST", headers: {"Content-Type": "application/json"}};
-const DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA = {hostname: "localhost",port: 18281,path: "/get_transactions",method: "POST", headers: {"Content-Type": "application/json"}};
-const DAEMON_HOSTNAME_AND_PORT_GET_RING_ADDRESSES_DATA = {hostname: "localhost",port: 18281,path: "/get_outs",method: "POST", headers: {"Content-Type": "application/json"}};
-const DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_POOL_DATA = {hostname: "localhost",port: 18281,path: "/get_transaction_pool",method: "POST", headers: {"Content-Type": "application/json"}};
-const DAEMON_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION = {hostname: "localhost",port: 18281,path: "/send_raw_transaction",method: "POST", headers: {"Content-Type": "application/json"}};
-const DAEMON_HOSTNAME_AND_PORT_GET_NODES_LIST = {hostname: "localhost",port: 18281,path: "/get_peer_list",method: "POST", headers: {"Content-Type": "application/json"}};
-const WALLET_HOSTNAME_AND_PORT = {hostname: "localhost",port: 18285,path: "/json_rpc",method: "POST", headers: {"Content-Type": "application/json"}};
+// productions settings
+const production_settings = "develop"; // develop for testing locally and production for production
+
+// files
+const nodes_list_file = production_settings === "develop" ? "files/nodes_list.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/nodes_list.txt";
+const xcash_dpops_nodes_list_file = production_settings === "develop" ? "files/xcash_dpops_nodes_list_nodes_list.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/xcash_dpops_nodes_list.txt";
+const market_data_file = production_settings === "develop" ? "files/market_data.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/market_data.txt";
+const market_historical_data_file = production_settings === "develop" ? "files/market_historical_data.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/market_historical_data.txt";
+const tx_block_data_previous_block_file = production_settings === "develop" ? "files/tx_block_data_previous_block.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/tx_block_data_previous_block.txt";
+const generated_and_circulating_supply_file = production_settings === "develop" ? "files/generated_and_circulating_supply.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/generated_and_circulating_supply.txt";
+const chart_data_file = production_settings === "develop" ? "files/chart_data.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/chart_data.txt";
+const price_data_file = production_settings === "develop" ? "files/price_data.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/price_data.txt";
+
+// Networking
+const XCASH_DAEMON_PORT = 18281;
+const XCASH_WALLET_PORT = 18285;
+const HTTP_REQUEST_TIMEOUT = 60000;
+
+// URL
+const DAEMON_HOSTNAME_AND_PORT = {hostname: "localhost",port: XCASH_DAEMON_PORT,path: "/json_rpc",method: "POST", headers: {"Content-Type": "application/json"}};
+const DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA = {hostname: "localhost",port: XCASH_DAEMON_PORT,path: "/get_transactions",method: "POST", headers: {"Content-Type": "application/json"}};
+const DAEMON_HOSTNAME_AND_PORT_GET_RING_ADDRESSES_DATA = {hostname: "localhost",port: XCASH_DAEMON_PORT,path: "/get_outs",method: "POST", headers: {"Content-Type": "application/json"}};
+const DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_POOL_DATA = {hostname: "localhost",port: XCASH_DAEMON_PORT,path: "/get_transaction_pool",method: "POST", headers: {"Content-Type": "application/json"}};
+const DAEMON_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION = {hostname: "localhost",port: XCASH_DAEMON_PORT,path: "/send_raw_transaction",method: "POST", headers: {"Content-Type": "application/json"}};
+const DAEMON_HOSTNAME_AND_PORT_GET_NODES_LIST = {hostname: "localhost",port: XCASH_DAEMON_PORT,path: "/get_peer_list",method: "POST", headers: {"Content-Type": "application/json"}};
+const WALLET_HOSTNAME_AND_PORT = {hostname: "localhost",port: XCASH_WALLET_PORT,path: "/json_rpc",method: "POST", headers: {"Content-Type": "application/json"}};
 
 const MININGPOOL_API = {hostname: "minexcash.com",port: 8117,path: "/live_stats",method: "GET"};
 const CRYPTOPIA_BTC_PRICE = {hostname: "cryptopia.co.nz",port: 443,path: "/api/GetMarket/XCASH_BTC",method: "GET"};
@@ -28,16 +45,7 @@ const CRYPTOPIA_LTC_USDT_PRICE = {hostname: "cryptopia.co.nz",port: 443,path: "/
 const API_GET_MARKET_DATA = {hostname: "api.coingecko.com",port: 443,path: "/api/v3/simple/price?ids=X-CASH&vs_currencies=BTC%2CLTC%2CUSD&include_market_cap=true&include_24hr_vol=true&include_24hr_change=false&include_last_updated_at=false",method: "GET"};
 const API_GET_HISTORICAL_MARKET_DATA = {hostname: "api.coingecko.com",port: 443,path: "/api/v3/coins/x-cash/market_chart?vs_currency=USD&days=max",method: "GET"};
 
-const HTTP_REQUEST_TIMEOUT = 60000;
-const WALLET_DECIMAL_PLACES_AMOUNT = 1000000;
-const MAXIMUM_SUPPLY = 100000000000;
-const PREMINE_TOTAL_SUPPLY = 40000000000;
-const PREMINE_CIRCULATING_SUPPLY = 12823298491;
-const STARTING_BLOCK_REWARD_BEFORE_PREMINE_BLOCK_REWARD = 190734.863;
-const MAXIMUM_TX_POOL_SIZE = 10;
-const UNENCRYPTED_PAYMENT_ID = "022100";
-const ENCRYPTED_PAYMENT_ID = "020901";
-
+// Blockchain
 const BLOCKCHAIN_CURRENT_VERSION = 12;
 const BLOCKCHAIN_CURRENT_VERSION_BLOCK_HEIGHT = 281000;
 const BLOCKCHAIN_ALGORITHM = "Cryptonight HeavyX";
@@ -45,7 +53,23 @@ const BLOCKCHAIN_CURRENT_VERSION_ESTIMATED_DATE = "15-02-2019";
 const BLOCKCHAIN_NEXT_VERSION = 13;
 const BLOCKCHAIN_NEXT_VERSION_BLOCK_HEIGHT = "0";
 const BLOCKCHAIN_NEXT_VERSION_ESTIMATED_DATE = "N/A";
+const UNENCRYPTED_PAYMENT_ID_LENGTH = 64;
+const ENCRYPTED_PAYMENT_ID_LENGTH = 16;
+const UNENCRYPTED_PAYMENT_ID = "022100";
+const ENCRYPTED_PAYMENT_ID = "020901";
+const WALLET_DECIMAL_PLACES_AMOUNT = 1000000;
+const MAXIMUM_SUPPLY = 100000000000;
+const PREMINE_TOTAL_SUPPLY = 40000000000;
+const PREMINE_CIRCULATING_SUPPLY = 12823298491;
+const STARTING_BLOCK_REWARD_BEFORE_PREMINE_BLOCK_REWARD = 190734.863;
+const MAXIMUM_TX_POOL_SIZE = 10;
 
+// Database
+const DATABASE_CONNECTION = "mongodb://localhost" // The database connection string
+const DATABASE_NAME = "database" // The name of the database
+const DATABASE_COLLECTION = "transactions"
+
+// Premine reserve proofs
 const PREMINE_FUNDS_ALL_WALLETS = ["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"];
 const PREMINE_FUNDS_ALL_WALLETS_RESERVE_PROOFS = ["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","","","","","","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"];
 
@@ -58,6 +82,7 @@ const PREMINE_FUNDS_XCASH_REWARD_WALLETS_RESERVE_PROOFS = ["ReserveProofV11BZ23s
 const PREMINE_FUNDS_XCASH_INVESTORS_WALLETS = ["XCA1bpckHu6c7k2takLVjQ4rFVVv29pZrNtKSaHxFK9wFj8vQom425fCAFxKv1Ug2tLQ2egampmop3BhHsnZwNp3AaJn7ZDhVJ"];
 const PREMINE_FUNDS_XCASH_INVESTORS_WALLETS_RESERVE_PROOFS = ["ReserveProofV11BZ23sBt9sZJeGccf84mzyAmNCP3KzYbE1111112VKmH111118NgUyo1JtdzFxnk8xhi1d33ZHs1tdRankifyWbJTQHtTPw28Mu1Bx1f2Qt3B1AKTPCnYyez5U5B9wWsY6V93pUdRRrDCWLaMZqhtqQ4c8TuzkHu2eMWPRAQUoFdnXbt7voHC5ymHvB2a2jhC2C7Ls1D9hzf9Nexs8vN7w4hEnctGfSwEVDikHr4jWQ6pQCWANZTSnMvz9xTohm3jds2LPKA9SDNo2wdukG1EwcD1DWvfdgUx8g8EfPLdSztAzygoD3bD8HrQcK1NZVcQVtFjoauvcNBbYkob8oxw82vP9PLHrDDecYiPeh2EmJ8YHQzMwZb2vjU1ZFTg5NYx1Bvmu6uGweYhX7g2Nac7kS1XzCg6higk1czhxmVZ4rm52t95XhpUwByF3rf5WcEixpXkVHdUwvgYmCsUzS3RKsYsEDd74S85ASDgCXg6j82PVbhx5kygtVL7MBQjAGsokhyf3TkAha"];
 
+// RPC templates
 const GET_BLOCK_COUNT = JSON.stringify({"jsonrpc":"2.0","id":"0","method":"get_block_count"});
 const GET_BLOCK_HASH = JSON.stringify({"jsonrpc":"2.0","id":"0","method":"on_get_block_hash","params":["block_height"]});
 const GET_LAST_BLOCK_DATA = JSON.stringify({"jsonrpc":"2.0","id":"0","method":"get_last_block_header"});
@@ -92,50 +117,65 @@ const GET_BLOCKCHAIN_DATA_SETTINGS_ERROR = {"Error":"Invalid parameters. Valid p
 const SEND_HEXADECIMIAL_TRANSACTION_SUCCESS = {"send_hexadecimal_transaction_results":"Success"};
 const SEND_HEXADECIMIAL_TRANSACTION_ERROR = {"send_hexadecimal_transaction_results":"Error"};
 
-// Create application/x-www-form-urlencoded parser and JSON parser
+// Variables
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var jsonParser = bodyParser.json();
-
-app.use(express.static('/usr/local/nginx/html'),function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-
 var database;
 var collection;
 var nodes_list = "";
 var xcash_proof_of_stake_nodes_list = "";
-
-// connect to the mongo database
-MongoClient.connect("mongodb://localhost/database", { useNewUrlParser: true }, function(error, db) {
-try
-{
-if (error)
-{
-throw("error");
-}
-}
-catch (error)
-{
-return;
-}
-database = db.db("database");
-collection = database.collection('transactions');
-});
-
-function randString(length) {
-var str = '';
-var charset='0123456789abcdef';
-while (length--) {
-str += charset[Math.floor((Math.random() * charset.length))];
-}
-return str;
-}
-
 var previousblockheight;
 var currentblockheight;
 var resetcounter = 0;
+
+// Set the headers
+if (production_settings === "develop")
+{
+  app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+}
+else
+{
+  app.use(express.static('/var/www/html'),function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+}
+
+// connect to the mongo database
+MongoClient.connect(`${DATABASE_CONNECTION}/${DATABASE_NAME}`, { useNewUrlParser: true }, function(error, db)
+{
+  try
+  {
+    if (error)
+    {
+      throw("error");
+    }
+  }
+  catch (error)
+  {
+    return;
+  }
+  database = db.db(DATABASE_NAME);
+  collection = database.collection(DATABASE_COLLECTION);
+});
+
+function generate_random_payment_id()
+{
+  // Variables  
+  let str = "";
+  let charset = "0123456789abcdef";
+  let count;
+  for (count = 0; count < ENCRYPTED_PAYMENT_ID_LENGTH; count++)
+  {
+    str += charset[Math.floor((Math.random() * charset.length))];
+  }
+  return str;
+}
 
 function addtransactionstodatabase(block_height)
 {
@@ -3039,7 +3079,7 @@ httprequest.on('response', function (response) {
       } 
 setTimeout(function(){
 nodes_list = nodes_list.substr(0,nodes_list.length);
-fs.writeFileSync('/home/ubuntu/nodejs/nodes_list.txt',nodes_list);
+fs.writeFileSync(nodes_list_file,nodes_list);
 }, (ip_address_total_count*1000)+5000);  
     }
     catch (error)
@@ -3098,7 +3138,7 @@ setTimeout(getxcashproofofstakenodeitem, count*1000,ip_address);
 
 setTimeout(function(){
 xcash_proof_of_stake_nodes_list = xcash_proof_of_stake_nodes_list.substr(0,xcash_proof_of_stake_nodes_list.length);
-fs.writeFileSync('/home/ubuntu/nodejs/xcash_proof_of_stake_nodes_list_nodes_list.txt',xcash_proof_of_stake_nodes_list);
+fs.writeFileSync(xcash_dpops_nodes_list_file,xcash_proof_of_stake_nodes_list);
 }, (ip_address_total_count*1000)+5000);  
     }
     catch (error)
@@ -3139,7 +3179,7 @@ var httpsrequest = https.request(API_GET_MARKET_DATA, function (response) {
     {
       var obj = JSON.parse(result)["x-cash"];
       var data = '{"price":{"btc":' + obj.btc.toFixed(8) + ',"ltc":' + obj.ltc.toFixed(8) + ',"usd":' + obj.usd.toFixed(8) + '},"market_cap":{"btc":' + obj.btc_market_cap + ',"ltc":' + obj.ltc_market_cap + ',"usd":' + obj.usd_market_cap + '},"volume":{"btc":' + obj.btc_24h_vol + ',"ltc":' + obj.ltc_24h_vol + ',"usd":' + obj.usd_24h_vol + '}}';
-      fs.writeFileSync('/home/ubuntu/nodejs/market_data.txt',data);
+      fs.writeFileSync(market_data_file,data);
     }
     catch (error)
     {
@@ -3221,7 +3261,7 @@ end_time = obj.total_volumes[count_data][0];
 }
 }
 data = data.substr(0,data.length - 1) + '],"start_time":' + start_time + ',"end_time":' + end_time + ',"total":' + total_volume + '}}';
-fs.writeFileSync('/home/ubuntu/nodejs/market_historical_data.txt',data);
+fs.writeFileSync(market_historical_data_file,data);
     }
     catch (error)
     {
@@ -3238,7 +3278,7 @@ httpsrequest.end();
 
 
 setInterval(() => {
-previousblockheight = fs.readFileSync('/home/ubuntu/nodejs/tx_block_data_previous_block.txt') + "";
+previousblockheight = fs.readFileSync(tx_block_data_previous_block_file) + "";
 var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
 httprequest.end(GET_BLOCK_COUNT);
 
@@ -3262,14 +3302,8 @@ httprequest.on('response', function (response) {
           console.log("added block " + previousblockheight);
           addtransactionstodatabase(previousblockheight);
         }
-        fs.writeFileSync('/home/ubuntu/nodejs/tx_block_data_previous_block.txt',previousblockheight);
-      }  
-    /* resetcounter++;
-     if (resetcounter === 15)
-     {
-       resetcounter = 0;
-      exec('screen -S Daemon -X quit && sleep 5s && screen -dmS Daemon /home/ubuntu/X-CASH_CLI_Linux_1.5.0/xcashd', (error, result) => console.log("restarted"));      
-     }*/    
+        fs.writeFileSync(tx_block_data_previous_block_file,previousblockheight);
+      }   
     }
     catch (error)
     {
@@ -3444,11 +3478,11 @@ httprequest.on('response', function (response) {
       }
       generated_supply = Math.round(generated_supply);
       var circulating_supply = Math.round(generated_supply - (PREMINE_TOTAL_SUPPLY - PREMINE_CIRCULATING_SUPPLY));
-      fs.writeFileSync('/home/ubuntu/nodejs/generated_and_circulating_supply.txt',generated_supply + "|" + circulating_supply);
+      fs.writeFileSync(generated_and_circulating_supply_file,generated_supply + "|" + circulating_supply);
     }
     catch (error)
     {
-      console.log("error getting generated supply")
+      console.log("error getting generated supply");
     }
   });
 });
@@ -3474,11 +3508,11 @@ httprequest.on('response', function (response) {
       {
         throw("error");
       } 
-      fs.writeFileSync('/home/ubuntu/nodejs/chart_data.txt',JSON.stringify(obj.charts.difficulty));
+      fs.writeFileSync(chart_data_file,JSON.stringify(obj.charts.difficulty));
     }
     catch (error)
     {
-      console.log("error getting chart data")
+      console.log("error getting chart data");
     }
   });
 });
@@ -3532,12 +3566,12 @@ var httpsrequest = https.request(CRYPTOPIA_BTC_PRICE, function (response) {
           } 
           usd_price = obj.Data.LastPrice * ltc_price;
           usd_price = usd_price.toFixed(8);
-          fs.writeFileSync('/home/ubuntu/nodejs/price_data.txt',btc_price + "|" + ltc_price + "|" + usd_price);
+          fs.writeFileSync(price_data_file,btc_price + "|" + ltc_price + "|" + usd_price);
         }
         catch (error)
         {
           console.log("error getting generated supply");
-          fs.writeFileSync('/home/ubuntu/nodejs/price_data.txt',"Error");
+          fs.writeFileSync(price_data_file,"Error");
           return;
         }
      })
@@ -3549,7 +3583,7 @@ postrequest2.end();
       catch (error)
       {
         console.log("error getting generated supply");
-        fs.writeFileSync('/home/ubuntu/nodejs/price_data.txt',"Error");
+        fs.writeFileSync(price_data_file,"Error");
         return;
       }
    })
@@ -3561,7 +3595,7 @@ postrequest1.end();
     catch (error)
     {
       console.log("error getting generated supply");
-      fs.writeFileSync('/home/ubuntu/nodejs/price_data.txt',"Error");
+      fs.writeFileSync(price_data_file,"Error");
       return;
     }
   })
@@ -3680,7 +3714,7 @@ httprequest.on('response', function (response) {
       {
         current_blockchain_hashrate = parseFloat(current_blockchain_hashrate / 1000000000).toFixed(2) + " GH/S";
       }
-      var generated_and_circulating_supply = fs.readFileSync("/home/ubuntu/nodejs/generated_and_circulating_supply.txt") + "";
+      var generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
       generated_and_circulating_supply = generated_and_circulating_supply.split("|");
       var generated_supply = generated_and_circulating_supply[0];
       var circulating_supply = generated_and_circulating_supply[1];
@@ -3717,7 +3751,7 @@ httprequest.on('response', function (response) {
       // get the total public and private transactions count
       var public_tx_count = 0;
       var private_tx_count = 0;
-      collection = database.collection('transactions');
+      collection = database.collection(DATABASE_COLLECTION);
       collection.countDocuments({"tx_privacy_settings":"public"}, function(error, databasecount)
       {
         try
@@ -3795,7 +3829,7 @@ res.status(400).send("Error:Could not get the nodes list");
 app.get('/getxcashproofofstakenodeslist', function (req, res) {
 try
 {
-var nodes_list = fs.readFileSync("/home/ubuntu/nodejs/xcash_proof_of_stake_nodes_list_nodes_list.txt") + "";
+var nodes_list = fs.readFileSync(xcash_dpops_nodes_list_file) + "";
 if (nodes_list.substr(nodes_list.length - 1,1) === "|")
 {
 nodes_list = nodes_list.substring(0,nodes_list.length - 1);
@@ -3813,9 +3847,9 @@ res.status(400).send("Error:Could not get the nodes list");
 app.get('/getmarketdata', function (req, res) {
 try
 {
-var data = fs.readFileSync("/home/ubuntu/nodejs/market_historical_data.txt") + "";
+var data = fs.readFileSync(market_historical_data_file) + "";
 var obj = JSON.parse(data).volumes;
-data = fs.readFileSync("/home/ubuntu/nodejs/market_data.txt") + "";
+data = fs.readFileSync(market_data_file) + "";
 data = data.split("}}").join("") + ',"start_time":' + obj.start_time + ',"end_time":' + obj.end_time + ',"total":' + obj.total + '}}';
 res.json(JSON.parse(data));
 }
@@ -3830,7 +3864,7 @@ res.status(400).send("Error:Could not get the market data");
 app.get('/gethistoricalmarketdata', function (req, res) {
 try
 {
-var data = fs.readFileSync("/home/ubuntu/nodejs/market_historical_data.txt") + "";
+var data = fs.readFileSync(market_historical_data_file) + "";
 res.json(JSON.parse(data));
 }
 catch (error)
@@ -3857,7 +3891,7 @@ res.status(400).send("Error:Could not get the total supply");
 app.get('/getgeneratedsupply', function (req, res) {
 try
 {
-var generated_and_circulating_supply = fs.readFileSync("/home/ubuntu/nodejs/generated_and_circulating_supply.txt") + "";
+var generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
 res.send(generated_and_circulating_supply.split("|")[0]);
 }
 catch (error)
@@ -3871,7 +3905,7 @@ res.status(400).send("Error:Could not get the generated supply");
 app.get('/getcirculatingsupply', function (req, res) {
 try
 {
-var generated_and_circulating_supply = fs.readFileSync("/home/ubuntu/nodejs/generated_and_circulating_supply.txt") + "";
+var generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
 res.send(generated_and_circulating_supply.split("|")[1]);
 }
 catch (error)
@@ -3915,7 +3949,7 @@ httprequest.on('error', response => res.status(400).json(GET_BLOCK_COUNT_ERROR))
 app.get('/getpricedata', function (req, res) {
 try
 {
-var price_data = fs.readFileSync("/home/ubuntu/nodejs/price_data.txt") + "";
+var price_data = fs.readFileSync(price_data_file) + "";
 price_data = price_data.split("|");
 res.send({
 "btc_price":price_data[0],
@@ -3934,7 +3968,7 @@ res.status(400).send("Error:Could not get the price data");
 app.get('/getchartdata', function (req, res) {
 try
 {
-var chart_data = fs.readFileSync("/home/ubuntu/nodejs/chart_data.txt") + "";
+var chart_data = fs.readFileSync(chart_data_file) + "";
 res.send(chart_data);
 }
 catch (error)
@@ -5742,7 +5776,7 @@ throw("error");
 var payment_id = req.query.payment_id;
 if (payment_id.length !== 16)
 {
-payment_id = randString(16);
+payment_id = generate_random_payment_id();
 }
 var integrated_address = cryptocurrency.create_integrated_address(public_address,payment_id);
 if (integrated_address == "")
@@ -6238,7 +6272,7 @@ httprequest.on('response', function (response) {
             else
             {
               // search the database for tx_public_key, tx_private_key, stealth_address, unencrypted_payment_id
-              collection = database.collection('transactions');
+              collection = database.collection(DATABASE_COLLECTION);
               collection.countDocuments({"tx_paymentid":settings}, function(error, databasecount)
               {
                 try
@@ -6951,9 +6985,12 @@ httprequest.on('error', response => res.status(400).json(GET_TRANSACTION_CONFIRM
 })
 */
 
-app.get('/tx*', (req, res) => res.redirect('https://explorer.x-cash.org/Transaction?data='+req.url.replace("/tx/","")))
+if (production_settings !== "develop")
+{
+  app.get('/tx*', (req, res) => res.redirect('https://explorer.x-cash.org/Transaction?data='+req.url.replace("/tx/","")))
 
-app.use('*', (req, res) => res.sendFile("/usr/local/nginx/html/index.html"));
+  app.use('*', (req, res) => res.sendFile("/var/www/html/index.html"));
+}
 
 var server = app.listen(8000, function (req,res) {    
 var host = server.address().address
