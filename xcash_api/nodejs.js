@@ -53,6 +53,9 @@ const BLOCKCHAIN_CURRENT_VERSION_ESTIMATED_DATE = "15-02-2019";
 const BLOCKCHAIN_NEXT_VERSION = 13;
 const BLOCKCHAIN_NEXT_VERSION_BLOCK_HEIGHT = "0";
 const BLOCKCHAIN_NEXT_VERSION_ESTIMATED_DATE = "N/A";
+const XCASH_WALLET_LENGTH = 98;
+const TRANSACTION_HASH_LENGTH = 64;
+const BLOCK_HASH_LENGTH = 64;
 const UNENCRYPTED_PAYMENT_ID_LENGTH = 64;
 const ENCRYPTED_PAYMENT_ID_LENGTH = 16;
 const UNENCRYPTED_PAYMENT_ID = "022100";
@@ -147,7 +150,7 @@ else
 }
 
 // connect to the mongo database
-MongoClient.connect(`${DATABASE_CONNECTION}/${DATABASE_NAME}`, { useNewUrlParser: true }, function(error, db)
+MongoClient.connect(`${DATABASE_CONNECTION}/${DATABASE_NAME}`, { useNewUrlParser: true }, (error, db) =>
 {
   try
   {
@@ -164,12 +167,32 @@ MongoClient.connect(`${DATABASE_CONNECTION}/${DATABASE_NAME}`, { useNewUrlParser
   collection = database.collection(DATABASE_COLLECTION);
 });
 
+// Functions
+function send_get_request(URL)
+{
+  return new Promise ((success, error) =>
+  {
+    let result = URL.includes("https://") ? https.request(URL) : http.get(URL);
+    result.on("response", (response) =>
+    {   
+      result = "";   
+      response.on('data', (chunk) => result += chunk);
+      response.on('end', () => success(result));
+    });
+
+    result.setTimeout(HTTP_REQUEST_TIMEOUT, () => result.abort());
+    
+    result.on('error', () => error("error"));  
+  }); 
+}
+
 function generate_random_payment_id()
 {
   // Variables  
   let str = "";
   let charset = "0123456789abcdef";
   let count;
+
   for (count = 0; count < ENCRYPTED_PAYMENT_ID_LENGTH; count++)
   {
     str += charset[Math.floor((Math.random() * charset.length))];
@@ -179,11 +202,12 @@ function generate_random_payment_id()
 
 function addtransactionstodatabase(block_height)
 {
-var get_block_transaction_data = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data = get_block_transaction_data.replace("get_block_transaction_data_parameter","height");
-get_block_transaction_data = get_block_transaction_data.replace("get_block_transaction_data_settings",block_height);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(get_block_transaction_data);
+  // Vaariables
+  var get_block_transaction_data = GET_BLOCK_TRANSACTION_DATA;
+  get_block_transaction_data = get_block_transaction_data.replace("get_block_transaction_data_parameter","height");
+  get_block_transaction_data = get_block_transaction_data.replace("get_block_transaction_data_settings",block_height);
+  var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
+  httprequest.end(get_block_transaction_data);
 
 httprequest.on('response', function (response) {
   response.setEncoding('utf8');
@@ -245,7 +269,7 @@ httprequest.on('response', function (response) {
                 if (tx_extra.length >= 256)
                 {
                   var count3 = tx_extra.indexOf("02647c584341");
-                  block_tx_private_key = tx_extra.substr(tx_extra.indexOf("02227c") + 6,64);
+                  block_tx_private_key = tx_extra.substr(tx_extra.indexOf("02227c") + 6,UNENCRYPTED_PAYMENT_ID_LENGTH);
                   block_tx_signature = Buffer.from(tx_extra.substr(tx_extra.indexOf("025f7c536967") + 6,186), 'hex').toString('utf8');
                   block_tx_public_addresses = Buffer.from(tx_extra.substr(count3 + 6,196), 'hex').toString('utf8') + "|";
                   block_tx_public_addresses += Buffer.from(tx_extra.substr(tx_extra.indexOf("02647c584341",count3+12) + 6,196), 'hex').toString('utf8');
@@ -268,9 +292,9 @@ httprequest.on('response', function (response) {
                 block_tx_fee = tx_hash_data_results.rct_signatures.txnFee; 
                 block_tx_size = (tx_hash_data.txs[count1].as_hex.length / 1024 / 2);    
                 block_tx_paymentid_settings = tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted" : "none";
-                block_tx_paymentid = tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? tx_extra.substr(6,64) : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? tx_extra.substr(6,16) : "none";
+                block_tx_paymentid = tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? tx_extra.substr(6,UNENCRYPTED_PAYMENT_ID_LENGTH) : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? tx_extra.substr(6,ENCRYPTED_PAYMENT_ID_LENGTH) : "none";
                 block_tx_privacy_settings = tx_extra.length >= 256 ? "public" : "private";  
-                block_tx_public_key = tx_extra.substr(tx_extra.length - 64);
+                block_tx_public_key = tx_extra.substr(tx_extra.length - UNENCRYPTED_PAYMENT_ID_LENGTH);
                 block_tx_ecdh_data = JSON.stringify(tx_hash_data_results.rct_signatures); 
                 block_tx_timestamp = tx_hash_data.txs[count1].block_timestamp;
 
@@ -3090,23 +3114,28 @@ fs.writeFileSync(nodes_list_file,nodes_list);
   });
 });
 httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => console.log("error"));
-},3600000);
+httprequest.on('error', response => console.log("Could not get the updated nodes list"));
+},60000);
 
 
 
-function getnodeitem(ip_address)
+
+
+
+
+async function getnodeitem(ip_address)
 {
-http.get('http://ip-api.com/json/' + ip_address + '?key=EgaxuTCLolXOfAy&fields=lat,lon', (response) => {
-var result = "";
-response.on('data', chunk => result += chunk);
-response.on('end', function () {
-
+  try
+  {
+    let result = await send_get_request('http://ip-api.com/json/' + ip_address + '?key=EgaxuTCLolXOfAy&fields=lat,lon');
     latitude = (-2.3947*JSON.parse(result).lat+287.82).toFixed(1);
     longitude = (2.2378*JSON.parse(result).lon+399.34).toFixed(1);
-    nodes_list += get_node(latitude,longitude) + "|";    
-});
-}).on('error', response => console.log("error"));  
+    nodes_list += get_node(latitude,longitude) + "|"; 
+  }
+  catch (error)
+  {
+    `Could not get the latitude and longitude for ${ip_address}`
+  }
 }
 
 
@@ -5769,12 +5798,12 @@ app.get('/createintegratedaddressapi', urlencodedParser, function (req, res) {
 try
 {
 var public_address = req.query.public_address;
-if (public_address.length !== 98)
+if (public_address.length !== XCASH_WALLET_LENGTH)
 {
 throw("error");
 }
 var payment_id = req.query.payment_id;
-if (payment_id.length !== 16)
+if (payment_id.length !== ENCRYPTED_PAYMENT_ID_LENGTH)
 {
 payment_id = generate_random_payment_id();
 }
@@ -5944,7 +5973,7 @@ for (count2 = 0; count2 < count1; count2++)
 {
 count4 = results.indexOf("txs_hashes:",count3);
 count3 = count4 + 11;
-var str = results.substr(count4 + 13,64);
+var str = results.substr(count4 + 13,TRANSACTION_HASH_LENGTH);
 if (tx_hash_pool.indexOf(str) === -1)
 {
 if ((req.body.tx_pool_settings == 0) || (req.body.tx_pool_settings == 1 && count2 < MAXIMUM_TX_POOL_SIZE))
@@ -6155,8 +6184,8 @@ app.get('/getblockdata', urlencodedParser, function (req, res) {
 // gets the blocks data from the block height or block hash
 // parameters
 // block_data = the block height or the block hash
-var get_block_data = req.query.block_data.length === 64 ? GET_BLOCK_DATA_FROM_BLOCK_HASH : GET_BLOCK_DATA_FROM_BLOCK_HEIGHT;
-if (req.query.block_data.length === 64)
+var get_block_data = req.query.block_data.length === BLOCK_HASH_LENGTH ? GET_BLOCK_DATA_FROM_BLOCK_HASH : GET_BLOCK_DATA_FROM_BLOCK_HEIGHT;
+if (req.query.block_data.length === BLOCK_HASH_LENGTH)
 {
 get_block_data = get_block_data.replace("block_hash",req.query.block_data);
 }
@@ -6208,13 +6237,13 @@ app.post('/getblockchaindatasettings', urlencodedParser, function (req, res) {
 // settings = valid parameters are the block_height, block_hash, block_reward_transaction, tx_hash, encrypted_payment_id, unencrypted_payment_id, public_address, stealth_address, tx_public_key, tx_private_key
 var settings = req.body.settings;
 var blockchaindatasettings = "";
-if (isNaN(settings) == false && (settings.length !== 64 || settings.length !== 16))
+if (isNaN(settings) == false && (settings.length !== UNENCRYPTED_PAYMENT_ID_LENGTH || settings.length !== ENCRYPTED_PAYMENT_ID_LENGTH))
 {
 blockchaindatasettings = "block_height";
 res.json({"settings":"block_height"});
 return;
 }
-if (settings.length === 16)
+if (settings.length === ENCRYPTED_PAYMENT_ID_LENGTH)
 {
 blockchaindatasettings = "encrypted_payment_id";
 res.json({"settings":"encrypted_payment_id"});
@@ -6519,7 +6548,7 @@ app.post('/getblocktransactiondata', urlencodedParser, function (req, res) {
 // parameters
 // get_block_transaction_data_settings = the block height, or the block hash
 var get_block_transaction_data = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data = req.body.get_block_transaction_data_settings.length === 64 ? get_block_transaction_data.replace("get_block_transaction_data_parameter","hash") : get_block_transaction_data.replace("get_block_transaction_data_parameter","height");
+get_block_transaction_data = req.body.get_block_transaction_data_settings.length === TRANSACTION_HASH_LENGTH ? get_block_transaction_data.replace("get_block_transaction_data_parameter","hash") : get_block_transaction_data.replace("get_block_transaction_data_parameter","height");
 get_block_transaction_data = get_block_transaction_data.replace("get_block_transaction_data_settings",req.body.get_block_transaction_data_settings);
 var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
 httprequest.end(get_block_transaction_data);
