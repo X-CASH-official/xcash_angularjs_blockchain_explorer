@@ -1,17 +1,19 @@
-var express = require("express");
-var bodyParser = require("body-parser");
-var http = require('http');
-var https = require('https');
-var fs = require('fs');
-var app = express();
-var MongoClient = require("mongodb").MongoClient;
-var exec = require('child_process').exec;
-var cryptocurrency = require('./cryptocurrency');
+const express = require("express");
+const bodyParser = require("body-parser");
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const app = express();
+const MongoClient = require("mongodb").MongoClient;
+const exec = require('child_process').exec;
+const cryptocurrency = require('./cryptocurrency');
 
 // Constants
 
 // productions settings
 const production_settings = "develop"; // develop for testing locally and production for production
+
+const XCASH_BLOCKCHAIN_DIRECTORY = "/root/";
 
 // files
 const nodes_list_file = production_settings === "develop" ? "files/nodes_list.txt" : "/root/x-network/xcash_angular_blockchain_explorer/xcash_api/files/nodes_list.txt";
@@ -300,7 +302,7 @@ async function addtransactionstodatabase(block_height)
          block_tx_signature = "none";
        }
 
-       for (var count2 = 0; count2 < tx_hash_data_results.vout.length; count2++)
+       for (let count2 = 0; count2 < tx_hash_data_results.vout.length; count2++)
        { 
          block_tx_addresses += tx_hash_data_results.vout[count2].target.key + "|";
        }
@@ -13797,120 +13799,93 @@ async function get_price()
 
 
 
-app.get('/getcurrentblockheight', function (req, res) {
-// gets the current block height
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(GET_BLOCK_COUNT);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      } 
-      res.json({"block_height":obj.result.count});
-    }
-    catch (error)
+// Get request
+app.get('/getcurrentblockheight', async(req, res) =>
+{
+  try
+  {
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, GET_BLOCK_COUNT);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
     {
-      res.status(400).json(GET_BLOCK_COUNT_ERROR);
+      throw ("error");
     }
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_COUNT_ERROR));
+    res.json(
+    {
+      "block_height": obj.result.count
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCK_COUNT_ERROR);
+  }
 })
 
 
 
-app.get('/getlastblockdata', function (req, res) {
-// gets the last blocks data
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(GET_LAST_BLOCK_DATA);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {   
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      } 
-      res.json({
-              "block_height":obj.result.block_header.height,
-              "block_hash":obj.result.block_header.hash,
-              "block_size":obj.result.block_header.block_size / 1024,
-              "block_tx_amount":obj.result.block_header.num_txes,
-              "block_reward":obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
-              "block_timestamp":obj.result.block_header.timestamp,
-              "block_difficulty":obj.result.block_header.difficulty
-            });
-    }
-    catch (error)
+app.get('/getlastblockdata', async(req, res) =>
+{
+  try
+  {
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, GET_LAST_BLOCK_DATA);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
     {
-      res.status(400).json(GET_LAST_BLOCK_DATA_ERROR);
-    } 
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_LAST_BLOCK_DATA_ERROR));
+      throw ("error");
+    }
+    res.json(
+    {
+      "block_height": obj.result.block_header.height,
+      "block_hash": obj.result.block_header.hash,
+      "block_size": obj.result.block_header.block_size / 1024,
+      "block_tx_amount": obj.result.block_header.num_txes,
+      "block_reward": obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
+      "block_timestamp": obj.result.block_header.timestamp,
+      "block_difficulty": obj.result.block_header.difficulty
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_LAST_BLOCK_DATA_ERROR);
+  }
 })
 
+app.get('/getblockchaindata', async(req, res) =>
+{
+  try
+  {
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, GET_BLOCK_COUNT);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    let current_blockchain_hashrate = obj.result.difficulty / 120;
+    if (current_blockchain_hashrate < 1000)
+    {
+      current_blockchain_hashrate = parseFloat(current_blockchain_hashrate).toFixed(2) + " H/S";
+    }
+    else if (current_blockchain_hashrate < 1000000 && current_blockchain_hashrate > 1000)
+    {
+      current_blockchain_hashrate = parseFloat(current_blockchain_hashrate / 1000).toFixed(2) + " KH/S";
+    }
+    else if (current_blockchain_hashrate < 1000000000 && current_blockchain_hashrate > 1000000)
+    {
+      current_blockchain_hashrate = parseFloat(current_blockchain_hashrate / 1000000).toFixed(2) + " MH/S";
+    }
+    else if (current_blockchain_hashrate >= 1000000000)
+    {
+      current_blockchain_hashrate = parseFloat(current_blockchain_hashrate / 1000000000).toFixed(2) + " GH/S";
+    }
+    let generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
+    generated_and_circulating_supply = generated_and_circulating_supply.split("|");
+    let generated_supply = generated_and_circulating_supply[0];
+    let circulating_supply = generated_and_circulating_supply[1];
 
-
-
-app.get('/getblockchaindata', function (req, res) {
-// get the blockchain data
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(GET_BLOCKCHAIN_DATA);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      } 
-      var current_blockchain_hashrate = obj.result.difficulty / 120;
-      if (current_blockchain_hashrate < 1000)
-      {
-        current_blockchain_hashrate = parseFloat(current_blockchain_hashrate).toFixed(2) + " H/S";
-      }
-      else if (current_blockchain_hashrate < 1000000 && current_blockchain_hashrate > 1000)
-      {
-        current_blockchain_hashrate = parseFloat(current_blockchain_hashrate / 1000).toFixed(2) + " KH/S";
-      }
-      else if (current_blockchain_hashrate < 1000000000 && current_blockchain_hashrate > 1000000)
-      {
-        current_blockchain_hashrate = parseFloat(current_blockchain_hashrate / 1000000).toFixed(2) + " MH/S";
-      }
-      else if (current_blockchain_hashrate >= 1000000000)
-      {
-        current_blockchain_hashrate = parseFloat(current_blockchain_hashrate / 1000000000).toFixed(2) + " GH/S";
-      }
-      var generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
-      generated_and_circulating_supply = generated_and_circulating_supply.split("|");
-      var generated_supply = generated_and_circulating_supply[0];
-      var circulating_supply = generated_and_circulating_supply[1];
-
-      // get the current estimated blockchain size
-      var currentestimatedblockchainsize;
-      exec('du --block-size=1 --summarize "/home/ubuntu/.X-CASH" | cut -f1', function (error, result)
-      {
+    // get the current estimated blockchain size
+    let currentestimatedblockchainsize;
+    exec(`du --block-size=1 --summarize "${XCASH_BLOCKCHAIN_DIRECTORY}.X-CASH" | cut -f1`,(error, result) =>
+    {
       if (error)
       {
         currentestimatedblockchainsize = 0;
@@ -13933,2913 +13908,388 @@ httprequest.on('response', function (response) {
         else if (currentestimatedblockchainsize >= 1000000000)
         {
           currentestimatedblockchainsize = parseFloat(currentestimatedblockchainsize / 1000000000).toFixed(2) + " GB";
-        } 
+        }
       }
 
       // get the total public and private transactions count
-      var public_tx_count = 0;
-      var private_tx_count = 0;
+      let public_tx_count = 0;
+      let private_tx_count = 0;
       collection = database.collection(DATABASE_COLLECTION);
-      collection.countDocuments({"tx_privacy_settings":"public"}, function(error, databasecount)
+      collection.countDocuments(
+      {
+        "tx_privacy_settings": "public"
+      }, (error, databasecount) =>
       {
         try
-	{
-	if (error)
-	{
-	throw("error");
-	}
-	}
-	catch (error)
-	{
-	  public_tx_count = 0;
+        {
+          if (error)
+          {
+            throw ("error");
+          }
+        }
+        catch (error)
+        {
+          public_tx_count = 0;
           private_tx_count = 0;
-	}        
+        }
         public_tx_count = databasecount;
         private_tx_count = obj.result.tx_count - public_tx_count;
 
-         res.json({
-              "maximum_supply":MAXIMUM_SUPPLY,
-              "generated_supply":parseInt(generated_supply),
-              "circulating_supply":parseInt(circulating_supply),
-              "maxium_block_size":parseFloat(obj.result.block_size_limit / 1024).toFixed(2) + " KB",
-              "average_block_size":parseFloat(obj.result.block_size_median / 1024).toFixed(2) + " KB",
-              "block_height":obj.result.height,
-              "current_blockchain_difficulty":obj.result.difficulty,
-              "blockchain_algorithm":BLOCKCHAIN_ALGORITHM,
-              "current_blockchain_hashrate":current_blockchain_hashrate,  
-              "current_estimated_blockchain_size":currentestimatedblockchainsize,          
-              "total_tx":obj.result.tx_count,
-              "private_tx_count":private_tx_count,
-              "public_tx_count":public_tx_count,
-              "total_tx_pool":obj.result.tx_pool_size,
-              "blockchain_current_version":BLOCKCHAIN_CURRENT_VERSION,              
-              "blockchain_current_version_block_height":BLOCKCHAIN_CURRENT_VERSION_BLOCK_HEIGHT,
-              "blockchain_current_version_date":BLOCKCHAIN_CURRENT_VERSION_ESTIMATED_DATE,
-              "blockchain_next_version":BLOCKCHAIN_NEXT_VERSION,              
-              "blockchain_next_version_block_height":BLOCKCHAIN_NEXT_VERSION_BLOCK_HEIGHT,
-              "blockchain_next_version_estimated_date":BLOCKCHAIN_NEXT_VERSION_ESTIMATED_DATE     
-            }); 
-        
-        });     
-        
-      });      
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCKCHAIN_DATA_ERROR);
-    }
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCKCHAIN_DATA_ERROR));
-})
-
-
-
-app.get('/getnodeslist', function (req, res) {
-try
-{
-var nodes_list = fs.readFileSync("/home/ubuntu/nodejs/nodes_list.txt") + "";
-if (nodes_list.substr(nodes_list.length - 1,1) === "|")
-{
-nodes_list = nodes_list.substring(0,nodes_list.length - 1);
-}
-res.json({"nodes_list":nodes_list.trim()});
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the nodes list");
-}
-})
-
-
-
-app.get('/getxcashproofofstakenodeslist', function (req, res) {
-try
-{
-var nodes_list = fs.readFileSync(xcash_dpops_nodes_list_file) + "";
-if (nodes_list.substr(nodes_list.length - 1,1) === "|")
-{
-nodes_list = nodes_list.substring(0,nodes_list.length - 1);
-}
-res.json({"nodes_list":nodes_list.trim()});
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the nodes list");
-}
-})
-
-
-
-app.get('/getmarketdata', function (req, res) {
-try
-{
-var data = fs.readFileSync(market_historical_data_file) + "";
-var obj = JSON.parse(data).volumes;
-data = fs.readFileSync(market_data_file) + "";
-data = data.split("}}").join("") + ',"start_time":' + obj.start_time + ',"end_time":' + obj.end_time + ',"total":' + obj.total + '}}';
-res.json(JSON.parse(data));
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the market data");
-}
-})
-
-
-
-app.get('/gethistoricalmarketdata', function (req, res) {
-try
-{
-var data = fs.readFileSync(market_historical_data_file) + "";
-res.json(JSON.parse(data));
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the historical market data");
-}
-})
-
-
-
-app.get('/gettotalsupply', function (req, res) {
-try
-{
-res.send(MAXIMUM_SUPPLY.toString());
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the total supply");
-}
-})
-
-
-
-app.get('/getgeneratedsupply', function (req, res) {
-try
-{
-var generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
-res.send(generated_and_circulating_supply.split("|")[0]);
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the generated supply");
-}
-})
-
-
-
-app.get('/getcirculatingsupply', function (req, res) {
-try
-{
-var generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
-res.send(generated_and_circulating_supply.split("|")[1]);
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the circulating supply");
-}
-})
-
-
-app.get('/getcurrentblockheight', function (req, res) {
-// get the current block height
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(GET_BLOCK_COUNT);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      } 
-      res.json({"block_height":obj.result.count});
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_COUNT_ERROR);
-    }
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_COUNT_ERROR));
-})
-
-
-
-app.get('/getpricedata', function (req, res) {
-try
-{
-var price_data = fs.readFileSync(price_data_file) + "";
-price_data = price_data.split("|");
-res.send({
-"btc_price":price_data[0],
-"ltc_price":price_data[1],
-"usd_estimated_price":price_data[2],
-});
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the price data");
-}
-})
-
-
-
-app.get('/getchartdata', function (req, res) {
-try
-{
-var chart_data = fs.readFileSync(chart_data_file) + "";
-res.send(chart_data);
-}
-catch (error)
-{
-res.status(400).send("Error:Could not get the chart data");
-}
-})
-
-
-app.get('/getlastblockstransactiondata', function (req, res) {
-// get the last blocks transactions data
-var get_block_transaction_data1 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data1 = get_block_transaction_data1.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data2 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data2 = get_block_transaction_data2.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data3 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data3 = get_block_transaction_data3.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data4 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data4 = get_block_transaction_data4.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data5 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data5 = get_block_transaction_data5.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data6 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data6 = get_block_transaction_data6.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data7 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data7 = get_block_transaction_data7.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data8 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data8 = get_block_transaction_data8.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data9 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data9 = get_block_transaction_data9.replace("get_block_transaction_data_parameter","height");
-var get_block_transaction_data10 = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data10 = get_block_transaction_data10.replace("get_block_transaction_data_parameter","height");
-
-var post_request1;
-var post_req1;
-var post_request2;
-var post_req2;
-var post_request3;
-var post_req3;
-var post_request4;
-var post_req4;
-var post_request5;
-var post_req5;
-var post_request6;
-var post_req6;
-var post_request7;
-var post_req7;
-var post_request8;
-var post_req8;
-var post_request9;
-var post_req9;
-var post_request10;
-var post_req10;
-var current_block_height;
-var getlastblockstransactiondata_block_height = "";
-var getlastblockstransactiondata_block_hash = "";
-var getlastblockstransactiondata_block_size = "";
-var getlastblockstransactiondata_block_tx_amount = "";
-var getlastblockstransactiondata_block_reward = "";
-var getlastblockstransactiondata_block_timestamp = "";
-var getlastblockstransactiondata_block_difficulty = "";
-var getlastblockstransactiondata_block_mining_reward_tx_hash = "";
-var getlastblockstransactiondata_block_tx_hashes = "";
-var getlastblockstransactiondata_block_tx_ringsizes = "";
-var getlastblockstransactiondata_block_tx_fees = "";
-var getlastblockstransactiondata_block_tx_sizes = "";
-var getlastblockstransactiondata_block_tx_paymentid_settings = "";
-var getlastblockstransactiondata_block_tx_privacy_settings = "";
-
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(GET_BLOCK_COUNT);
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      } 
-      current_block_height = obj.result.count - 1;
-      // get the current block height transaction data
-      get_block_transaction_data1 = get_block_transaction_data1.replace("get_block_transaction_data_settings",current_block_height);
-      post_request1 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-      post_request1.end(get_block_transaction_data1);
-      post_request1.on('response', function (response) {
-        response.setEncoding('utf8');
-        var result = "";
-        response.on('data', chunk => result += chunk);
-        response.on('end', function () {
-         try
-         { 
-             var obj = JSON.parse(result);
-             if (result == "" || result.indexOf("error") != -1)
-             {
-               throw("error");
-             } 
-             var block_transaction_data = JSON.parse(obj.result.json); 
-             var tx_hashes = "";
-             var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-             for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-             {
-               tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-               get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-             } 
-             tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-             post_req1 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-             post_req1.end(JSON.stringify(get_transaction_data));
-             post_req1.on('response', function (response) {
-               response.setEncoding('utf8');
-               var result = "";
-               response.on('data', chunk => result += chunk);
-               response.on('end', function () {
-               try
-               { 
-               var tx_hash_data = JSON.parse(result);
-               var tx_hash_data_results;
-               if (result == "" || result.indexOf("error") != -1)
-               {
-                 throw("error");
-               } 
-               var block_tx_ringsizes = "";
-               var block_tx_fees = "";
-               var block_tx_sizes = "";
-               var block_tx_paymentid_settings = "";
-               var block_tx_privacy_settings = "";
-               var tx_extra = "";
-               for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-               {
-                 tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                 tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                 block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                 block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                 block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";                     
-                 block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                 block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-               } 
-               block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-               block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-               block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-               block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-               block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-               getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-               getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-               getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-               getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-               getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-               getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-               getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-               getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-               getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-               getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-               getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-               getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-               getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-               getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-
-
-
-               // get the next blocks transaction data
-               current_block_height--;
-               // get the current block height transaction data
-               get_block_transaction_data2 = get_block_transaction_data2.replace("get_block_transaction_data_settings",current_block_height);
-               post_request2 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-               post_request2.end(get_block_transaction_data2);
-               post_request2.on('response', function (response) {
-                 response.setEncoding('utf8');
-                 var result = "";
-                 response.on('data', chunk => result += chunk);
-                 response.on('end', function () {
-                  try
-                  { 
-                      var obj = JSON.parse(result);
-                      if (result == "" || result.indexOf("error") != -1)
-                      {
-                        throw("error");
-                      } 
-                      var block_transaction_data = JSON.parse(obj.result.json); 
-                      var tx_hashes = "";
-                      var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                      for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                      {
-                        tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                        get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                      } 
-                      tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                      post_req2 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                      post_req2.end(JSON.stringify(get_transaction_data));
-                      post_req2.on('response', function (response) {
-            	        response.setEncoding('utf8');
-                        var result = "";
-                        response.on('data', chunk => result += chunk);
-                        response.on('end', function () {
-                        try
-                        { 
-                            var tx_hash_data = JSON.parse(result);
-                            var tx_hash_data_results;
-                            if (result == "" || result.indexOf("error") != -1)
-                            {
-                              throw("error");
-                            } 
-                            var block_tx_ringsizes = "";
-                            var block_tx_fees = "";
-                            var block_tx_sizes = "";
-                            var block_tx_paymentid_settings = "";
-                            var block_tx_privacy_settings = "";
-                            var tx_extra = "";
-                            for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                            {
-                              tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                              tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                              block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                              block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                              block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                              block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                              block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                            } 
-                            block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                            block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                            block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                            block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                            block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                            getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                            getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                            getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                            getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                            getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                            getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                            getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                            getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                            getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                            getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                            getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                            getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                            getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                            getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data3 = get_block_transaction_data3.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request3 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request3.end(get_block_transaction_data3);
-                            post_request3.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req3 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req3.end(JSON.stringify(get_transaction_data));
-                                   post_req3.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data4 = get_block_transaction_data4.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request4 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request4.end(get_block_transaction_data4);
-                            post_request4.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req4 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req4.end(JSON.stringify(get_transaction_data));
-                                   post_req4.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data5 = get_block_transaction_data5.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request5 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request5.end(get_block_transaction_data5);
-                            post_request5.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req5 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req5.end(JSON.stringify(get_transaction_data));
-                                   post_req5.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data6 = get_block_transaction_data6.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request6 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request6.end(get_block_transaction_data6);
-                            post_request6.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req6 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req6.end(JSON.stringify(get_transaction_data));
-                                   post_req6.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data7 = get_block_transaction_data7.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request7 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request7.end(get_block_transaction_data7);
-                            post_request7.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req7 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req7.end(JSON.stringify(get_transaction_data));
-                                   post_req7.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data8 = get_block_transaction_data8.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request8 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request8.end(get_block_transaction_data8);
-                            post_request8.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req8 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req8.end(JSON.stringify(get_transaction_data));
-                                   post_req8.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data9 = get_block_transaction_data9.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request9 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request9.end(get_block_transaction_data9);
-                            post_request9.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req9 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req9.end(JSON.stringify(get_transaction_data));
-                                   post_req9.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
-
-                            // get the next blocks transaction data
-                            current_block_height--;
-                            // get the current block height transaction data
-                            get_block_transaction_data10 = get_block_transaction_data10.replace("get_block_transaction_data_settings",current_block_height);
-                            post_request10 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-                            post_request10.end(get_block_transaction_data10);
-                            post_request10.on('response', function (response) {
-                              response.setEncoding('utf8');
-                              var result = "";
-                              response.on('data', chunk => result += chunk);
-                              response.on('end', function () {
-                               try
-                               { 
-                                   var obj = JSON.parse(result);
-                                   if (result == "" || result.indexOf("error") != -1)
-                                   {
-                                     throw("error");
-                                   } 
-                                   var block_transaction_data = JSON.parse(obj.result.json); 
-                                   var tx_hashes = "";
-                                   var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-                                   for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
-                                   {
-                                     tx_hashes += block_transaction_data.tx_hashes[count] + "|";
-                                     get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-                                   } 
-                                   tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-                                   post_req10 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-                                   post_req10.end(JSON.stringify(get_transaction_data));
-                                   post_req10.on('response', function (response) {
-            	                     response.setEncoding('utf8');
-                                     var result = "";
-                                     response.on('data', chunk => result += chunk);
-                                     response.on('end', function () {
-                                     try
-                                     { 
-                                         var tx_hash_data = JSON.parse(result);
-                                         var tx_hash_data_results;
-                                         if (result == "" || result.indexOf("error") != -1)
-                                         {
-                                           throw("error");
-                                         } 
-                                         var block_tx_ringsizes = "";
-                                         var block_tx_fees = "";
-                                         var block_tx_sizes = "";
-                                         var block_tx_paymentid_settings = "";
-                                         var block_tx_privacy_settings = "";
-                                         var tx_extra = "";
-                                         for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-                                         {
-                                           tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                                           tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                                           block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                                           block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                                           block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                                           block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                                           block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-                                         } 
-                                         block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-                                         block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-                                         block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-                                         block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-                                         block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-
-                                         getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
-                                         getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
-                                         getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
-                                         getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
-                                         getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
-                                         getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
-                                         getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
-                                         getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
-                                         getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
-                                         getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
-                                         getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
-                                         getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
-                                         getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";  
-
-                                         getlastblockstransactiondata_block_height = getlastblockstransactiondata_block_height.substr(0,getlastblockstransactiondata_block_height.length - 2);  
-                                         getlastblockstransactiondata_block_hash = getlastblockstransactiondata_block_hash.substr(0,getlastblockstransactiondata_block_hash.length - 2); 
-                                         getlastblockstransactiondata_block_size = getlastblockstransactiondata_block_size.substr(0,getlastblockstransactiondata_block_size.length - 2); 
-                                         getlastblockstransactiondata_block_tx_amount = getlastblockstransactiondata_block_tx_amount.substr(0,getlastblockstransactiondata_block_tx_amount.length - 2); 
-                                         getlastblockstransactiondata_block_reward = getlastblockstransactiondata_block_reward.substr(0,getlastblockstransactiondata_block_reward.length - 2); 
-                                         getlastblockstransactiondata_block_timestamp = getlastblockstransactiondata_block_timestamp.substr(0,getlastblockstransactiondata_block_timestamp.length - 2); 
-                                         getlastblockstransactiondata_block_difficulty = getlastblockstransactiondata_block_difficulty.substr(0,getlastblockstransactiondata_block_difficulty.length - 2); 
-                                         getlastblockstransactiondata_block_mining_reward_tx_hash = getlastblockstransactiondata_block_mining_reward_tx_hash.substr(0,getlastblockstransactiondata_block_mining_reward_tx_hash.length - 2); 
-                                         getlastblockstransactiondata_block_tx_hashes = getlastblockstransactiondata_block_tx_hashes.substr(0,getlastblockstransactiondata_block_tx_hashes.length - 2); 
-                                         getlastblockstransactiondata_block_tx_ringsizes = getlastblockstransactiondata_block_tx_ringsizes.substr(0,getlastblockstransactiondata_block_tx_ringsizes.length - 2); 
-                                         getlastblockstransactiondata_block_tx_fees = getlastblockstransactiondata_block_tx_fees.substr(0,getlastblockstransactiondata_block_tx_fees.length - 2); 
-                                         getlastblockstransactiondata_block_tx_sizes = getlastblockstransactiondata_block_tx_sizes.substr(0,getlastblockstransactiondata_block_tx_sizes.length - 2); 
-                                         getlastblockstransactiondata_block_tx_paymentid_settings = getlastblockstransactiondata_block_tx_paymentid_settings.substr(0,getlastblockstransactiondata_block_tx_paymentid_settings.length - 2); 
-                                         getlastblockstransactiondata_block_tx_privacy_settings = getlastblockstransactiondata_block_tx_privacy_settings.substr(0,getlastblockstransactiondata_block_tx_privacy_settings.length - 2);           
-               
-          
-
-
-
-
-
-
-
-  
-      res.json({
-              "block_height":getlastblockstransactiondata_block_height,
-              "block_hash":getlastblockstransactiondata_block_hash,
-              "block_size":getlastblockstransactiondata_block_size,
-              "block_tx_amount":getlastblockstransactiondata_block_tx_amount,
-              "block_reward":getlastblockstransactiondata_block_reward,
-              "block_timestamp":getlastblockstransactiondata_block_timestamp,
-              "block_difficulty":getlastblockstransactiondata_block_difficulty,
-              "block_mining_reward_tx_hash":getlastblockstransactiondata_block_mining_reward_tx_hash,
-              "block_tx_hashes":getlastblockstransactiondata_block_tx_hashes,
-              "block_tx_ringsizes":getlastblockstransactiondata_block_tx_ringsizes,
-              "block_tx_fees":getlastblockstransactiondata_block_tx_fees,
-              "block_tx_sizes":getlastblockstransactiondata_block_tx_sizes,
-              "block_tx_paymentid_settings":getlastblockstransactiondata_block_tx_paymentid_settings,
-              "block_tx_privacy_settings":getlastblockstransactiondata_block_tx_privacy_settings
-            });
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req10.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req10.abort());
-post_req10.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request10.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request10.abort());
-post_request10.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req9.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req9.abort());
-post_req9.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request9.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request9.abort());
-post_request9.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req8.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req8.abort());
-post_req8.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request8.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request8.abort());
-post_request8.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req7.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req7.abort());
-post_req7.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-       }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request7.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request7.abort());
-post_request7.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req6.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req6.abort());
-post_req6.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request6.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request6.abort());
-post_request6.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req5.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req5.abort());
-post_req5.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request5.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request5.abort());
-post_request5.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req4.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req4.abort());
-post_req4.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request4.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request4.abort());
-post_request4.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req3.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req3.abort());
-post_req3.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request3.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request3.abort());
-post_request3.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-            
-             }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req2.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req2.abort());
-post_req2.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
- }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request2.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request2.abort());
-post_request2.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-            }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_req1.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req1.abort());
-post_req1.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request1.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request1.abort());
-post_request1.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_COUNT_ERROR));
-})
-
-
-
-app.get('/gettransactiondata', urlencodedParser, function (req, res) {
-// gets the transaction data
-// parameters
-//tx_hash = the transactions hash or the block reward transaction hash
-var get_transaction_data = GET_TRANSACTION_DATA;
-get_transaction_data = get_transaction_data.replace("transaction_hash",req.query.tx_hash);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-httprequest.end(get_transaction_data);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      }
-      var tx_data = JSON.parse(obj.txs[0].as_json);
-      var tx_settings = obj.txs[0].as_json.indexOf("key_offset") !== -1 ? "transaction" : "block_reward_transaction"; 
-      var tx_key_images = "";
-      var tx_key_images_ring_address_count = []; 
-      var count1 = 0;
-      var count2 = 0;     
-      var counter = 0; 
-
-if (tx_settings === "transaction") 
-{   
-
-      for (count1 = 0; count1 < tx_data.vin.length; count1++)
-      {
-        tx_key_images += tx_data.vin[count1].key.k_image + "|";
-        for (count2 = 0, ring_address_counter = 0; count2 < tx_data.vin[count1].key.key_offsets.length; count2++)
+        res.json(
         {
-          // calculate the tx_key_images_ring_address_count
-          tx_key_images_ring_address_count[counter] = ring_address_counter === 0 ? tx_data.vin[count1].key.key_offsets[count2] : ring_address_counter + tx_data.vin[count1].key.key_offsets[count2];
-          ring_address_counter += tx_data.vin[count1].key.key_offsets[count2];
-          counter++;
-        }
-      }
-      tx_key_images = tx_key_images.substr(0,tx_key_images.length - 1);
-      var tx_ringsize = tx_data.vin[0].key.key_offsets.length;
-      var tx_unlock_block = tx_data.unlock_time == 0 ? obj.txs[0].block_height + 10 : tx_data.unlock_time;
-     
-      var tx_key_images_ring_address = "";
-      var tx_key_images_ring_tx_hash = "";     
-      var tx_key_images_ring_tx_hash_array = [];
-      var tx_key_images_ring_block_height = "";
+          "maximum_supply": MAXIMUM_SUPPLY,
+          "generated_supply": parseInt(generated_supply),
+          "circulating_supply": parseInt(circulating_supply),
+          "maxium_block_size": parseFloat(obj.result.block_size_limit / 1024).toFixed(2) + " KB",
+          "average_block_size": parseFloat(obj.result.block_size_median / 1024).toFixed(2) + " KB",
+          "block_height": obj.result.height,
+          "current_blockchain_difficulty": obj.result.difficulty,
+          "blockchain_algorithm": BLOCKCHAIN_ALGORITHM,
+          "current_blockchain_hashrate": current_blockchain_hashrate,
+          "current_estimated_blockchain_size": currentestimatedblockchainsize,
+          "total_tx": obj.result.tx_count,
+          "private_tx_count": private_tx_count,
+          "public_tx_count": public_tx_count,
+          "total_tx_pool": obj.result.tx_pool_size,
+          "blockchain_current_version": BLOCKCHAIN_CURRENT_VERSION,
+          "blockchain_current_version_block_height": BLOCKCHAIN_CURRENT_VERSION_BLOCK_HEIGHT,
+          "blockchain_current_version_date": BLOCKCHAIN_CURRENT_VERSION_ESTIMATED_DATE,
+          "blockchain_next_version": BLOCKCHAIN_NEXT_VERSION,
+          "blockchain_next_version_block_height": BLOCKCHAIN_NEXT_VERSION_BLOCK_HEIGHT,
+          "blockchain_next_version_estimated_date": BLOCKCHAIN_NEXT_VERSION_ESTIMATED_DATE
+        });
 
-          var post_req = http.request(DAEMON_HOSTNAME_AND_PORT_GET_RING_ADDRESSES_DATA, function(response) {
-          response.setEncoding('utf8');
-          var result = "";
-          response.on('data', chunk => result += chunk);
-          response.on('end', function () {
-          try
-          { 
-          var tx_ring_address = JSON.parse(result);
-          if (result == "" || result.indexOf("error") != -1)
-          {
-            throw("error");
-          } 
-          for (count1 = 0; count1 < tx_key_images_ring_address_count.length; count1++)
-          {
-            tx_key_images_ring_address += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].key + "|" : tx_ring_address.outs[count1].key + "||";
-            tx_key_images_ring_tx_hash += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].txid + "|" : tx_ring_address.outs[count1].txid + "||";
-            tx_key_images_ring_tx_hash_array[count1] = tx_ring_address.outs[count1].txid;
-            tx_key_images_ring_block_height += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].height + "|" : tx_ring_address.outs[count1].height + "||";
-          } 
-            tx_key_images_ring_address = tx_key_images_ring_address.substr(0,tx_key_images_ring_address.length - 2);
-            tx_key_images_ring_tx_hash = tx_key_images_ring_tx_hash.substr(0,tx_key_images_ring_tx_hash.length - 2);
-            tx_key_images_ring_block_height = tx_key_images_ring_block_height.substr(0,tx_key_images_ring_block_height.length - 2);
-
-            var tx_addresses = "";
-            for (count1 = 0; count1 < tx_data.vout.length; count1++)
-            { 
-              tx_addresses += tx_data.vout[count1].target.key + "|";
-            }
-            tx_addresses = tx_addresses.substr(0,tx_addresses.length - 1);
-
-            // calcuate the tx_size
-            var tx_size = obj.txs[0].as_hex.length / 1024 / 2;
-            
-            tx_extra = tx_data.extra;
-
-            // get the key images ring address data
-            var tx_key_images_ring_tx_settings;
-            var tx_key_images_ring_address_tx_ring_addresses = "";
-            var tx_key_images_ring_address_tx_ring_size = "";
-            var tx_key_images_ring_address_tx_block_timestamp = "";            
-            var tx_key_images_ring_address_tx_extra = "";
-            var tx_key_images_ring_address_tx_ecdh_data = "";
-            var get_transaction_data = {"txs_hashes":[],"decode_as_json":true,"prune":false};         
-            for (count1 = 0; count1 < tx_key_images_ring_tx_hash_array.length; count1++)
-            {
-              get_transaction_data.txs_hashes[count1] = tx_key_images_ring_tx_hash_array[count1];
-            }                        
-            var post_request = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-            post_request.end(JSON.stringify(get_transaction_data));
-            post_request.on('response', function (response) {
-            response.setEncoding('utf8');
-            var result = "";
-            response.on('data', chunk => result += chunk);
-            response.on('end', function () {
-            try
-            { 
-              var tx_key_images_ring_tx_hash_result = JSON.parse(result);
-              var tx_key_images_ring_tx_hash_data;
-              var tx_key_images_ring_tx_hash_data_extra;
-              if (result == "" || result.indexOf("error") != -1)
-              {
-                throw("error");
-              } 
-              for (count1 = 0; count1 < tx_key_images_ring_tx_hash_array.length; count1++)
-              {
-                tx_key_images_ring_tx_hash_data = JSON.parse(tx_key_images_ring_tx_hash_result.txs[count1].as_json);  
-                tx_key_images_ring_tx_settings = tx_key_images_ring_tx_hash_result.txs[count1].as_json.indexOf("key_offset") !== -1 ? "transaction" : "block_reward_transaction"; 
-                if (tx_key_images_ring_tx_settings === "transaction")
-                {          
-                  tx_key_images_ring_address_tx_ring_size += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data.vin[0].key.key_offsets.length + "|" : tx_key_images_ring_tx_hash_data.vin[0].key.key_offsets.length + "||";
-                  tx_key_images_ring_address_tx_block_timestamp += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "|" : tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "||";
-                  tx_key_images_ring_tx_hash_data_extra = Buffer.from(tx_key_images_ring_tx_hash_data.extra).toString("hex");
-                  tx_key_images_ring_tx_hash_data_ecdh_tx_data = JSON.stringify(tx_key_images_ring_tx_hash_data.rct_signatures);
-                  if (tx_key_images_ring_tx_hash_data_extra.length >= 256)
-                  {
-                    tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data_extra + "|" : tx_key_images_ring_tx_hash_data_extra + "||";
-                    tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data_ecdh_tx_data + "|" : tx_key_images_ring_tx_hash_data_ecdh_tx_data + "||";
-                  }
-                  else
-                  {
-                    tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? "private_tx|" : "private_tx||";
-                    tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? "private_tx|" : "private_tx||";
-                  }
-                  for (count2 = 0; count2 < tx_key_images_ring_tx_hash_data.vout.length; count2++)
-                  {
-                    tx_key_images_ring_address_tx_ring_addresses += (count2 + 1) !== tx_key_images_ring_tx_hash_data.vout.length ? tx_key_images_ring_tx_hash_data.vout[count2].target.key + "|" : tx_key_images_ring_tx_hash_data.vout[count2].target.key + "||";
-                  }
-                  if ((count1 + 1) % tx_ringsize === 0)
-                  {
-                    tx_key_images_ring_address_tx_ring_addresses += "|";
-                  } 
-                }
-                else
-                {
-                  tx_key_images_ring_address_tx_ring_size += (count1 + 1) % tx_ringsize !== 0 ? "0|" : "0||";
-                  tx_key_images_ring_address_tx_block_timestamp += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "|" : tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "||";
-                  tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? "block_reward_transaction|" : "block_reward_transaction||";
-                  tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? "block_reward_transaction|" : "block_reward_transaction||";
-                  tx_key_images_ring_address_tx_ring_addresses += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data.vout[0].target.key + "||" : tx_key_images_ring_tx_hash_data.vout[0].target.key + "|||";
-                }
-              } 
-                tx_key_images_ring_address_tx_ring_size = tx_key_images_ring_address_tx_ring_size.substr(0, tx_key_images_ring_address_tx_ring_size.length - 2);
-                tx_key_images_ring_address_tx_block_timestamp = tx_key_images_ring_address_tx_block_timestamp.substr(0, tx_key_images_ring_address_tx_block_timestamp.length - 2);
-                tx_key_images_ring_address_tx_extra = tx_key_images_ring_address_tx_extra.substr(0, tx_key_images_ring_address_tx_extra.length - 2);
-                tx_key_images_ring_address_tx_ecdh_data = tx_key_images_ring_address_tx_ecdh_data.substr(0, tx_key_images_ring_address_tx_ecdh_data.length - 2);
-                tx_key_images_ring_address_tx_ring_addresses = tx_key_images_ring_address_tx_ring_addresses.substr(0, tx_key_images_ring_address_tx_ring_addresses.length - 3);
- 
-                // get the information to decode the transaction
-
-        res.json({
-                "tx_block_height":obj.txs[0].block_height !== 18446744073709552000 ? obj.txs[0].block_height : "TX_POOL",
-                "tx_block_timestamp":obj.txs[0].block_timestamp,
-                "tx_version":tx_data.version,
-                "tx_settings":tx_settings,
-                "tx_ringct_version":tx_data.rct_signatures.type,
-                "tx_fee":tx_data.rct_signatures.txnFee,
-                "tx_size":tx_size,
-                "tx_unlock_block":tx_unlock_block,
-                "tx_extra":Buffer.from(tx_extra).toString("hex"),
-                "tx_ringsize":tx_ringsize,
-                "tx_addresses":tx_addresses,
-                "tx_ecdh_data":JSON.stringify(tx_data.rct_signatures),
-                "tx_extra":Buffer.from(tx_extra).toString("hex"),
-                "tx_key_images":tx_key_images,
-                "tx_key_images_ring_address":tx_key_images_ring_address,
-                "tx_key_images_ring_tx_hash":tx_key_images_ring_tx_hash, 
-                "tx_key_images_ring_address_tx_ring_addresses":tx_key_images_ring_address_tx_ring_addresses,
-                "tx_key_images_ring_address_tx_block_height":tx_key_images_ring_block_height,
-                "tx_key_images_ring_address_tx_extra":tx_key_images_ring_address_tx_extra,
-                "tx_key_images_ring_address_tx_ecdh_data":tx_key_images_ring_address_tx_ecdh_data,
-                "tx_key_images_ring_address_tx_ring_size":tx_key_images_ring_address_tx_ring_size,
-                "tx_key_images_ring_address_tx_block_timestamp":tx_key_images_ring_address_tx_block_timestamp,
-                });
-              
-           }
-           catch (error)
-           {
-             res.status(400).json(GET_TRANSACTION_DATA_ERROR);
-           }         
-         });
-       });
-       post_request.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request.abort());
-       post_request.on('error', response => res.status(400).json(GET_TRANSACTION_DATA_ERROR)); 
-         }
-         catch (error)
-         {
-           res.status(400).json(GET_TRANSACTION_DATA_ERROR);
-         }   
       });
-});
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => res.status(400).json(GET_TRANSACTION_DATA_ERROR));   
-var get_ring_addresses_data = {"outputs":[]};
-for (count1 = 0; count1 < tx_key_images_ring_address_count.length; count1++)
-{
-get_ring_addresses_data.outputs[count1] = {"amount":0,"index":tx_key_images_ring_address_count[count1]};
-}
-post_req.end(JSON.stringify(get_ring_addresses_data));
 
-
-
-
-/*
-for (var count1 = 0; count1 < tx_data.vin.length; count1++)
-{
-var post_req = http.request(DAEMON_HOSTNAME_AND_PORT_GET_RING_ADDRESSES_DATA, function(response) {
-      response.setEncoding('utf8');
-      response.on('data', function (chunk) { 
-          var result = JSON.parse(chunk);
-          completed_requests++;
-          for (var count3 = 0; count3 < tx_ringsize; count3++)
-          {
-            tx_key_images_ring_address += result.outs[count3].key + "|";
-            tx_key_images_ring_tx_hash += result.outs[count3].txid + "|";
-            tx_key_images_ring_block_height += result.outs[count3].height + "|";
-          } 
-          tx_key_images_ring_address += "|"; 
-          tx_key_images_ring_tx_hash += "|";
-          tx_key_images_ring_block_height += "|";       
-          if (completed_requests === tx_data.vin.length)
-          {
-            tx_key_images_ring_address = tx_key_images_ring_address.substr(0,tx_key_images_ring_address.length - 2);
-            tx_key_images_ring_tx_hash = tx_key_images_ring_tx_hash.substr(0,tx_key_images_ring_tx_hash.length - 2);
-            tx_key_images_ring_block_height = tx_key_images_ring_block_height.substr(0,tx_key_images_ring_block_height.length - 2);
-            var tx_extra = tx_data.extra;
-             res.json({
-              "tx_block_height":obj.txs[0].block_height,
-              "tx_block_timestamp":obj.txs[0].block_timestamp,
-              "tx_version":tx_data.version,
-              "tx_unlock_block":tx_data.unlock_time,
-              "tx_ringsize":tx_ringsize,
-              "tx_key_images":tx_key_images,
-              "tx_key_images_ring_address":tx_key_images_ring_address,
-              "tx_key_images_ring_tx_hash":tx_key_images_ring_tx_hash, 
-              "tx_key_images_ring_block_height":tx_key_images_ring_block_height
-            });
-          }
-      });
-});
-var get_ring_addresses_data = {"outputs":[]};
-for (var count2 = 0; count2 < tx_ringsize; count2++, counter++)
-{
-get_ring_addresses_data.outputs[count2] = {"amount":0,"index":tx_key_images_ring_address_count[counter]};
-}
-post_req.end(JSON.stringify(get_ring_addresses_data));
-get_ring_addresses_data = "";
-}
-*/
-
-     
-      
-      
-      
-}
-else
-{
-        res.json({
-                "tx_block_height":obj.txs[0].block_height,
-                "tx_block_timestamp":obj.txs[0].block_timestamp,
-                "tx_version":tx_data.version,
-                "tx_settings":tx_settings,
-                "tx_ringct_version":tx_data.rct_signatures.type,
-                "tx_size":obj.txs[0].as_hex.length / 1024 / 2,
-                "tx_unlock_block":tx_data.unlock_time,
-                "tx_extra":Buffer.from(tx_data.extra).toString("hex"),
-                "tx_address":tx_data.vout[0].target.key,
-                "tx_address_amount":tx_data.vout[0].amount / WALLET_DECIMAL_PLACES_AMOUNT,
-                });
-}      
-     
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_TRANSACTION_DATA_ERROR);
-    } 
-     
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_TRANSACTION_DATA_ERROR));
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCKCHAIN_DATA_ERROR);
+  }
 })
 
-
-
-
-app.get('/verifypreminefundsairdrop', urlencodedParser, function (req, res) {
-var premine_funds_data = "";
-var verify_reserve_proof = "";
-var counter = 0;
-for (var count = 0; count < PREMINE_FUNDS_AIRDROP_WALLETS.length; count++)
+app.get('/getnodeslist', (req, res) =>
 {
-verify_reserve_proof = VERIFY_RESERVE_PROOF;
-verify_reserve_proof = verify_reserve_proof.replace("public_address",PREMINE_FUNDS_AIRDROP_WALLETS[count]);
-verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"','"' + PREMINE_FUNDS_AIRDROP_WALLETS_RESERVE_PROOFS[count] + '"');
-verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"',"");
-var post_req = http.request(WALLET_HOSTNAME_AND_PORT, function(response) {
-      response.setEncoding('utf8');
-      var result = "";
-      response.on('data', chunk => result += chunk);
-      response.on('end', function () {  
-      try
-      {
-      var obj = JSON.parse(result);
-      if (result == "")
-      {
-        throw("error");
-      }       
-      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
-      { 
-        premine_funds_data = premine_funds_data + PREMINE_FUNDS_AIRDROP_WALLETS[counter] + "|" + PREMINE_FUNDS_AIRDROP_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
-      }
-     else
-     {         
-       var message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
-       premine_funds_data = premine_funds_data + PREMINE_FUNDS_AIRDROP_WALLETS[counter] + "|" + PREMINE_FUNDS_AIRDROP_WALLETS_RESERVE_PROOFS[counter] + "|" +  "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
-     } 
-     counter++;
-     if (counter === PREMINE_FUNDS_AIRDROP_WALLETS.length)
-     {
-       premine_funds_data = premine_funds_data.substr(0,premine_funds_data.length - 2);
-       res.json({"data":premine_funds_data});
-     }
-    }
-    catch (error)
+  try
+  {
+    let nodes_list = fs.readFileSync("/home/ubuntu/nodejs/nodes_list.txt") + "";
+    if (nodes_list.substr(nodes_list.length - 1, 1) === "|")
     {
-      res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
-    } 
-  });
-});
-post_req.end(verify_reserve_proof);
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => console.log("error"));
-}
+      nodes_list = nodes_list.substring(0, nodes_list.length - 1);
+    }
+    res.json(
+    {
+      "nodes_list": nodes_list.trim()
+    });
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the nodes list");
+  }
 })
 
-
-
-
-app.get('/verifypreminefundsxcash', urlencodedParser, function (req, res) {
-var premine_funds_data = "";
-var verify_reserve_proof = "";
-var counter = 0;
-for (var count = 0; count < PREMINE_FUNDS_XCASH_WALLETS.length; count++)
+app.get('/getxcashproofofstakenodeslist', (req, res) =>
 {
-verify_reserve_proof = VERIFY_RESERVE_PROOF;
-verify_reserve_proof = verify_reserve_proof.replace("public_address",PREMINE_FUNDS_XCASH_WALLETS[count]);
-verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"','"' + PREMINE_FUNDS_XCASH_WALLETS_RESERVE_PROOFS[count] + '"');
-verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"',"");
-var post_req = http.request(WALLET_HOSTNAME_AND_PORT, function(response) {
-      response.setEncoding('utf8');
-      var result = "";
-      response.on('data', chunk => result += chunk);
-      response.on('end', function () {  
-      try
-      {
-      var obj = JSON.parse(result);
-      if (result == "")
-      {
-        throw("error");
-      }       
-      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
-      { 
-        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
-      }
-     else
-     {         
-       var message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
-       premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_WALLETS_RESERVE_PROOFS[counter] + "|" +  "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
-     } 
-     counter++;
-     if (counter === PREMINE_FUNDS_XCASH_WALLETS.length)
-     {
-       premine_funds_data = premine_funds_data.substr(0,premine_funds_data.length - 2);
-       res.json({"data":premine_funds_data});
-     }
-    }
-    catch (error)
+  try
+  {
+    let nodes_list = fs.readFileSync(xcash_dpops_nodes_list_file) + "";
+    if (nodes_list.substr(nodes_list.length - 1, 1) === "|")
     {
-      res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
-    } 
-  });
-});
-post_req.end(verify_reserve_proof);
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => console.log("error"));
-}
+      nodes_list = nodes_list.substring(0, nodes_list.length - 1);
+    }
+    res.json(
+    {
+      "nodes_list": nodes_list.trim()
+    });
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the nodes list");
+  }
 })
 
-
-
-
-app.get('/verifypreminefundsxcashrewards', urlencodedParser, function (req, res) {
-var premine_funds_data = "";
-var verify_reserve_proof = "";
-var counter = 0;
-for (var count = 0; count < PREMINE_FUNDS_XCASH_REWARD_WALLETS.length; count++)
+app.get('/getmarketdata', (req, res) =>
 {
-verify_reserve_proof = VERIFY_RESERVE_PROOF;
-verify_reserve_proof = verify_reserve_proof.replace("public_address",PREMINE_FUNDS_XCASH_REWARD_WALLETS[count]);
-verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"','"' + PREMINE_FUNDS_XCASH_REWARD_WALLETS_RESERVE_PROOFS[count] + '"');
-verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"',"");
-var post_req = http.request(WALLET_HOSTNAME_AND_PORT, function(response) {
-      response.setEncoding('utf8');
-      var result = "";
-      response.on('data', chunk => result += chunk);
-      response.on('end', function () {  
-      try
-      {
-      var obj = JSON.parse(result);
-      if (result == "")
-      {
-        throw("error");
-      }       
-      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
-      { 
-        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_REWARD_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_REWARD_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
-      }
-     else
-     {         
-       var message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
-       premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_REWARD_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_REWARD_WALLETS_RESERVE_PROOFS[counter] + "|" +  "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
-     } 
-     counter++;
-     if (counter === PREMINE_FUNDS_XCASH_REWARD_WALLETS.length)
-     {
-       premine_funds_data = premine_funds_data.substr(0,premine_funds_data.length - 2);
-       res.json({"data":premine_funds_data});
-     }
-    }
-    catch (error)
-    {
-      res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
-    } 
-  });
-});
-post_req.end(verify_reserve_proof);
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => console.log("error"));
-}
+  try
+  {
+    let data = fs.readFileSync(market_historical_data_file) + "";
+    let obj = JSON.parse(data).volumes;
+    data = fs.readFileSync(market_data_file) + "";
+    data = data.split("}}").join("") + ',"start_time":' + obj.start_time + ',"end_time":' + obj.end_time + ',"total":' + obj.total + '}}';
+    res.json(JSON.parse(data));
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the market data");
+  }
 })
 
-
-
-
-app.get('/verifypreminefundsxcashinvestors', urlencodedParser, function (req, res) {
-var premine_funds_data = "";
-var verify_reserve_proof = "";
-var counter = 0;
-for (var count = 0; count < PREMINE_FUNDS_XCASH_INVESTORS_WALLETS.length; count++)
+app.get('/gethistoricalmarketdata', (req, res) =>
 {
-verify_reserve_proof = VERIFY_RESERVE_PROOF;
-verify_reserve_proof = verify_reserve_proof.replace("public_address",PREMINE_FUNDS_XCASH_INVESTORS_WALLETS[count]);
-verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"','"' + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS_RESERVE_PROOFS[count] + '"');
-verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"',"");
-var post_req = http.request(WALLET_HOSTNAME_AND_PORT, function(response) {
-      response.setEncoding('utf8');
-      var result = "";
-      response.on('data', chunk => result += chunk);
-      response.on('end', function () {  
-      try
-      {
-      var obj = JSON.parse(result);
-      if (result == "")
-      {
-        throw("error");
-      }       
-      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
-      { 
-        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
-      }
-     else
-     {         
-       var message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
-       premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS_RESERVE_PROOFS[counter] + "|" +  "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
-     } 
-     counter++;
-     if (counter === PREMINE_FUNDS_XCASH_INVESTORS_WALLETS.length)
-     {
-       premine_funds_data = premine_funds_data.substr(0,premine_funds_data.length - 2);
-       res.json({"data":premine_funds_data});
-     }
-    }
-    catch (error)
-    {
-      res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
-    } 
-  });
-});
-post_req.end(verify_reserve_proof);
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => console.log("error"));
-}
+  try
+  {
+    let data = fs.readFileSync(market_historical_data_file) + "";
+    res.json(JSON.parse(data));
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the historical market data");
+  }
 })
 
-
-
-app.get('/verifyreserveproofapi', urlencodedParser, function (req, res) {
-// verifies that a reserve proof is correct
-// parameters
-// public_address = the public address
-// reserve_proof = the reserve proof
-// data = any data that was used to create the reserve proof. leave empty if no data was used to create the reserve proof
-var verify_reserve_proof = VERIFY_RESERVE_PROOF;
-verify_reserve_proof = verify_reserve_proof.replace("public_address",req.query.public_address);
-verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"','"' + req.query.reserve_proof + '"');
-verify_reserve_proof = req.query.data != "" ? verify_reserve_proof.replace("data",req.query.data) : verify_reserve_proof.replace(',"message":"data"',"");
-var httprequest = new http.ClientRequest(WALLET_HOSTNAME_AND_PORT);
-httprequest.end(verify_reserve_proof);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {   
-    try
-    {
-      var obj = JSON.parse(result);
-      if (result == "")
-      {
-        throw("error");
-      } 
-      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
-      { 
-      res.json({
-              "reserve_proof_settings":"invalid",
-              "reserve_proof_amount":0,
-              "reserve_proof_amount_spent":0,
-              "message":"The reserve proof is invalid for this address"
-            });
-     }
-     else
-     {
-       var message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
-       res.json({
-              "reserve_proof_settings":"valid",
-              "reserve_proof_amount":obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT,
-              "reserve_proof_amount_spent":obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT,
-              "message":message
-            });
-     }
-    }
-    catch (error)
-    {
-      res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
-    } 
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(VERIFY_RESERVE_PROOF_ERROR));
-})
-
-
-
-
-app.get('/verifyreserveproofallapi', urlencodedParser, function (req, res) {
-var data = "";
-var counter = 0;
-for (var count = 0; count < PREMINE_FUNDS_ALL_WALLETS.length; count++)
+app.get('/gettotalsupply', (req, res) =>
 {
-verify_reserve_proof = VERIFY_RESERVE_PROOF;
-verify_reserve_proof = verify_reserve_proof.replace("public_address",PREMINE_FUNDS_ALL_WALLETS[count]);
-verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"','"' + PREMINE_FUNDS_ALL_WALLETS_RESERVE_PROOFS[count] + '"');
-verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"',"");
-var post_req = http.request(WALLET_HOSTNAME_AND_PORT, function(response) {
-      response.setEncoding('utf8');
-      var result = "";
-      response.on('data', chunk => result += chunk);
-      response.on('end', function () {  
-      try
-      {
-      var obj = JSON.parse(result);
-      if (result == "")
-      {
-        throw("error");
-      }       
-      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
-      { 
-        data += "invalid|0|0|The reserve proof is invalid for this address||";
-      }
-     else
-     {         
-       var message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
-       data += "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
-     } 
-     counter++;
-     if (counter === PREMINE_FUNDS_ALL_WALLETS.length)
-     {
-       data = data.substr(0,data.length - 2);
-       res.json({"data":data});
-     }
-    }
-    catch (error)
-    {
-      res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
-    } 
-  });
-});
-post_req.end(verify_reserve_proof);
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => console.log("error"));
-}
+  try
+  {
+    res.send(MAXIMUM_SUPPLY.toString());
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the total supply");
+  }
 })
 
+app.get('/getgeneratedsupply', (req, res) =>
+{
+  try
+  {
+    let generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
+    res.send(generated_and_circulating_supply.split("|")[0]);
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the generated supply");
+  }
+})
 
+app.get('/getcirculatingsupply', (req, res) =>
+{
+  try
+  {
+    let generated_and_circulating_supply = fs.readFileSync(generated_and_circulating_supply_file) + "";
+    res.send(generated_and_circulating_supply.split("|")[1]);
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the circulating supply");
+  }
+})
 
-app.get('/gettransactionconfirmations', urlencodedParser, function (req, res) {
-// gets the transaction confirmations
-// parameters
-// tx_hash = the transaction hash
-var get_transaction_confirmations_data = GET_TRANSACTION_CONFIRMATIONS_DATA;
-get_transaction_confirmations_data = get_transaction_confirmations_data.replace("transaction_hash",req.query.tx_hash);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-httprequest.end(get_transaction_confirmations_data);
+app.get('/getcurrentblockheight', async (req, res) =>
+{
+  try
+  {
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, GET_BLOCK_COUNT);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    res.json(
+    {
+      "block_height": obj.result.count
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCK_COUNT_ERROR);
+  }
+})
 
-var tx_block_height;
-var current_block_height;
-var tx_confirmations;
+app.get('/getpricedata', (req, res) =>
+{
+  try
+  {
+    let price_data = fs.readFileSync(price_data_file) + "";
+    price_data = price_data.split("|");
+    res.send(
+    {
+      "btc_price": price_data[0],
+      "ltc_price": price_data[1],
+      "usd_estimated_price": price_data[2],
+    });
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the price data");
+  }
+})
 
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
+app.get('/getchartdata', (req, res) =>
+{
+  try
+  {
+    let chart_data = fs.readFileSync(chart_data_file) + "";
+    res.send(chart_data);
+  }
+  catch (error)
+  {
+    res.status(400).send("Error:Could not get the chart data");
+  }
+})
+
+app.get('/getlastblockstransactiondata', async(req, res) =>
+{
+  // get the last blocks transactions data
+  var count;
+  var counter;
+  var current_block_height;
+  var getlastblockstransactiondata_block_height = "";
+  var getlastblockstransactiondata_block_hash = "";
+  var getlastblockstransactiondata_block_size = "";
+  var getlastblockstransactiondata_block_tx_amount = "";
+  var getlastblockstransactiondata_block_reward = "";
+  var getlastblockstransactiondata_block_timestamp = "";
+  var getlastblockstransactiondata_block_difficulty = "";
+  var getlastblockstransactiondata_block_mining_reward_tx_hash = "";
+  var getlastblockstransactiondata_block_tx_hashes = "";
+  var getlastblockstransactiondata_block_tx_ringsizes = "";
+  var getlastblockstransactiondata_block_tx_fees = "";
+  var getlastblockstransactiondata_block_tx_sizes = "";
+  var getlastblockstransactiondata_block_tx_paymentid_settings = "";
+  var getlastblockstransactiondata_block_tx_privacy_settings = "";
+
+  try
+  {
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, GET_BLOCK_COUNT);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    current_block_height = obj.result.count - 1;
+
+    // get the transaction data for the previous 10 blocks
+    for (counter = 0; counter < 10; counter++, current_block_height--)
+    {
+      get_block_transaction_data1 = GET_BLOCK_TRANSACTION_DATA;
+      get_block_transaction_data1 = get_block_transaction_data1.replace("get_block_transaction_data_parameter", "height");
+      get_block_transaction_data1 = get_block_transaction_data1.replace("get_block_transaction_data_settings", current_block_height);
+      result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, get_block_transaction_data1);
+      obj = JSON.parse(result);
       if (result == "" || result.indexOf("error") != -1)
       {
-        throw("error");
+        throw ("error");
       }
-      tx_block_height = obj.txs[0].block_height;
-      var post_req = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-      post_req.end(GET_BLOCK_COUNT);
-      post_req.on('response', function (response) {
-      response.setEncoding('utf8');
-      var result = "";
-      response.on('data', chunk => result += chunk);
-      response.on('end', function () {
-        try
-        { 
-          var obj = JSON.parse(result);
-          if (result == "" || result.indexOf("error") != -1)
-          {
-            throw("error");
-          } 
-          current_block_height = obj.result.count;
-          tx_confirmations = current_block_height - tx_block_height;      
-          res.json({"tx_confirmations":tx_confirmations});
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR);
-    }    
-  });
-});
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR));       
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR));
-})
-
-
-
-app.get('/createintegratedaddressapi', urlencodedParser, function (req, res) {
-// creates an integrated address
-// parameters
-// public_address = the public address
-// payment_id = the payment id, leave empty for a random payment id
-try
-{
-var public_address = req.query.public_address;
-if (public_address.length !== XCASH_WALLET_LENGTH)
-{
-throw("error");
-}
-var payment_id = req.query.payment_id;
-if (payment_id.length !== ENCRYPTED_PAYMENT_ID_LENGTH)
-{
-payment_id = generate_random_payment_id();
-}
-var integrated_address = cryptocurrency.create_integrated_address(public_address,payment_id);
-if (integrated_address == "")
-{
-throw("error");
-}
-
-          res.json({
-              "public_address":public_address,
-              "payment_id":payment_id,
-              "integrated_address":integrated_address
-            });
-    }
-    catch (error)
-    {
-      res.status(400).json(CREATE_INTEGRATED_ADDRESS_ERROR);
-    } 
-})
-
-
-
-
-
-
-
-
-
-
-
-
-app.post('/gettransactionpooldata', urlencodedParser, function (req, res) {
-// get the transaction pool data
-// parameters
-//tx_pool_settings 0 gets all the tx pool transactions data, 1 gets the MAXIMUM_TX_POOL_SIZE tx pool transactions data
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_POOL_DATA);
-httprequest.end();
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    {
-if (result == "" || result.indexOf("error") != -1)
-{
-throw("error");
-}        
-var results = "";
-for (var count = 0; count < result.length; count++)
-{
-if (
-    result[count] === "a" ||
-    result[count] === "b" ||
-    result[count] === "c" ||
-    result[count] === "d" ||
-    result[count] === "e" ||
-    result[count] === "f" ||
-    result[count] === "g" ||
-    result[count] === "h" ||
-    result[count] === "i" ||
-    result[count] === "j" ||
-    result[count] === "k" ||
-    result[count] === "l" ||
-    result[count] === "m" ||
-    result[count] === "n" ||
-    result[count] === "o" ||
-    result[count] === "p" ||
-    result[count] === "q" ||
-    result[count] === "r" ||
-    result[count] === "s" ||
-    result[count] === "t" ||
-    result[count] === "u" ||
-    result[count] === "v" ||
-    result[count] === "w" ||
-    result[count] === "x" ||
-    result[count] === "y" ||
-    result[count] === "z" ||
-    result[count] === "A" ||
-    result[count] === "B" ||
-    result[count] === "C" ||
-    result[count] === "D" ||
-    result[count] === "E" ||
-    result[count] === "F" ||
-    result[count] === "G" ||
-    result[count] === "H" ||
-    result[count] === "I" ||
-    result[count] === "J" ||
-    result[count] === "K" ||
-    result[count] === "L" ||
-    result[count] === "M" ||
-    result[count] === "N" ||
-    result[count] === "O" ||
-    result[count] === "P" ||
-    result[count] === "Q" ||
-    result[count] === "R" ||
-    result[count] === "S" ||
-    result[count] === "T" ||
-    result[count] === "U" ||
-    result[count] === "V" ||
-    result[count] === "W" ||
-    result[count] === "X" ||
-    result[count] === "Y" ||
-    result[count] === "Z" ||
-    result[count] === "0" ||
-    result[count] === "1" ||
-    result[count] === "2" ||
-    result[count] === "3" ||
-    result[count] === "4" ||
-    result[count] === "5" ||
-    result[count] === "6" ||
-    result[count] === "7" ||
-    result[count] === "8" ||
-    result[count] === "9" ||
-    result[count] === ":" ||
-    result[count] === "[" ||
-    result[count] === "]" ||
-    result[count] === "{" ||
-    result[count] === "}" ||
-    result[count] === " " ||
-    result[count] === "|" ||
-    result[count] === " " ||
-    result[count] === "?" ||
-    result[count] === "." ||
-    result[count] === ">" ||
-    result[count] === "<" ||
-    result[count] === "," ||
-    result[count] === ";" ||
-    result[count] === "+" ||
-    result[count] === '-' ||
-    result[count] === "*" ||
-    result[count] === "=" ||
-    result[count] === "-" ||
-    result[count] === "_" ||
-    result[count] === "`" ||
-    result[count] === "~" ||
-    result[count] === "!" ||
-    result[count] === "@" ||
-    result[count] === "#" ||
-    result[count] === "$" ||
-    result[count] === "%" ||
-    result[count] === "^" ||
-    result[count] === "&"
-   )
-{
-results += result[count];
-}
-}
-
-var count1 = 0;
-var count2 = 0;
-var count3 = 0;
-var count4 = 0;
-var tx_count = 0;
-var tx_hash_pool = "";
-var tx_ringsize = "";
-var tx_timestamp = "";
-var tx_fee = "";
-var tx_size = "";
-var tx_paymentidsettings = "";
-var tx_privacy_settings = "";
-var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-count1 = results.split("txs_hashes:").length - 1;
-for (count2 = 0; count2 < count1; count2++)
-{
-count4 = results.indexOf("txs_hashes:",count3);
-count3 = count4 + 11;
-var str = results.substr(count4 + 13,TRANSACTION_HASH_LENGTH);
-if (tx_hash_pool.indexOf(str) === -1)
-{
-if ((req.body.tx_pool_settings == 0) || (req.body.tx_pool_settings == 1 && count2 < MAXIMUM_TX_POOL_SIZE))
-{
-tx_hash_pool += str + "|";
-tx_count++;
-get_transaction_data.txs_hashes.push(str);
-}
-}
-}
-
-count4 = 0;
-count3 = 0;
-for (count2 = 0; count2 < count1; count2++)
-{
-count4 = results.indexOf("last_relayed_time",count3);
-count3 = count4 + 17;
-var str = results.substr(count4 + 19,10);
-//if (tx_timestamp.indexOf(str) === -1)
-//{
-if ((req.body.tx_pool_settings == 0) || (req.body.tx_pool_settings == 1 && count2 < MAXIMUM_TX_POOL_SIZE))
-{
-tx_timestamp += str + "|";
-}
-//}
-}
-tx_hash_pool = tx_hash_pool.substr(0,tx_hash_pool.length - 1);
-var tx_timestamp_copy = "";
-for (var count = 0; count < tx_timestamp.length; count++)
-{
-if (
-    tx_timestamp[count] === "0" ||
-    tx_timestamp[count] === "1" ||
-    tx_timestamp[count] === "2" ||
-    tx_timestamp[count] === "3" ||
-    tx_timestamp[count] === "4" ||
-    tx_timestamp[count] === "5" ||
-    tx_timestamp[count] === "6" ||
-    tx_timestamp[count] === "7" ||
-    tx_timestamp[count] === "8" ||
-    tx_timestamp[count] === "9" ||
-    tx_timestamp[count] === "|"
-   )
-{
-tx_timestamp_copy += tx_timestamp[count];
-}
-}
-//tx_timestamp = tx_timestamp_copy;
-tx_timestamp = tx_timestamp_copy.indexOf("||") !== -1 ? tx_timestamp_copy.split("||")[0] : tx_timestamp_copy;
-if (tx_timestamp.substr(tx_timestamp.length - 1,1) === "|")
-{
-tx_timestamp = tx_timestamp.substr(0,tx_timestamp.length - 1);
-}
-
-            var post_request = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-            post_request.end(JSON.stringify(get_transaction_data));
-            post_request.on('response', function (response) {
-            response.setEncoding('utf8');
-            var result = "";
-            response.on('data', chunk => result += chunk);
-            response.on('end', function () {
-            try
-            { 
-              var obj = JSON.parse(result);
-              if (result == "" || result.indexOf("error") != -1)
-              {
-                throw("error");
-              } 
-              var tx_extra = "";
-              for (count1 = 0; count1 < tx_count; count1++)
-              {
-                if ((req.body.tx_pool_settings == 0) || (req.body.tx_pool_settings == 1 && count1 < MAXIMUM_TX_POOL_SIZE))
-                {
-                  tx_data = JSON.parse(obj.txs[count1].as_json);
-                  tx_extra = Buffer.from(tx_data.extra).toString("hex");
-                  tx_ringsize += tx_data.vin[0].key.key_offsets.length + "|"; 
-                  tx_fee += tx_data.rct_signatures.txnFee + "|"; 
-                  tx_size += (obj.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                  tx_paymentidsettings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                  tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";  
-                }             
-              } 
-              tx_ringsize = tx_ringsize.substr(0,tx_ringsize.length - 1);
-              tx_fee = tx_fee.substr(0,tx_fee.length - 1);
-              tx_size = tx_size.substr(0,tx_size.length - 1);
-              tx_paymentidsettings = tx_paymentidsettings.substr(0,tx_paymentidsettings.length - 1);
-              tx_privacy_settings = tx_privacy_settings.substr(0,tx_privacy_settings.length - 1);
-
-              if (tx_timestamp.substr(tx_timestamp.length - 1,1) === "|")
-              {
-                tx_timestamp = tx_timestamp.substr(0,tx_timestamp.length - 1);
-              }
-
-        res.json({
-                "tx_hash":tx_hash_pool,
-                "tx_ringsize":tx_ringsize,
-                "tx_timestamp":tx_timestamp,
-                "tx_fee":tx_fee,
-                "tx_size":tx_size,
-                "tx_paymentidsettings":tx_paymentidsettings,
-                "tx_privacy_settings":tx_privacy_settings
-                }); 
-        
-           }
-           catch (error)
-           {
-             res.status(400).json(GET_TRANSACTION_POOL_DATA_ERROR);
-           }          
-         });
-       });
-       post_request.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request.abort());
-       post_request.on('error', response => res.status(400).json(GET_TRANSACTION_POOL_DATA_ERROR)); 
-       
-                        
-           }
-           catch (error)
-           {
-             res.status(400).json(GET_TRANSACTION_POOL_DATA_ERROR);
-           }          
-         });
-       });
-       httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-       httprequest.on('error', response => res.status(400).json(GET_TRANSACTION_POOL_DATA_ERROR)); 
-})
-
-
-
-
-app.post('/getblockhash', urlencodedParser, function (req, res) {
-// gets the block hash from a block height
-// parameters
-// block_height = the block height
-var get_block_hash = GET_BLOCK_HASH;
-get_block_hash = get_block_hash.replace("block_height",req.body.block_height);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(get_block_hash);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {  
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      } 
-      res.json({"block_hash":obj.result});
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_HASH_ERROR);
-    } 
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_HASH_ERROR));
-})
-
-
-
-/*app.post('/getblockdatafromblockheight', urlencodedParser, function (req, res) {
-// gets the blocks data from the block height
-// parameters
-// block_height = the block height
-var get_block_data_from_block_height = GET_BLOCK_DATA_FROM_BLOCK_HEIGHT;
-get_block_data_from_block_height = get_block_data_from_block_height.replace("block_height",req.body.block_height);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(get_block_data_from_block_height);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {   
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      }     
-      res.json({
-              "block_height":obj.result.block_header.height,
-              "block_hash":obj.result.block_header.hash,
-              "block_size":obj.result.block_header.block_size / 1024,
-              "block_tx_amount":obj.result.block_header.num_txes,
-              "block_reward":obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
-              "block_timestamp":obj.result.block_header.timestamp,
-              "block_difficulty":obj.result.block_header.difficulty
-            });
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_DATA_FROM_BLOCK_HEIGHT_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_DATA_FROM_BLOCK_HEIGHT_ERROR));
-})*/
-
-
-
-app.get('/getblockdata', urlencodedParser, function (req, res) {
-// gets the blocks data from the block height or block hash
-// parameters
-// block_data = the block height or the block hash
-var get_block_data = req.query.block_data.length === BLOCK_HASH_LENGTH ? GET_BLOCK_DATA_FROM_BLOCK_HASH : GET_BLOCK_DATA_FROM_BLOCK_HEIGHT;
-if (req.query.block_data.length === BLOCK_HASH_LENGTH)
-{
-get_block_data = get_block_data.replace("block_hash",req.query.block_data);
-}
-else
-{
-get_block_data = get_block_data.replace("block_height",req.query.block_data);
-}
-console.log(get_block_data);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(get_block_data);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {   
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      }     
-      res.json({
-              "block_height":obj.result.block_header.height,
-              "block_hash":obj.result.block_header.hash,
-              "block_size":obj.result.block_header.block_size / 1024,
-              "block_tx_amount":obj.result.block_header.num_txes,
-              "block_reward":obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
-              "block_timestamp":obj.result.block_header.timestamp,
-              "block_difficulty":obj.result.block_header.difficulty
-            });
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_DATA_ERROR);
-    }   
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_DATA_ERROR));
-})
-
-
-
-app.post('/getblockchaindatasettings', urlencodedParser, function (req, res) {
-// gets what type of item the user has provided
-// parameters
-// settings = valid parameters are the block_height, block_hash, block_reward_transaction, tx_hash, encrypted_payment_id, unencrypted_payment_id, public_address, stealth_address, tx_public_key, tx_private_key
-var settings = req.body.settings;
-var blockchaindatasettings = "";
-if (isNaN(settings) == false && (settings.length !== UNENCRYPTED_PAYMENT_ID_LENGTH || settings.length !== ENCRYPTED_PAYMENT_ID_LENGTH))
-{
-blockchaindatasettings = "block_height";
-res.json({"settings":"block_height"});
-return;
-}
-if (settings.length === ENCRYPTED_PAYMENT_ID_LENGTH)
-{
-blockchaindatasettings = "encrypted_payment_id";
-res.json({"settings":"encrypted_payment_id"});
-return;
-}
-if (settings.substr(0,3) === "XCA")
-{
-blockchaindatasettings = "public_address";
-res.json({"settings":"public_address"});
-return;
-}
-var get_block_data_from_block_hash = GET_BLOCK_DATA_FROM_BLOCK_HASH;
-get_block_data_from_block_hash = get_block_data_from_block_hash.replace("block_hash",settings);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(get_block_data_from_block_hash);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {   
-    try
-    { 
-      if (result.indexOf("error") === -1)
-      {
-        blockchaindatasettings = "block_hash";
-        res.json({"settings":"block_hash"});
-        return;        
-      }
-      
-      var get_transaction_data = GET_TRANSACTION_DATA;
-      get_transaction_data = get_transaction_data.replace("transaction_hash",settings);
-      var post_request1 = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-      post_request1.end(get_transaction_data);
-
-      post_request1.on('response', function (response) {
-        response.setEncoding('utf8');
-        var result = "";
-        response.on('data', chunk => result += chunk);
-        response.on('end', function () {
-          try
-          {             
-            if (result.indexOf("key_offset") !== -1)
-            {
-              blockchaindatasettings = "transaction";
-              res.json({"settings":"transaction"});
-              return;
-            }
-            else if (result.indexOf("block_height") !== -1)
-            {
-              blockchaindatasettings = "block_reward_transaction";
-              res.json({"settings":"block_reward_transaction"});
-              return;              
-            } 
-            else
-            {
-              // search the database for tx_public_key, tx_private_key, stealth_address, unencrypted_payment_id
-              collection = database.collection(DATABASE_COLLECTION);
-              collection.countDocuments({"tx_paymentid":settings}, function(error, databasecount)
-              {
-                try
-		{
-		if (error)
-		{
-		throw("error");
-		}
-		}
-		catch (error)
-		{
-		return;
-		}
-                if (databasecount != 0)
-                {
-                  blockchaindatasettings = "unencrypted_payment_id";
-                  res.json({"settings":"unencrypted_payment_id"});
-                  return;                  
-                }
-                });
-             
-                 var str = ".*" + settings + ".*";
-                  collection.countDocuments({"tx_addresses":{'$regex':str}}, function(error, databasecount)
-                  {
-               	  try
-		  {
-		  if (error)
-		  {
-		  throw("error");
-		  }
-		  }
-		  catch (error)
-		  {
-		  return;
-		  }
-                  if (databasecount != 0)
-                  {
-                    blockchaindatasettings = "stealth_address";
-                    res.json({"settings":"stealth_address"});
-                    return;                    
-                  }
-                  });
-                    collection.countDocuments({"tx_public_key":settings}, function(error, databasecount)
-                    {
-                    try
-		    {
-		    if (error)
-		    {
-		    throw("error");
-		    }
-		    }
-		    catch (error)
-		    {
-		    return;
-		    }
-                    if (databasecount != 0)
-                    {
-                      blockchaindatasettings = "tx_public_key";
-                      res.json({"settings":"tx_public_key"});
-                      return;                      
-                    }
-                    });
-                      collection.countDocuments({"tx_private_key":settings}, function(error, databasecount)
-                      {
-                      try
-		      {
-		      if (error)
-		      {
-		      throw("error");
-		      }
-		      }
-		      catch (error)
-		      {
-		      return;
-		      }
-                      if (databasecount != 0)
-                      {
-                        blockchaindatasettings = "tx_private_key";
-                        res.json({"settings":"tx_private_key"});
-                        return;                        
-                      }
-                      });
-                      
-                     setTimeout(() => {if(blockchaindatasettings == "") { res.status(400).json(GET_BLOCKCHAIN_DATA_SETTINGS_ERROR);}},5000);
-            }
-            
-          }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCKCHAIN_DATA_SETTINGS_ERROR);
-    }    
-  });
-});
-post_request1.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request1.abort());
-post_request1.on('error', response => res.status(400).json(GET_BLOCKCHAIN_DATA_SETTINGS_ERROR));      
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCKCHAIN_DATA_SETTINGS_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(5000, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCKCHAIN_DATA_SETTINGS_ERROR));
-})
-
-
-
-app.post('/gettransactiondatasearchresults', urlencodedParser, function (req, res) {
-// gets the transaction data for the transaction search results
-// parameters
-// settings = the type of transaction data. Valid parameters are encrypted_payment_id, unencrypted_payment_id, public_address, stealth_address, tx_public_key, tx_private_key
-// tx_data = the tx_data
-try
-{
-var tx_data_array;
-if (req.body.settings === "encrypted_payment_id" || req.body.settings === "unencrypted_payment_id")
-{
-tx_data_array = {"tx_paymentid":req.body.tx_data};
-}  
-else if (req.body.settings === "public_address")
-{
-tx_data_array = {"tx_public_addresses":{'$regex':req.body.tx_data}};
-} 
-else if (req.body.settings === "stealth_address")
-{
-tx_data_array = {"tx_addresses":{'$regex':req.body.tx_data}};
-} 
-else if (req.body.settings === "tx_public_key")
-{
-tx_data_array = {"tx_public_key":req.body.tx_data};
-} 
-else if (req.body.settings === "tx_private_key")
-{
-tx_data_array = {"tx_private_key":req.body.tx_data};
-} 
-else
-{
-throw("error");
-}
-
-// get the transaction data
-var tx_data = [];
-var count = 1;
-collection.find(tx_data_array).toArray((err,documents) => res.json({"tx_data":documents})); 
-}
-catch (error)
-{
-res.status(400).json(SEND_HEXADECIMIAL_TRANSACTION_ERROR);
-}    
-})
-
-
-
-/*app.post('/getblockdatafromblockhash', urlencodedParser, function (req, res) {
-// gets the blocks data from the block hash
-// parameters
-// block_hash = the block hash
-var get_block_data_from_block_hash = GET_BLOCK_DATA_FROM_BLOCK_HASH;
-get_block_data_from_block_hash = get_block_data_from_block_hash.replace("block_hash",req.body.block_hash);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(get_block_data_from_block_hash);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      }        
-      res.json({
-              "block_height":obj.result.block_header.height,
-              "block_hash":obj.result.block_header.hash,
-              "block_size":obj.result.block_header.block_size / 1024,
-              "block_tx_amount":obj.result.block_header.num_txes,
-              "block_reward":obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
-              "block_timestamp":obj.result.block_header.timestamp,
-              "block_difficulty":obj.result.block_header.difficulty
-            });
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_DATA_FROM_BLOCK_HASH_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_DATA_FROM_BLOCK_HASH_ERROR));
-})
-*/
-
-
-
-app.post('/sendhexadecimaltransaction', urlencodedParser, function (req, res) {
-// sends a hexadecimal transaction
-// parameters
-// tx_data_hexadecimal = the hexadecimal data of the transaction
-// settings = 0 sends the transaction and 1 validates the transaction
-var send_hexadecimal_transaction = req.body.settings == 0 ? SEND_HEXADECIMAL_TRANSACTION : VALIDATE_HEXADECIMAL_TRANSACTION;
-send_hexadecimal_transaction = send_hexadecimal_transaction.replace("tx_data_hexadecimal",req.body.tx_data_hexadecimal);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION);
-httprequest.end(send_hexadecimal_transaction);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {   
-    try
-    {
-      if (result == "" || result.indexOf("error") != -1 || result.indexOf("Failed") != -1)
-      {
-        var obj = JSON.parse(result);
-        if (obj.reason == "")
-        {
-          obj.reason = "Invalid";
-        }
-        res.json({"send_hexadecimal_transaction_results":obj.reason});
-      }  
-      else
-      {
-        res.json(SEND_HEXADECIMIAL_TRANSACTION_SUCCESS);
-      } 
-    }
-    catch (error)
-    {
-      res.status(400).json(SEND_HEXADECIMIAL_TRANSACTION_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(SEND_HEXADECIMIAL_TRANSACTION_ERROR));
-})
-
-
-
-app.post('/getblocktransactiondata', urlencodedParser, function (req, res) {
-// gets the blocks transaction data
-// parameters
-// get_block_transaction_data_settings = the block height, or the block hash
-var get_block_transaction_data = GET_BLOCK_TRANSACTION_DATA;
-get_block_transaction_data = req.body.get_block_transaction_data_settings.length === TRANSACTION_HASH_LENGTH ? get_block_transaction_data.replace("get_block_transaction_data_parameter","hash") : get_block_transaction_data.replace("get_block_transaction_data_parameter","height");
-get_block_transaction_data = get_block_transaction_data.replace("get_block_transaction_data_settings",req.body.get_block_transaction_data_settings);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-httprequest.end(get_block_transaction_data);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
-      if (result == "" || result.indexOf("error") != -1)
-      {
-        throw("error");
-      } 
-      var block_transaction_data = JSON.parse(obj.result.json); 
-      var tx_hashes = "";
-      var get_transaction_data = {"txs_hashes":[],"decode_as_json":true}; 
-      for (var count = 0; count < block_transaction_data.tx_hashes.length; count++)
+      let block_transaction_data = JSON.parse(obj.result.json);
+      let tx_hashes = "";
+      let get_transaction_data = {
+        "txs_hashes": [],
+        "decode_as_json": true
+      };
+      for (count = 0; count < block_transaction_data.tx_hashes.length; count++)
       {
         tx_hashes += block_transaction_data.tx_hashes[count] + "|";
         get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
-      } 
-      tx_hashes = tx_hashes.substr(0,tx_hashes.length - 1); 
-            var post_request = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-            post_request.end(JSON.stringify(get_transaction_data));
-            post_request.on('response', function (response) {
-            response.setEncoding('utf8');
-            var result = "";
-            response.on('data', chunk => result += chunk);
-            response.on('end', function () {
-            try
-            { 
-              var tx_hash_data = JSON.parse(result);
-              var tx_hash_data_results;
-              if (result == "" || result.indexOf("error") != -1)
-              {
-                throw("error");
-              } 
-              var block_tx_ringsizes = "";
-              var block_tx_fees = "";
-              var block_tx_sizes = "";
-              var block_tx_paymentid_settings = "";
-              var block_tx_privacy_settings = "";
-              var tx_extra = "";
-              for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
-              {
-                tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
-                tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
-                block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
-                block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|"; 
-                block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";    
-                block_tx_paymentid_settings += tx_extra.substr(0,6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0,6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
-                block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";               
-              } 
-              block_tx_ringsizes = block_tx_ringsizes.substr(0,block_tx_ringsizes.length - 1);
-              block_tx_fees = block_tx_fees.substr(0,block_tx_fees.length - 1);
-              block_tx_sizes = block_tx_sizes.substr(0,block_tx_sizes.length - 1);
-              block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0,block_tx_paymentid_settings.length - 1);
-              block_tx_privacy_settings = block_tx_privacy_settings.substr(0,block_tx_privacy_settings.length - 1); 
-            
-      res.json({
-              "block_height":obj.result.block_header.height,
-              "block_hash":obj.result.block_header.hash,
-              "block_size":obj.result.block_header.block_size / 1024,
-              "block_tx_amount":obj.result.block_header.num_txes,
-              "block_reward":obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
-              "block_timestamp":obj.result.block_header.timestamp,
-              "block_difficulty":obj.result.block_header.difficulty,
-              "block_mining_reward_tx_hash":obj.result.miner_tx_hash,
-              "block_tx_hashes":tx_hashes,
-              "block_tx_ringsizes":block_tx_ringsizes,
-              "block_tx_fees":block_tx_fees,
-              "block_tx_sizes":block_tx_sizes,
-              "block_tx_paymentid_settings":block_tx_paymentid_settings,
-              "block_tx_privacy_settings":block_tx_privacy_settings
-            });
-        }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-post_request.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request.abort());
-post_request.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR));
-})
-
-
-
-
-/*app.post('/gettransactiondata', urlencodedParser, function (req, res) {
-// gets the transaction data
-// parameters
-//tx_hash = the transactions hash or the block reward transaction hash
-var get_transaction_data = GET_TRANSACTION_DATA;
-get_transaction_data = get_transaction_data.replace("transaction_hash",req.body.tx_hash);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-httprequest.end(get_transaction_data);
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
+      }
+      tx_hashes = tx_hashes.substr(0, tx_hashes.length - 1);
+      result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, JSON.stringify(get_transaction_data));
+      let tx_hash_data = JSON.parse(result);
+      let tx_hash_data_results;
       if (result == "" || result.indexOf("error") != -1)
       {
-        throw("error");
+        throw ("error");
       }
-      var tx_data = JSON.parse(obj.txs[0].as_json);
-      var tx_settings = obj.txs[0].as_json.indexOf("key_offset") !== -1 ? "transaction" : "block_reward_transaction"; 
-      var tx_key_images = "";
-      var tx_key_images_ring_address_count = []; 
-      var count1 = 0;
-      var count2 = 0;     
-      var counter = 0; 
+      let block_tx_ringsizes = "";
+      let block_tx_fees = "";
+      let block_tx_sizes = "";
+      let block_tx_paymentid_settings = "";
+      let block_tx_privacy_settings = "";
+      let tx_extra = "";
+      for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
+      {
+        tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
+        tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
+        block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
+        block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|";
+        block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";
+        block_tx_paymentid_settings += tx_extra.substr(0, 6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0, 6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
+        block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";
+      }
+      block_tx_ringsizes = block_tx_ringsizes.substr(0, block_tx_ringsizes.length - 1);
+      block_tx_fees = block_tx_fees.substr(0, block_tx_fees.length - 1);
+      block_tx_sizes = block_tx_sizes.substr(0, block_tx_sizes.length - 1);
+      block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0, block_tx_paymentid_settings.length - 1);
+      block_tx_privacy_settings = block_tx_privacy_settings.substr(0, block_tx_privacy_settings.length - 1);
 
-if (tx_settings === "transaction") 
-{   
+      getlastblockstransactiondata_block_height += obj.result.block_header.height + "||";
+      getlastblockstransactiondata_block_hash += obj.result.block_header.hash + "||";
+      getlastblockstransactiondata_block_size += obj.result.block_header.block_size / 1024 + "||";
+      getlastblockstransactiondata_block_tx_amount += obj.result.block_header.num_txes + "||";
+      getlastblockstransactiondata_block_reward += obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT + "||";
+      getlastblockstransactiondata_block_timestamp += obj.result.block_header.timestamp + "||";
+      getlastblockstransactiondata_block_difficulty += obj.result.block_header.difficulty + "||";
+      getlastblockstransactiondata_block_mining_reward_tx_hash += obj.result.miner_tx_hash + "||";
+      getlastblockstransactiondata_block_tx_hashes += tx_hashes + "||";
+      getlastblockstransactiondata_block_tx_ringsizes += block_tx_ringsizes + "||";
+      getlastblockstransactiondata_block_tx_fees += block_tx_fees + "||";
+      getlastblockstransactiondata_block_tx_sizes += block_tx_sizes + "||";
+      getlastblockstransactiondata_block_tx_paymentid_settings += block_tx_paymentid_settings + "||";
+      getlastblockstransactiondata_block_tx_privacy_settings += block_tx_privacy_settings + "||";
+    }
+
+    getlastblockstransactiondata_block_height = getlastblockstransactiondata_block_height.substr(0, getlastblockstransactiondata_block_height.length - 2);
+    getlastblockstransactiondata_block_hash = getlastblockstransactiondata_block_hash.substr(0, getlastblockstransactiondata_block_hash.length - 2);
+    getlastblockstransactiondata_block_size = getlastblockstransactiondata_block_size.substr(0, getlastblockstransactiondata_block_size.length - 2);
+    getlastblockstransactiondata_block_tx_amount = getlastblockstransactiondata_block_tx_amount.substr(0, getlastblockstransactiondata_block_tx_amount.length - 2);
+    getlastblockstransactiondata_block_reward = getlastblockstransactiondata_block_reward.substr(0, getlastblockstransactiondata_block_reward.length - 2);
+    getlastblockstransactiondata_block_timestamp = getlastblockstransactiondata_block_timestamp.substr(0, getlastblockstransactiondata_block_timestamp.length - 2);
+    getlastblockstransactiondata_block_difficulty = getlastblockstransactiondata_block_difficulty.substr(0, getlastblockstransactiondata_block_difficulty.length - 2);
+    getlastblockstransactiondata_block_mining_reward_tx_hash = getlastblockstransactiondata_block_mining_reward_tx_hash.substr(0, getlastblockstransactiondata_block_mining_reward_tx_hash.length - 2);
+    getlastblockstransactiondata_block_tx_hashes = getlastblockstransactiondata_block_tx_hashes.substr(0, getlastblockstransactiondata_block_tx_hashes.length - 2);
+    getlastblockstransactiondata_block_tx_ringsizes = getlastblockstransactiondata_block_tx_ringsizes.substr(0, getlastblockstransactiondata_block_tx_ringsizes.length - 2);
+    getlastblockstransactiondata_block_tx_fees = getlastblockstransactiondata_block_tx_fees.substr(0, getlastblockstransactiondata_block_tx_fees.length - 2);
+    getlastblockstransactiondata_block_tx_sizes = getlastblockstransactiondata_block_tx_sizes.substr(0, getlastblockstransactiondata_block_tx_sizes.length - 2);
+    getlastblockstransactiondata_block_tx_paymentid_settings = getlastblockstransactiondata_block_tx_paymentid_settings.substr(0, getlastblockstransactiondata_block_tx_paymentid_settings.length - 2);
+    getlastblockstransactiondata_block_tx_privacy_settings = getlastblockstransactiondata_block_tx_privacy_settings.substr(0, getlastblockstransactiondata_block_tx_privacy_settings.length - 2);
+
+    res.json(
+    {
+      "block_height": getlastblockstransactiondata_block_height,
+      "block_hash": getlastblockstransactiondata_block_hash,
+      "block_size": getlastblockstransactiondata_block_size,
+      "block_tx_amount": getlastblockstransactiondata_block_tx_amount,
+      "block_reward": getlastblockstransactiondata_block_reward,
+      "block_timestamp": getlastblockstransactiondata_block_timestamp,
+      "block_difficulty": getlastblockstransactiondata_block_difficulty,
+      "block_mining_reward_tx_hash": getlastblockstransactiondata_block_mining_reward_tx_hash,
+      "block_tx_hashes": getlastblockstransactiondata_block_tx_hashes,
+      "block_tx_ringsizes": getlastblockstransactiondata_block_tx_ringsizes,
+      "block_tx_fees": getlastblockstransactiondata_block_tx_fees,
+      "block_tx_sizes": getlastblockstransactiondata_block_tx_sizes,
+      "block_tx_paymentid_settings": getlastblockstransactiondata_block_tx_paymentid_settings,
+      "block_tx_privacy_settings": getlastblockstransactiondata_block_tx_privacy_settings
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
+  }
+})
+
+app.get('/gettransactiondata', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    let get_transaction_data = GET_TRANSACTION_DATA;
+    get_transaction_data = get_transaction_data.replace("transaction_hash", req.query.tx_hash);
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, get_transaction_data);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    let tx_data = JSON.parse(obj.txs[0].as_json);
+    let tx_settings = obj.txs[0].as_json.indexOf("key_offset") !== -1 ? "transaction" : "block_reward_transaction";
+    let tx_key_images = "";
+    let tx_key_images_ring_address_count = [];
+    let count1 = 0;
+    let count2 = 0;
+    let counter = 0;
+
+    if (tx_settings === "transaction")
+    {
 
       for (count1 = 0; count1 < tx_data.vin.length; count1++)
       {
@@ -16852,326 +14302,1198 @@ if (tx_settings === "transaction")
           counter++;
         }
       }
-      tx_key_images = tx_key_images.substr(0,tx_key_images.length - 1);
-      var tx_ringsize = tx_data.vin[0].key.key_offsets.length;
-      var tx_unlock_block = tx_data.unlock_time == 0 ? obj.txs[0].block_height + 10 : tx_data.unlock_time;
-     
-      var tx_key_images_ring_address = "";
-      var tx_key_images_ring_tx_hash = "";     
-      var tx_key_images_ring_tx_hash_array = [];
-      var tx_key_images_ring_block_height = "";
+      tx_key_images = tx_key_images.substr(0, tx_key_images.length - 1);
+      let tx_ringsize = tx_data.vin[0].key.key_offsets.length;
+      let tx_unlock_block = tx_data.unlock_time == 0 ? obj.txs[0].block_height + 10 : tx_data.unlock_time;
 
-          var post_req = http.request(DAEMON_HOSTNAME_AND_PORT_GET_RING_ADDRESSES_DATA, function(response) {
-          response.setEncoding('utf8');
-          var result = "";
-          response.on('data', chunk => result += chunk);
-          response.on('end', function () {
-          try
-          { 
-          var tx_ring_address = JSON.parse(result);
-          if (result == "" || result.indexOf("error") != -1)
-          {
-            throw("error");
-          } 
-          for (count1 = 0; count1 < tx_key_images_ring_address_count.length; count1++)
-          {
-            tx_key_images_ring_address += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].key + "|" : tx_ring_address.outs[count1].key + "||";
-            tx_key_images_ring_tx_hash += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].txid + "|" : tx_ring_address.outs[count1].txid + "||";
-            tx_key_images_ring_tx_hash_array[count1] = tx_ring_address.outs[count1].txid;
-            tx_key_images_ring_block_height += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].height + "|" : tx_ring_address.outs[count1].height + "||";
-          } 
-            tx_key_images_ring_address = tx_key_images_ring_address.substr(0,tx_key_images_ring_address.length - 2);
-            tx_key_images_ring_tx_hash = tx_key_images_ring_tx_hash.substr(0,tx_key_images_ring_tx_hash.length - 2);
-            tx_key_images_ring_block_height = tx_key_images_ring_block_height.substr(0,tx_key_images_ring_block_height.length - 2);
-
-            var tx_addresses = "";
-            for (count1 = 0; count1 < tx_data.vout.length; count1++)
-            { 
-              tx_addresses += tx_data.vout[count1].target.key + "|";
-            }
-            tx_addresses = tx_addresses.substr(0,tx_addresses.length - 1);
-
-            // calcuate the tx_size
-            var tx_size = obj.txs[0].as_hex.length / 1024 / 2;
-            
-            tx_extra = tx_data.extra;
-
-            // get the key images ring address data
-            var tx_key_images_ring_tx_settings;
-            var tx_key_images_ring_address_tx_ring_addresses = "";
-            var tx_key_images_ring_address_tx_ring_size = "";
-            var tx_key_images_ring_address_tx_block_timestamp = "";            
-            var tx_key_images_ring_address_tx_extra = "";
-            var tx_key_images_ring_address_tx_ecdh_data = "";
-            var get_transaction_data = {"txs_hashes":[],"decode_as_json":true,"prune":false};         
-            for (count1 = 0; count1 < tx_key_images_ring_tx_hash_array.length; count1++)
-            {
-              get_transaction_data.txs_hashes[count1] = tx_key_images_ring_tx_hash_array[count1];
-            }                        
-            var post_request = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-            post_request.end(JSON.stringify(get_transaction_data));
-            post_request.on('response', function (response) {
-            response.setEncoding('utf8');
-            var result = "";
-            response.on('data', chunk => result += chunk);
-            response.on('end', function () {
-            try
-            { 
-              var tx_key_images_ring_tx_hash_result = JSON.parse(result);
-              var tx_key_images_ring_tx_hash_data;
-              var tx_key_images_ring_tx_hash_data_extra;
-              if (result == "" || result.indexOf("error") != -1)
-              {
-                throw("error");
-              } 
-              for (count1 = 0; count1 < tx_key_images_ring_tx_hash_array.length; count1++)
-              {
-                tx_key_images_ring_tx_hash_data = JSON.parse(tx_key_images_ring_tx_hash_result.txs[count1].as_json);  
-                tx_key_images_ring_tx_settings = tx_key_images_ring_tx_hash_result.txs[count1].as_json.indexOf("key_offset") !== -1 ? "transaction" : "block_reward_transaction"; 
-                if (tx_key_images_ring_tx_settings === "transaction")
-                {          
-                  tx_key_images_ring_address_tx_ring_size += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data.vin[0].key.key_offsets.length + "|" : tx_key_images_ring_tx_hash_data.vin[0].key.key_offsets.length + "||";
-                  tx_key_images_ring_address_tx_block_timestamp += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "|" : tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "||";
-                  tx_key_images_ring_tx_hash_data_extra = Buffer.from(tx_key_images_ring_tx_hash_data.extra).toString("hex");
-                  tx_key_images_ring_tx_hash_data_ecdh_tx_data = JSON.stringify(tx_key_images_ring_tx_hash_data.rct_signatures);
-                  if (tx_key_images_ring_tx_hash_data_extra.length >= 256)
-                  {
-                    tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data_extra + "|" : tx_key_images_ring_tx_hash_data_extra + "||";
-                    tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data_ecdh_tx_data + "|" : tx_key_images_ring_tx_hash_data_ecdh_tx_data + "||";
-                  }
-                  else
-                  {
-                    tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? "private_tx|" : "private_tx||";
-                    tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? "private_tx|" : "private_tx||";
-                  }
-                  for (count2 = 0; count2 < tx_key_images_ring_tx_hash_data.vout.length; count2++)
-                  {
-                    tx_key_images_ring_address_tx_ring_addresses += (count2 + 1) !== tx_key_images_ring_tx_hash_data.vout.length ? tx_key_images_ring_tx_hash_data.vout[count2].target.key + "|" : tx_key_images_ring_tx_hash_data.vout[count2].target.key + "||";
-                  }
-                  if ((count1 + 1) % tx_ringsize === 0)
-                  {
-                    tx_key_images_ring_address_tx_ring_addresses += "|";
-                  } 
-                }
-                else
-                {
-                  tx_key_images_ring_address_tx_ring_size += (count1 + 1) % tx_ringsize !== 0 ? "0|" : "0||";
-                  tx_key_images_ring_address_tx_block_timestamp += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "|" : tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "||";
-                  tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? "block_reward_transaction|" : "block_reward_transaction||";
-                  tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? "block_reward_transaction|" : "block_reward_transaction||";
-                  tx_key_images_ring_address_tx_ring_addresses += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data.vout[0].target.key + "||" : tx_key_images_ring_tx_hash_data.vout[0].target.key + "|||";
-                }
-              } 
-                tx_key_images_ring_address_tx_ring_size = tx_key_images_ring_address_tx_ring_size.substr(0, tx_key_images_ring_address_tx_ring_size.length - 2);
-                tx_key_images_ring_address_tx_block_timestamp = tx_key_images_ring_address_tx_block_timestamp.substr(0, tx_key_images_ring_address_tx_block_timestamp.length - 2);
-                tx_key_images_ring_address_tx_extra = tx_key_images_ring_address_tx_extra.substr(0, tx_key_images_ring_address_tx_extra.length - 2);
-                tx_key_images_ring_address_tx_ecdh_data = tx_key_images_ring_address_tx_ecdh_data.substr(0, tx_key_images_ring_address_tx_ecdh_data.length - 2);
-                tx_key_images_ring_address_tx_ring_addresses = tx_key_images_ring_address_tx_ring_addresses.substr(0, tx_key_images_ring_address_tx_ring_addresses.length - 3);
- 
-                // get the information to decode the transaction
-
-        res.json({
-                "tx_block_height":obj.txs[0].block_height !== 18446744073709552000 ? obj.txs[0].block_height : "TX_POOL",
-                "tx_block_timestamp":obj.txs[0].block_timestamp,
-                "tx_version":tx_data.version,
-                "tx_settings":tx_settings,
-                "tx_ringct_version":tx_data.rct_signatures.type,
-                "tx_fee":tx_data.rct_signatures.txnFee,
-                "tx_size":tx_size,
-                "tx_unlock_block":tx_unlock_block,
-                "tx_extra":Buffer.from(tx_extra).toString("hex"),
-                "tx_ringsize":tx_ringsize,
-                "tx_addresses":tx_addresses,
-                "tx_ecdh_data":JSON.stringify(tx_data.rct_signatures),
-                "tx_extra":Buffer.from(tx_extra).toString("hex"),
-                "tx_key_images":tx_key_images,
-                "tx_key_images_ring_address":tx_key_images_ring_address,
-                "tx_key_images_ring_tx_hash":tx_key_images_ring_tx_hash, 
-                "tx_key_images_ring_address_tx_ring_addresses":tx_key_images_ring_address_tx_ring_addresses,
-                "tx_key_images_ring_address_tx_block_height":tx_key_images_ring_block_height,
-                "tx_key_images_ring_address_tx_extra":tx_key_images_ring_address_tx_extra,
-                "tx_key_images_ring_address_tx_ecdh_data":tx_key_images_ring_address_tx_ecdh_data,
-                "tx_key_images_ring_address_tx_ring_size":tx_key_images_ring_address_tx_ring_size,
-                "tx_key_images_ring_address_tx_block_timestamp":tx_key_images_ring_address_tx_block_timestamp,
-                });
-              
-           }
-           catch (error)
-           {
-             res.status(400).json(GET_TRANSACTION_DATA_ERROR);
-           }         
-         });
-       });
-       post_request.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_request.abort());
-       post_request.on('error', response => res.status(400).json(GET_TRANSACTION_DATA_ERROR)); 
-         }
-         catch (error)
-         {
-           res.status(400).json(GET_TRANSACTION_DATA_ERROR);
-         }   
-      });
-});
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => res.status(400).json(GET_TRANSACTION_DATA_ERROR));   
-var get_ring_addresses_data = {"outputs":[]};
-for (count1 = 0; count1 < tx_key_images_ring_address_count.length; count1++)
-{
-get_ring_addresses_data.outputs[count1] = {"amount":0,"index":tx_key_images_ring_address_count[count1]};
-}
-post_req.end(JSON.stringify(get_ring_addresses_data));
+      let tx_key_images_ring_address = "";
+      let tx_key_images_ring_tx_hash = "";
+      let tx_key_images_ring_tx_hash_array = [];
+      let tx_key_images_ring_block_height = "";
 
 
+      let get_ring_addresses_data = {
+        "outputs": []
+      };
+      for (count1 = 0; count1 < tx_key_images_ring_address_count.length; count1++)
+      {
+        get_ring_addresses_data.outputs[count1] = {
+          "amount": 0,
+          "index": tx_key_images_ring_address_count[count1]
+        };
+      }
 
-
-
-for (var count1 = 0; count1 < tx_data.vin.length; count1++)
-{
-var post_req = http.request(DAEMON_HOSTNAME_AND_PORT_GET_RING_ADDRESSES_DATA, function(response) {
-      response.setEncoding('utf8');
-      response.on('data', function (chunk) { 
-          var result = JSON.parse(chunk);
-          completed_requests++;
-          for (var count3 = 0; count3 < tx_ringsize; count3++)
-          {
-            tx_key_images_ring_address += result.outs[count3].key + "|";
-            tx_key_images_ring_tx_hash += result.outs[count3].txid + "|";
-            tx_key_images_ring_block_height += result.outs[count3].height + "|";
-          } 
-          tx_key_images_ring_address += "|"; 
-          tx_key_images_ring_tx_hash += "|";
-          tx_key_images_ring_block_height += "|";       
-          if (completed_requests === tx_data.vin.length)
-          {
-            tx_key_images_ring_address = tx_key_images_ring_address.substr(0,tx_key_images_ring_address.length - 2);
-            tx_key_images_ring_tx_hash = tx_key_images_ring_tx_hash.substr(0,tx_key_images_ring_tx_hash.length - 2);
-            tx_key_images_ring_block_height = tx_key_images_ring_block_height.substr(0,tx_key_images_ring_block_height.length - 2);
-            var tx_extra = tx_data.extra;
-             res.json({
-              "tx_block_height":obj.txs[0].block_height,
-              "tx_block_timestamp":obj.txs[0].block_timestamp,
-              "tx_version":tx_data.version,
-              "tx_unlock_block":tx_data.unlock_time,
-              "tx_ringsize":tx_ringsize,
-              "tx_key_images":tx_key_images,
-              "tx_key_images_ring_address":tx_key_images_ring_address,
-              "tx_key_images_ring_tx_hash":tx_key_images_ring_tx_hash, 
-              "tx_key_images_ring_block_height":tx_key_images_ring_block_height
-            });
-          }
-      });
-});
-var get_ring_addresses_data = {"outputs":[]};
-for (var count2 = 0; count2 < tx_ringsize; count2++, counter++)
-{
-get_ring_addresses_data.outputs[count2] = {"amount":0,"index":tx_key_images_ring_address_count[counter]};
-}
-post_req.end(JSON.stringify(get_ring_addresses_data));
-get_ring_addresses_data = "";
-}
-
-
-     
-      
-      
-      
-}
-else
-{
-        res.json({
-                "tx_block_height":obj.txs[0].block_height,
-                "tx_block_timestamp":obj.txs[0].block_timestamp,
-                "tx_version":tx_data.version,
-                "tx_settings":tx_settings,
-                "tx_ringct_version":tx_data.rct_signatures.type,
-                "tx_size":obj.txs[0].as_hex.length / 1024 / 2,
-                "tx_unlock_block":tx_data.unlock_time,
-                "tx_extra":Buffer.from(tx_data.extra).toString("hex"),
-                "tx_address":tx_data.vout[0].target.key,
-                "tx_address_amount":tx_data.vout[0].amount / WALLET_DECIMAL_PLACES_AMOUNT,
-                });
-}      
-     
-    }
-    catch (error)
-    {
-      res.status(400).json(GET_TRANSACTION_DATA_ERROR);
-    } 
-     
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_TRANSACTION_DATA_ERROR));
-})
-*/
-
-
-
-
-
-/*
-app.post('/gettransactionconfirmations', urlencodedParser, function (req, res) {
-// gets the transaction confirmations
-// parameters
-// tx_hash = the transaction hash
-var get_transaction_confirmations_data = GET_TRANSACTION_CONFIRMATIONS_DATA;
-get_transaction_confirmations_data = get_transaction_confirmations_data.replace("transaction_hash",req.body.tx_hash);
-var httprequest = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA);
-httprequest.end(get_transaction_confirmations_data);
-
-var tx_block_height;
-var current_block_height;
-var tx_confirmations;
-
-httprequest.on('response', function (response) {
-  response.setEncoding('utf8');
-  var result = "";
-  response.on('data', chunk => result += chunk);
-  response.on('end', function () {
-    try
-    { 
-      var obj = JSON.parse(result);
+      result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_RING_ADDRESSES_DATA, JSON.stringify(get_ring_addresses_data));
+      let tx_ring_address = JSON.parse(result);
       if (result == "" || result.indexOf("error") != -1)
       {
-        throw("error");
+        throw ("error");
       }
-      tx_block_height = obj.txs[0].block_height;
-      var post_req = new http.ClientRequest(DAEMON_HOSTNAME_AND_PORT);
-      post_req.end(GET_BLOCK_COUNT);
-      post_req.on('response', function (response) {
-      response.setEncoding('utf8');
-      var result = "";
-      response.on('data', chunk => result += chunk);
-      response.on('end', function () {
-        try
-        { 
-          var obj = JSON.parse(result);
-          if (result == "" || result.indexOf("error") != -1)
+      for (count1 = 0; count1 < tx_key_images_ring_address_count.length; count1++)
+      {
+        tx_key_images_ring_address += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].key + "|" : tx_ring_address.outs[count1].key + "||";
+        tx_key_images_ring_tx_hash += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].txid + "|" : tx_ring_address.outs[count1].txid + "||";
+        tx_key_images_ring_tx_hash_array[count1] = tx_ring_address.outs[count1].txid;
+        tx_key_images_ring_block_height += (count1 + 1) % tx_ringsize !== 0 ? tx_ring_address.outs[count1].height + "|" : tx_ring_address.outs[count1].height + "||";
+      }
+      tx_key_images_ring_address = tx_key_images_ring_address.substr(0, tx_key_images_ring_address.length - 2);
+      tx_key_images_ring_tx_hash = tx_key_images_ring_tx_hash.substr(0, tx_key_images_ring_tx_hash.length - 2);
+      tx_key_images_ring_block_height = tx_key_images_ring_block_height.substr(0, tx_key_images_ring_block_height.length - 2);
+
+      let tx_addresses = "";
+      for (count1 = 0; count1 < tx_data.vout.length; count1++)
+      {
+        tx_addresses += tx_data.vout[count1].target.key + "|";
+      }
+      tx_addresses = tx_addresses.substr(0, tx_addresses.length - 1);
+
+      // calcuate the tx_size
+      let tx_size = obj.txs[0].as_hex.length / 1024 / 2;
+
+      tx_extra = tx_data.extra;
+
+      // get the key images ring address data
+      let tx_key_images_ring_tx_settings;
+      let tx_key_images_ring_address_tx_ring_addresses = "";
+      let tx_key_images_ring_address_tx_ring_size = "";
+      let tx_key_images_ring_address_tx_block_timestamp = "";
+      let tx_key_images_ring_address_tx_extra = "";
+      let tx_key_images_ring_address_tx_ecdh_data = "";
+      let get_transaction_data = {
+        "txs_hashes": [],
+        "decode_as_json": true,
+        "prune": false
+      };
+      for (count1 = 0; count1 < tx_key_images_ring_tx_hash_array.length; count1++)
+      {
+        get_transaction_data.txs_hashes[count1] = tx_key_images_ring_tx_hash_array[count1];
+      }
+      result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, JSON.stringify(get_transaction_data));
+      let tx_key_images_ring_tx_hash_result = JSON.parse(result);
+      let tx_key_images_ring_tx_hash_data;
+      let tx_key_images_ring_tx_hash_data_extra;
+      if (result == "" || result.indexOf("error") != -1)
+      {
+        throw ("error");
+      }
+      for (count1 = 0; count1 < tx_key_images_ring_tx_hash_array.length; count1++)
+      {
+        tx_key_images_ring_tx_hash_data = JSON.parse(tx_key_images_ring_tx_hash_result.txs[count1].as_json);
+        tx_key_images_ring_tx_settings = tx_key_images_ring_tx_hash_result.txs[count1].as_json.indexOf("key_offset") !== -1 ? "transaction" : "block_reward_transaction";
+        if (tx_key_images_ring_tx_settings === "transaction")
+        {
+          tx_key_images_ring_address_tx_ring_size += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data.vin[0].key.key_offsets.length + "|" : tx_key_images_ring_tx_hash_data.vin[0].key.key_offsets.length + "||";
+          tx_key_images_ring_address_tx_block_timestamp += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "|" : tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "||";
+          tx_key_images_ring_tx_hash_data_extra = Buffer.from(tx_key_images_ring_tx_hash_data.extra).toString("hex");
+          tx_key_images_ring_tx_hash_data_ecdh_tx_data = JSON.stringify(tx_key_images_ring_tx_hash_data.rct_signatures);
+          if (tx_key_images_ring_tx_hash_data_extra.length >= 256)
           {
-            throw("error");
-          } 
-          current_block_height = obj.result.count;
-          tx_confirmations = current_block_height - tx_block_height;      
-          res.json({"tx_confirmations":tx_confirmations});
+            tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data_extra + "|" : tx_key_images_ring_tx_hash_data_extra + "||";
+            tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data_ecdh_tx_data + "|" : tx_key_images_ring_tx_hash_data_ecdh_tx_data + "||";
+          }
+          else
+          {
+            tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? "private_tx|" : "private_tx||";
+            tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? "private_tx|" : "private_tx||";
+          }
+          for (count2 = 0; count2 < tx_key_images_ring_tx_hash_data.vout.length; count2++)
+          {
+            tx_key_images_ring_address_tx_ring_addresses += (count2 + 1) !== tx_key_images_ring_tx_hash_data.vout.length ? tx_key_images_ring_tx_hash_data.vout[count2].target.key + "|" : tx_key_images_ring_tx_hash_data.vout[count2].target.key + "||";
+          }
+          if ((count1 + 1) % tx_ringsize === 0)
+          {
+            tx_key_images_ring_address_tx_ring_addresses += "|";
+          }
+        }
+        else
+        {
+          tx_key_images_ring_address_tx_ring_size += (count1 + 1) % tx_ringsize !== 0 ? "0|" : "0||";
+          tx_key_images_ring_address_tx_block_timestamp += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "|" : tx_key_images_ring_tx_hash_result.txs[count1].block_timestamp + "||";
+          tx_key_images_ring_address_tx_extra += (count1 + 1) % tx_ringsize !== 0 ? "block_reward_transaction|" : "block_reward_transaction||";
+          tx_key_images_ring_address_tx_ecdh_data += (count1 + 1) % tx_ringsize !== 0 ? "block_reward_transaction|" : "block_reward_transaction||";
+          tx_key_images_ring_address_tx_ring_addresses += (count1 + 1) % tx_ringsize !== 0 ? tx_key_images_ring_tx_hash_data.vout[0].target.key + "||" : tx_key_images_ring_tx_hash_data.vout[0].target.key + "|||";
+        }
+      }
+      tx_key_images_ring_address_tx_ring_size = tx_key_images_ring_address_tx_ring_size.substr(0, tx_key_images_ring_address_tx_ring_size.length - 2);
+      tx_key_images_ring_address_tx_block_timestamp = tx_key_images_ring_address_tx_block_timestamp.substr(0, tx_key_images_ring_address_tx_block_timestamp.length - 2);
+      tx_key_images_ring_address_tx_extra = tx_key_images_ring_address_tx_extra.substr(0, tx_key_images_ring_address_tx_extra.length - 2);
+      tx_key_images_ring_address_tx_ecdh_data = tx_key_images_ring_address_tx_ecdh_data.substr(0, tx_key_images_ring_address_tx_ecdh_data.length - 2);
+      tx_key_images_ring_address_tx_ring_addresses = tx_key_images_ring_address_tx_ring_addresses.substr(0, tx_key_images_ring_address_tx_ring_addresses.length - 3);
+
+      // get the information to decode the transaction
+
+      res.json(
+      {
+        "tx_block_height": obj.txs[0].block_height !== 18446744073709552000 ? obj.txs[0].block_height : "TX_POOL",
+        "tx_block_timestamp": obj.txs[0].block_timestamp,
+        "tx_version": tx_data.version,
+        "tx_settings": tx_settings,
+        "tx_ringct_version": tx_data.rct_signatures.type,
+        "tx_fee": tx_data.rct_signatures.txnFee,
+        "tx_size": tx_size,
+        "tx_unlock_block": tx_unlock_block,
+        "tx_extra": Buffer.from(tx_extra).toString("hex"),
+        "tx_ringsize": tx_ringsize,
+        "tx_addresses": tx_addresses,
+        "tx_ecdh_data": JSON.stringify(tx_data.rct_signatures),
+        "tx_extra": Buffer.from(tx_extra).toString("hex"),
+        "tx_key_images": tx_key_images,
+        "tx_key_images_ring_address": tx_key_images_ring_address,
+        "tx_key_images_ring_tx_hash": tx_key_images_ring_tx_hash,
+        "tx_key_images_ring_address_tx_ring_addresses": tx_key_images_ring_address_tx_ring_addresses,
+        "tx_key_images_ring_address_tx_block_height": tx_key_images_ring_block_height,
+        "tx_key_images_ring_address_tx_extra": tx_key_images_ring_address_tx_extra,
+        "tx_key_images_ring_address_tx_ecdh_data": tx_key_images_ring_address_tx_ecdh_data,
+        "tx_key_images_ring_address_tx_ring_size": tx_key_images_ring_address_tx_ring_size,
+        "tx_key_images_ring_address_tx_block_timestamp": tx_key_images_ring_address_tx_block_timestamp,
+      });
     }
-    catch (error)
+    else
     {
-      res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR);
-    }    
-  });
-});
-post_req.setTimeout(HTTP_REQUEST_TIMEOUT, () => post_req.abort());
-post_req.on('error', response => res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR));       
+      res.json(
+      {
+        "tx_block_height": obj.txs[0].block_height,
+        "tx_block_timestamp": obj.txs[0].block_timestamp,
+        "tx_version": tx_data.version,
+        "tx_settings": tx_settings,
+        "tx_ringct_version": tx_data.rct_signatures.type,
+        "tx_size": obj.txs[0].as_hex.length / 1024 / 2,
+        "tx_unlock_block": tx_data.unlock_time,
+        "tx_extra": Buffer.from(tx_data.extra).toString("hex"),
+        "tx_address": tx_data.vout[0].target.key,
+        "tx_address_amount": tx_data.vout[0].amount / WALLET_DECIMAL_PLACES_AMOUNT,
+      });
     }
-    catch (error)
-    {
-      res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR);
-    }    
-  });
-});
-httprequest.setTimeout(HTTP_REQUEST_TIMEOUT, () => httprequest.abort());
-httprequest.on('error', response => res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR));
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_TRANSACTION_DATA_ERROR);
+  }
 })
-*/
+
+app.get('/verifypreminefundsairdrop', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    let premine_funds_data = "";
+    let verify_reserve_proof = "";
+    let counter = 0;
+    for (let count = 0; count < PREMINE_FUNDS_AIRDROP_WALLETS.length; count++)
+    {
+      verify_reserve_proof = VERIFY_RESERVE_PROOF;
+      verify_reserve_proof = verify_reserve_proof.replace("public_address", PREMINE_FUNDS_AIRDROP_WALLETS[count]);
+      verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"', '"' + PREMINE_FUNDS_AIRDROP_WALLETS_RESERVE_PROOFS[count] + '"');
+      verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"', "");
+      let result = await send_post_request(WALLET_HOSTNAME_AND_PORT, verify_reserve_proof);
+      let obj = JSON.parse(result);
+      if (result == "")
+      {
+        throw ("error");
+      }
+      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
+      {
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_AIRDROP_WALLETS[counter] + "|" + PREMINE_FUNDS_AIRDROP_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
+      }
+      else
+      {
+        let message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_AIRDROP_WALLETS[counter] + "|" + PREMINE_FUNDS_AIRDROP_WALLETS_RESERVE_PROOFS[counter] + "|" + "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
+      }
+      counter++;
+      if (counter === PREMINE_FUNDS_AIRDROP_WALLETS.length)
+      {
+        premine_funds_data = premine_funds_data.substr(0, premine_funds_data.length - 2);
+        res.json(
+        {
+          "data": premine_funds_data
+        });
+      }
+    }
+  }
+  catch (error)
+  {
+    res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
+  }
+})
+
+app.get('/verifypreminefundsxcash', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    let premine_funds_data = "";
+    let verify_reserve_proof = "";
+    let counter = 0;
+    for (let count = 0; count < PREMINE_FUNDS_XCASH_WALLETS.length; count++)
+    {
+      verify_reserve_proof = VERIFY_RESERVE_PROOF;
+      verify_reserve_proof = verify_reserve_proof.replace("public_address", PREMINE_FUNDS_XCASH_WALLETS[count]);
+      verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"', '"' + PREMINE_FUNDS_XCASH_WALLETS_RESERVE_PROOFS[count] + '"');
+      verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"', "");
+      let result = await send_post_request(WALLET_HOSTNAME_AND_PORT, verify_reserve_proof);
+      let obj = JSON.parse(result);
+      if (result == "")
+      {
+        throw ("error");
+      }
+      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
+      {
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
+      }
+      else
+      {
+        let message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_WALLETS_RESERVE_PROOFS[counter] + "|" + "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
+      }
+      counter++;
+      if (counter === PREMINE_FUNDS_XCASH_WALLETS.length)
+      {
+        premine_funds_data = premine_funds_data.substr(0, premine_funds_data.length - 2);
+        res.json(
+        {
+          "data": premine_funds_data
+        });
+      }
+    }
+  }
+  catch (error)
+  {
+    res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
+  }
+})
+
+app.get('/verifypreminefundsxcashrewards', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    let premine_funds_data = "";
+    let verify_reserve_proof = "";
+    let counter = 0;
+    for (let count = 0; count < PREMINE_FUNDS_XCASH_REWARD_WALLETS.length; count++)
+    {
+      verify_reserve_proof = VERIFY_RESERVE_PROOF;
+      verify_reserve_proof = verify_reserve_proof.replace("public_address", PREMINE_FUNDS_XCASH_REWARD_WALLETS[count]);
+      verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"', '"' + PREMINE_FUNDS_XCASH_REWARD_WALLETS_RESERVE_PROOFS[count] + '"');
+      verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"', "");
+      let result = await send_post_request(WALLET_HOSTNAME_AND_PORT, verify_reserve_proof);
+      let obj = JSON.parse(result);
+      if (result == "")
+      {
+        throw ("error");
+      }
+      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
+      {
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_REWARD_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_REWARD_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
+      }
+      else
+      {
+        let message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_REWARD_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_REWARD_WALLETS_RESERVE_PROOFS[counter] + "|" + "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
+      }
+      counter++;
+      if (counter === PREMINE_FUNDS_XCASH_REWARD_WALLETS.length)
+      {
+        premine_funds_data = premine_funds_data.substr(0, premine_funds_data.length - 2);
+        res.json(
+        {
+          "data": premine_funds_data
+        });
+      }
+    }
+  }
+  catch (error)
+  {
+    res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
+  }
+})
+
+app.get('/verifypreminefundsxcashinvestors', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    let premine_funds_data = "";
+    let verify_reserve_proof = "";
+    let counter = 0;
+    for (let count = 0; count < PREMINE_FUNDS_XCASH_INVESTORS_WALLETS.length; count++)
+    {
+      verify_reserve_proof = VERIFY_RESERVE_PROOF;
+      verify_reserve_proof = verify_reserve_proof.replace("public_address", PREMINE_FUNDS_XCASH_INVESTORS_WALLETS[count]);
+      verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"', '"' + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS_RESERVE_PROOFS[count] + '"');
+      verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"', "");
+      let result = await send_post_request(WALLET_HOSTNAME_AND_PORT, verify_reserve_proof);
+      let obj = JSON.parse(result);
+      if (result == "")
+      {
+        throw ("error");
+      }
+      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
+      {
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS_RESERVE_PROOFS[counter] + "|" + "invalid|0|0|The reserve proof is invalid for this address||";
+      }
+      else
+      {
+        let message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
+        premine_funds_data = premine_funds_data + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS[counter] + "|" + PREMINE_FUNDS_XCASH_INVESTORS_WALLETS_RESERVE_PROOFS[counter] + "|" + "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
+      }
+      counter++;
+      if (counter === PREMINE_FUNDS_XCASH_INVESTORS_WALLETS.length)
+      {
+        premine_funds_data = premine_funds_data.substr(0, premine_funds_data.length - 2);
+        res.json(
+        {
+          "data": premine_funds_data
+        });
+      }
+    }
+  }
+  catch (error)
+  {
+    res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
+  }
+})
+
+app.get('/verifyreserveproofapi', urlencodedParser, async(req, res) =>
+{
+  // verifies that a reserve proof is correct
+  // parameters
+  // public_address = the public address
+  // reserve_proof = the reserve proof
+  // data = any data that was used to create the reserve proof. leave empty if no data was used to create the reserve proof
+  try
+  {
+    let verify_reserve_proof = VERIFY_RESERVE_PROOF;
+    verify_reserve_proof = verify_reserve_proof.replace("public_address", req.query.public_address);
+    verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"', '"' + req.query.reserve_proof + '"');
+    verify_reserve_proof = req.query.data != "" ? verify_reserve_proof.replace("data", req.query.data) : verify_reserve_proof.replace(',"message":"data"', "");
+    let result = await send_post_request(WALLET_HOSTNAME_AND_PORT, verify_reserve_proof);
+    let obj = JSON.parse(result);
+    if (result == "")
+    {
+      throw ("error");
+    }
+    else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
+    {
+      res.json(
+      {
+        "reserve_proof_settings": "invalid",
+        "reserve_proof_amount": 0,
+        "reserve_proof_amount_spent": 0,
+        "message": "The reserve proof is invalid for this address"
+      });
+    }
+    else
+    {
+      let message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
+      res.json(
+      {
+        "reserve_proof_settings": "valid",
+        "reserve_proof_amount": obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT,
+        "reserve_proof_amount_spent": obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT,
+        "message": message
+      });
+    }
+  }
+  catch (error)
+  {
+    res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
+  }
+})
+
+app.get('/verifyreserveproofallapi', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    let data = "";
+    let counter = 0;
+    for (let count = 0; count < PREMINE_FUNDS_ALL_WALLETS.length; count++)
+    {
+      verify_reserve_proof = VERIFY_RESERVE_PROOF;
+      verify_reserve_proof = verify_reserve_proof.replace("public_address", PREMINE_FUNDS_ALL_WALLETS[count]);
+      verify_reserve_proof = verify_reserve_proof.replace('"reserve_proof"', '"' + PREMINE_FUNDS_ALL_WALLETS_RESERVE_PROOFS[count] + '"');
+      verify_reserve_proof = verify_reserve_proof.replace(',"message":"data"', "");
+      let result = await send_post_request(WALLET_HOSTNAME_AND_PORT, verify_reserve_proof);
+      let obj = JSON.parse(result);
+      if (result == "")
+      {
+        throw ("error");
+      }
+      else if (result.indexOf("error") != -1 || result.indexOf("false") != -1)
+      {
+        data += "invalid|0|0|The reserve proof is invalid for this address||";
+      }
+      else
+      {
+        let message = obj.result.spent === 0 ? "The reserve proof is valid for this address, and no funds have been spent since creating this reserve proof" : "The reserve proof is valid for this address, but funds have been spent after creating this reserve proof, meaning that the amount is incorrect";
+        data += "valid|" + obj.result.total / WALLET_DECIMAL_PLACES_AMOUNT + "|" + obj.result.spent / WALLET_DECIMAL_PLACES_AMOUNT + "|" + message + "||";
+      }
+      counter++;
+      if (counter === PREMINE_FUNDS_ALL_WALLETS.length)
+      {
+        data = data.substr(0, data.length - 2);
+        res.json(
+        {
+          "data": data
+        });
+      }
+    }
+  }
+  catch (error)
+  {
+    res.status(400).json(VERIFY_RESERVE_PROOF_ERROR);
+  }
+})
+
+app.get('/gettransactionconfirmations', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    // gets the transaction confirmations
+    // parameters
+    // tx_hash = the transaction hash
+    let get_transaction_confirmations_data = GET_TRANSACTION_CONFIRMATIONS_DATA;
+    get_transaction_confirmations_data = get_transaction_confirmations_data.replace("transaction_hash", req.query.tx_hash);
+    let tx_block_height;
+    let current_block_height;
+    let tx_confirmations;
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, get_transaction_confirmations_data);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    tx_block_height = obj.txs[0].block_height;
+    result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, GET_BLOCK_COUNT);
+    obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    current_block_height = obj.result.count;
+    tx_confirmations = current_block_height - tx_block_height;
+    res.json(
+    {
+      "tx_confirmations": tx_confirmations
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_TRANSACTION_CONFIRMATIONS_DATA_ERROR);
+  }
+})
+
+app.get('/createintegratedaddressapi', urlencodedParser, (req, res) =>
+{
+  // creates an integrated address
+  // parameters
+  // public_address = the public address
+  // payment_id = the payment id, leave empty for a random payment id
+  try
+  {
+    let public_address = req.query.public_address;
+    if (public_address.length !== XCASH_WALLET_LENGTH)
+    {
+      throw ("error");
+    }
+    let payment_id = req.query.payment_id;
+    if (payment_id.length !== ENCRYPTED_PAYMENT_ID_LENGTH)
+    {
+      payment_id = generate_random_payment_id();
+    }
+    let integrated_address = cryptocurrency.create_integrated_address(public_address, payment_id);
+    if (integrated_address == "")
+    {
+      throw ("error");
+    }
+
+    res.json(
+    {
+      "public_address": public_address,
+      "payment_id": payment_id,
+      "integrated_address": integrated_address
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(CREATE_INTEGRATED_ADDRESS_ERROR);
+  }
+})
+
+app.post('/gettransactionpooldata', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    // get the transaction pool data
+    // parameters
+    //tx_pool_settings 0 gets all the tx pool transactions data, 1 gets the MAXIMUM_TX_POOL_SIZE tx pool transactions data
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_POOL_DATA, "");
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    let results = "";
+    for (let count = 0; count < result.length; count++)
+    {
+      if (
+        result[count] === "a" ||
+        result[count] === "b" ||
+        result[count] === "c" ||
+        result[count] === "d" ||
+        result[count] === "e" ||
+        result[count] === "f" ||
+        result[count] === "g" ||
+        result[count] === "h" ||
+        result[count] === "i" ||
+        result[count] === "j" ||
+        result[count] === "k" ||
+        result[count] === "l" ||
+        result[count] === "m" ||
+        result[count] === "n" ||
+        result[count] === "o" ||
+        result[count] === "p" ||
+        result[count] === "q" ||
+        result[count] === "r" ||
+        result[count] === "s" ||
+        result[count] === "t" ||
+        result[count] === "u" ||
+        result[count] === "v" ||
+        result[count] === "w" ||
+        result[count] === "x" ||
+        result[count] === "y" ||
+        result[count] === "z" ||
+        result[count] === "A" ||
+        result[count] === "B" ||
+        result[count] === "C" ||
+        result[count] === "D" ||
+        result[count] === "E" ||
+        result[count] === "F" ||
+        result[count] === "G" ||
+        result[count] === "H" ||
+        result[count] === "I" ||
+        result[count] === "J" ||
+        result[count] === "K" ||
+        result[count] === "L" ||
+        result[count] === "M" ||
+        result[count] === "N" ||
+        result[count] === "O" ||
+        result[count] === "P" ||
+        result[count] === "Q" ||
+        result[count] === "R" ||
+        result[count] === "S" ||
+        result[count] === "T" ||
+        result[count] === "U" ||
+        result[count] === "V" ||
+        result[count] === "W" ||
+        result[count] === "X" ||
+        result[count] === "Y" ||
+        result[count] === "Z" ||
+        result[count] === "0" ||
+        result[count] === "1" ||
+        result[count] === "2" ||
+        result[count] === "3" ||
+        result[count] === "4" ||
+        result[count] === "5" ||
+        result[count] === "6" ||
+        result[count] === "7" ||
+        result[count] === "8" ||
+        result[count] === "9" ||
+        result[count] === ":" ||
+        result[count] === "[" ||
+        result[count] === "]" ||
+        result[count] === "{" ||
+        result[count] === "}" ||
+        result[count] === " " ||
+        result[count] === "|" ||
+        result[count] === " " ||
+        result[count] === "?" ||
+        result[count] === "." ||
+        result[count] === ">" ||
+        result[count] === "<" ||
+        result[count] === "," ||
+        result[count] === ";" ||
+        result[count] === "+" ||
+        result[count] === '-' ||
+        result[count] === "*" ||
+        result[count] === "=" ||
+        result[count] === "-" ||
+        result[count] === "_" ||
+        result[count] === "`" ||
+        result[count] === "~" ||
+        result[count] === "!" ||
+        result[count] === "@" ||
+        result[count] === "#" ||
+        result[count] === "$" ||
+        result[count] === "%" ||
+        result[count] === "^" ||
+        result[count] === "&"
+      )
+      {
+        results += result[count];
+      }
+    }
+
+    let count1 = 0;
+    let count2 = 0;
+    let count3 = 0;
+    let count4 = 0;
+    let tx_count = 0;
+    let tx_hash_pool = "";
+    let tx_ringsize = "";
+    let tx_timestamp = "";
+    let tx_fee = "";
+    let tx_size = "";
+    let tx_paymentidsettings = "";
+    let tx_privacy_settings = "";
+    let get_transaction_data = {
+      "txs_hashes": [],
+      "decode_as_json": true
+    };
+    count1 = results.split("txs_hashes:").length - 1;
+    for (count2 = 0; count2 < count1; count2++)
+    {
+      count4 = results.indexOf("txs_hashes:", count3);
+      count3 = count4 + 11;
+      let str = results.substr(count4 + 13, TRANSACTION_HASH_LENGTH);
+      if (tx_hash_pool.indexOf(str) === -1)
+      {
+        if ((req.body.tx_pool_settings == 0) || (req.body.tx_pool_settings == 1 && count2 < MAXIMUM_TX_POOL_SIZE))
+        {
+          tx_hash_pool += str + "|";
+          tx_count++;
+          get_transaction_data.txs_hashes.push(str);
+        }
+      }
+    }
+
+    count4 = 0;
+    count3 = 0;
+    for (count2 = 0; count2 < count1; count2++)
+    {
+      count4 = results.indexOf("last_relayed_time", count3);
+      count3 = count4 + 17;
+      let str = results.substr(count4 + 19, 10);
+      if ((req.body.tx_pool_settings == 0) || (req.body.tx_pool_settings == 1 && count2 < MAXIMUM_TX_POOL_SIZE))
+      {
+        tx_timestamp += str + "|";
+      }
+    }
+    tx_hash_pool = tx_hash_pool.substr(0, tx_hash_pool.length - 1);
+    let tx_timestamp_copy = "";
+    for (let count = 0; count < tx_timestamp.length; count++)
+    {
+      if (
+        tx_timestamp[count] === "0" ||
+        tx_timestamp[count] === "1" ||
+        tx_timestamp[count] === "2" ||
+        tx_timestamp[count] === "3" ||
+        tx_timestamp[count] === "4" ||
+        tx_timestamp[count] === "5" ||
+        tx_timestamp[count] === "6" ||
+        tx_timestamp[count] === "7" ||
+        tx_timestamp[count] === "8" ||
+        tx_timestamp[count] === "9" ||
+        tx_timestamp[count] === "|"
+      )
+      {
+        tx_timestamp_copy += tx_timestamp[count];
+      }
+    }
+    tx_timestamp = tx_timestamp_copy.indexOf("||") !== -1 ? tx_timestamp_copy.split("||")[0] : tx_timestamp_copy;
+    if (tx_timestamp.substr(tx_timestamp.length - 1, 1) === "|")
+    {
+      tx_timestamp = tx_timestamp.substr(0, tx_timestamp.length - 1);
+    }
+
+    result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, JSON.stringify(get_transaction_data));
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    let tx_extra = "";
+    for (count1 = 0; count1 < tx_count; count1++)
+    {
+      if ((req.body.tx_pool_settings == 0) || (req.body.tx_pool_settings == 1 && count1 < MAXIMUM_TX_POOL_SIZE))
+      {
+        tx_data = JSON.parse(obj.txs[count1].as_json);
+        tx_extra = Buffer.from(tx_data.extra).toString("hex");
+        tx_ringsize += tx_data.vin[0].key.key_offsets.length + "|";
+        tx_fee += tx_data.rct_signatures.txnFee + "|";
+        tx_size += (obj.txs[count1].as_hex.length / 1024 / 2) + "|";
+        tx_paymentidsettings += tx_extra.substr(0, 6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0, 6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
+        tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";
+      }
+    }
+    tx_ringsize = tx_ringsize.substr(0, tx_ringsize.length - 1);
+    tx_fee = tx_fee.substr(0, tx_fee.length - 1);
+    tx_size = tx_size.substr(0, tx_size.length - 1);
+    tx_paymentidsettings = tx_paymentidsettings.substr(0, tx_paymentidsettings.length - 1);
+    tx_privacy_settings = tx_privacy_settings.substr(0, tx_privacy_settings.length - 1);
+
+    if (tx_timestamp.substr(tx_timestamp.length - 1, 1) === "|")
+    {
+      tx_timestamp = tx_timestamp.substr(0, tx_timestamp.length - 1);
+    }
+
+    res.json(
+    {
+      "tx_hash": tx_hash_pool,
+      "tx_ringsize": tx_ringsize,
+      "tx_timestamp": tx_timestamp,
+      "tx_fee": tx_fee,
+      "tx_size": tx_size,
+      "tx_paymentidsettings": tx_paymentidsettings,
+      "tx_privacy_settings": tx_privacy_settings
+    });
+
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_TRANSACTION_POOL_DATA_ERROR);
+  }
+})
+
+app.post('/getblockhash', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    // gets the block hash from a block height
+    // parameters
+    // block_height = the block height
+    let get_block_hash = GET_BLOCK_HASH;
+    get_block_hash = get_block_hash.replace("block_height", req.body.block_height);
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, get_block_hash);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    res.json(
+    {
+      "block_hash": obj.result
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCK_HASH_ERROR);
+  }
+})
+
+app.get('/getblockdata', urlencodedParser, async(req, res) =>
+{
+  try
+  {
+    // gets the blocks data from the block height or block hash
+    // parameters
+    // block_data = the block height or the block hash
+    let get_block_data = req.query.block_data.length === BLOCK_HASH_LENGTH ? GET_BLOCK_DATA_FROM_BLOCK_HASH : GET_BLOCK_DATA_FROM_BLOCK_HEIGHT;
+    if (req.query.block_data.length === BLOCK_HASH_LENGTH)
+    {
+      get_block_data = get_block_data.replace("block_hash", req.query.block_data);
+    }
+    else
+    {
+      get_block_data = get_block_data.replace("block_height", req.query.block_data);
+    }
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, get_block_data);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    res.json(
+    {
+      "block_height": obj.result.block_header.height,
+      "block_hash": obj.result.block_header.hash,
+      "block_size": obj.result.block_header.block_size / 1024,
+      "block_tx_amount": obj.result.block_header.num_txes,
+      "block_reward": obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
+      "block_timestamp": obj.result.block_header.timestamp,
+      "block_difficulty": obj.result.block_header.difficulty
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCK_DATA_ERROR);
+  }
+})
+
+app.post('/getblockchaindatasettings', urlencodedParser, async(req, res) =>
+{
+  // gets what type of item the user has provided
+  // parameters
+  // settings = valid parameters are the block_height, block_hash, block_reward_transaction, tx_hash, encrypted_payment_id, unencrypted_payment_id, public_address, stealth_address, tx_public_key, tx_private_key
+  try
+  {
+    let settings = req.body.settings;
+    let blockchaindatasettings = "";
+    if (isNaN(settings) == false && (settings.length !== UNENCRYPTED_PAYMENT_ID_LENGTH || settings.length !== ENCRYPTED_PAYMENT_ID_LENGTH))
+    {
+      blockchaindatasettings = "block_height";
+      res.json(
+      {
+        "settings": "block_height"
+      });
+      return;
+    }
+    if (settings.length === ENCRYPTED_PAYMENT_ID_LENGTH)
+    {
+      blockchaindatasettings = "encrypted_payment_id";
+      res.json(
+      {
+        "settings": "encrypted_payment_id"
+      });
+      return;
+    }
+    if (settings.substr(0, 3) === "XCA")
+    {
+      blockchaindatasettings = "public_address";
+      res.json(
+      {
+        "settings": "public_address"
+      });
+      return;
+    }
+    let get_block_data_from_block_hash = GET_BLOCK_DATA_FROM_BLOCK_HASH;
+    get_block_data_from_block_hash = get_block_data_from_block_hash.replace("block_hash", settings);
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, get_block_data_from_block_hash);
+    if (result.indexOf("error") === -1)
+    {
+      blockchaindatasettings = "block_hash";
+      res.json(
+      {
+        "settings": "block_hash"
+      });
+      return;
+    }
+
+    let get_transaction_data = GET_TRANSACTION_DATA;
+    get_transaction_data = get_transaction_data.replace("transaction_hash", settings);
+    result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, get_transaction_data);
+    if (result.indexOf("key_offset") !== -1)
+    {
+      blockchaindatasettings = "transaction";
+      res.json(
+      {
+        "settings": "transaction"
+      });
+      return;
+    }
+    else if (result.indexOf("block_height") !== -1)
+    {
+      blockchaindatasettings = "block_reward_transaction";
+      res.json(
+      {
+        "settings": "block_reward_transaction"
+      });
+      return;
+    }
+    else
+    {
+      // search the database for tx_public_key, tx_private_key, stealth_address, unencrypted_payment_id
+      collection = database.collection(DATABASE_COLLECTION);
+      collection.countDocuments(
+      {
+        "tx_paymentid": settings
+      }, (error, databasecount) =>
+      {
+        try
+        {
+          if (error)
+          {
+            throw ("error");
+          }
+        }
+        catch (error)
+        {
+          return;
+        }
+        if (databasecount != 0)
+        {
+          blockchaindatasettings = "unencrypted_payment_id";
+          res.json(
+          {
+            "settings": "unencrypted_payment_id"
+          });
+          return;
+        }
+      });
+
+      let str = ".*" + settings + ".*";
+      collection.countDocuments(
+      {
+        "tx_addresses":
+        {
+          '$regex': str
+        }
+      }, (error, databasecount) =>
+      {
+        try
+        {
+          if (error)
+          {
+            throw ("error");
+          }
+        }
+        catch (error)
+        {
+          return;
+        }
+        if (databasecount != 0)
+        {
+          blockchaindatasettings = "stealth_address";
+          res.json(
+          {
+            "settings": "stealth_address"
+          });
+          return;
+        }
+      });
+      collection.countDocuments(
+      {
+        "tx_public_key": settings
+      }, (error, databasecount) =>
+      {
+        try
+        {
+          if (error)
+          {
+            throw ("error");
+          }
+        }
+        catch (error)
+        {
+          return;
+        }
+        if (databasecount != 0)
+        {
+          blockchaindatasettings = "tx_public_key";
+          res.json(
+          {
+            "settings": "tx_public_key"
+          });
+          return;
+        }
+      });
+      collection.countDocuments(
+      {
+        "tx_private_key": settings
+      }, (error, databasecount) =>
+      {
+        try
+        {
+          if (error)
+          {
+            throw ("error");
+          }
+        }
+        catch (error)
+        {
+          return;
+        }
+        if (databasecount != 0)
+        {
+          blockchaindatasettings = "tx_private_key";
+          res.json(
+          {
+            "settings": "tx_private_key"
+          });
+          return;
+        }
+      });
+
+      setTimeout(() =>
+      {
+        if (blockchaindatasettings == "")
+        {
+          res.status(400).json(GET_BLOCKCHAIN_DATA_SETTINGS_ERROR);
+        }
+      }, 5000);
+    }
+
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCKCHAIN_DATA_SETTINGS_ERROR);
+  }
+})
+
+app.post('/gettransactiondatasearchresults', urlencodedParser, (req, res) =>
+{
+  // gets the transaction data for the transaction search results
+  // parameters
+  // settings = the type of transaction data. Valid parameters are encrypted_payment_id, unencrypted_payment_id, public_address, stealth_address, tx_public_key, tx_private_key
+  // tx_data = the tx_data
+  try
+  {
+    let tx_data_array;
+    if (req.body.settings === "encrypted_payment_id" || req.body.settings === "unencrypted_payment_id")
+    {
+      tx_data_array = {
+        "tx_paymentid": req.body.tx_data
+      };
+    }
+    else if (req.body.settings === "public_address")
+    {
+      tx_data_array = {
+        "tx_public_addresses":
+        {
+          '$regex': req.body.tx_data
+        }
+      };
+    }
+    else if (req.body.settings === "stealth_address")
+    {
+      tx_data_array = {
+        "tx_addresses":
+        {
+          '$regex': req.body.tx_data
+        }
+      };
+    }
+    else if (req.body.settings === "tx_public_key")
+    {
+      tx_data_array = {
+        "tx_public_key": req.body.tx_data
+      };
+    }
+    else if (req.body.settings === "tx_private_key")
+    {
+      tx_data_array = {
+        "tx_private_key": req.body.tx_data
+      };
+    }
+    else
+    {
+      throw ("error");
+    }
+
+    // get the transaction data
+    let tx_data = [];
+    let count = 1;
+    collection.find(tx_data_array).toArray((err, documents) => res.json(
+    {
+      "tx_data": documents
+    }));
+  }
+  catch (error)
+  {
+    res.status(400).json(SEND_HEXADECIMIAL_TRANSACTION_ERROR);
+  }
+})
+
+app.post('/sendhexadecimaltransaction', urlencodedParser, async(req, res) =>
+{
+  // sends a hexadecimal transaction
+  // parameters
+  // tx_data_hexadecimal = the hexadecimal data of the transaction
+  // settings = 0 sends the transaction and 1 validates the transaction
+  try
+  {
+    let send_hexadecimal_transaction = req.body.settings == 0 ? SEND_HEXADECIMAL_TRANSACTION : VALIDATE_HEXADECIMAL_TRANSACTION;
+    send_hexadecimal_transaction = send_hexadecimal_transaction.replace("tx_data_hexadecimal", req.body.tx_data_hexadecimal);
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION, send_hexadecimal_transaction);
+    if (result == "" || result.indexOf("error") != -1 || result.indexOf("Failed") != -1)
+    {
+      let obj = JSON.parse(result);
+      if (obj.reason == "")
+      {
+        obj.reason = "Invalid";
+      }
+      res.json(
+      {
+        "send_hexadecimal_transaction_results": obj.reason
+      });
+    }
+    else
+    {
+      res.json(SEND_HEXADECIMIAL_TRANSACTION_SUCCESS);
+    }
+  }
+  catch (error)
+  {
+    res.status(400).json(SEND_HEXADECIMIAL_TRANSACTION_ERROR);
+  }
+})
+
+app.post('/getblocktransactiondata', urlencodedParser, async(req, res) =>
+{
+  // gets the blocks transaction data
+  // parameters
+  // get_block_transaction_data_settings = the block height, or the block hash
+  try
+  {
+    let get_block_transaction_data = GET_BLOCK_TRANSACTION_DATA;
+    get_block_transaction_data = req.body.get_block_transaction_data_settings.length === TRANSACTION_HASH_LENGTH ? get_block_transaction_data.replace("get_block_transaction_data_parameter", "hash") : get_block_transaction_data.replace("get_block_transaction_data_parameter", "height");
+    get_block_transaction_data = get_block_transaction_data.replace("get_block_transaction_data_settings", req.body.get_block_transaction_data_settings);
+    let result = await send_post_request(DAEMON_HOSTNAME_AND_PORT, get_block_transaction_data);
+    let obj = JSON.parse(result);
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    let block_transaction_data = JSON.parse(obj.result.json);
+    let tx_hashes = "";
+    let get_transaction_data = {
+      "txs_hashes": [],
+      "decode_as_json": true
+    };
+    for (let count = 0; count < block_transaction_data.tx_hashes.length; count++)
+    {
+      tx_hashes += block_transaction_data.tx_hashes[count] + "|";
+      get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
+    }
+    tx_hashes = tx_hashes.substr(0, tx_hashes.length - 1);
+    result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, get_transaction_data);
+    let tx_hash_data = JSON.parse(result);
+    let tx_hash_data_results;
+    if (result == "" || result.indexOf("error") != -1)
+    {
+      throw ("error");
+    }
+    let block_tx_ringsizes = "";
+    let block_tx_fees = "";
+    let block_tx_sizes = "";
+    let block_tx_paymentid_settings = "";
+    let block_tx_privacy_settings = "";
+    let tx_extra = "";
+    for (count1 = 0; count1 < block_transaction_data.tx_hashes.length; count1++)
+    {
+      tx_hash_data_results = JSON.parse(tx_hash_data.txs[count1].as_json);
+      tx_extra = Buffer.from(tx_hash_data_results.extra).toString("hex");
+      block_tx_ringsizes += tx_hash_data_results.vin[0].key.key_offsets.length + "|";
+      block_tx_fees += tx_hash_data_results.rct_signatures.txnFee + "|";
+      block_tx_sizes += (tx_hash_data.txs[count1].as_hex.length / 1024 / 2) + "|";
+      block_tx_paymentid_settings += tx_extra.substr(0, 6) === UNENCRYPTED_PAYMENT_ID ? "unencrypted|" : tx_extra.substr(0, 6) === ENCRYPTED_PAYMENT_ID ? "encrypted|" : "none|";
+      block_tx_privacy_settings += tx_extra.length >= 256 ? "public|" : "private|";
+    }
+    block_tx_ringsizes = block_tx_ringsizes.substr(0, block_tx_ringsizes.length - 1);
+    block_tx_fees = block_tx_fees.substr(0, block_tx_fees.length - 1);
+    block_tx_sizes = block_tx_sizes.substr(0, block_tx_sizes.length - 1);
+    block_tx_paymentid_settings = block_tx_paymentid_settings.substr(0, block_tx_paymentid_settings.length - 1);
+    block_tx_privacy_settings = block_tx_privacy_settings.substr(0, block_tx_privacy_settings.length - 1);
+
+    res.json(
+    {
+      "block_height": obj.result.block_header.height,
+      "block_hash": obj.result.block_header.hash,
+      "block_size": obj.result.block_header.block_size / 1024,
+      "block_tx_amount": obj.result.block_header.num_txes,
+      "block_reward": obj.result.block_header.reward / WALLET_DECIMAL_PLACES_AMOUNT,
+      "block_timestamp": obj.result.block_header.timestamp,
+      "block_difficulty": obj.result.block_header.difficulty,
+      "block_mining_reward_tx_hash": obj.result.miner_tx_hash,
+      "block_tx_hashes": tx_hashes,
+      "block_tx_ringsizes": block_tx_ringsizes,
+      "block_tx_fees": block_tx_fees,
+      "block_tx_sizes": block_tx_sizes,
+      "block_tx_paymentid_settings": block_tx_paymentid_settings,
+      "block_tx_privacy_settings": block_tx_privacy_settings
+    });
+  }
+  catch (error)
+  {
+    res.status(400).json(GET_BLOCK_TRANSACTION_DATA_ERROR);
+  }
+})
 
 if (production_settings !== "develop")
 {
