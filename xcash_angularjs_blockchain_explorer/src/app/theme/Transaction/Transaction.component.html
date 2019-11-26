@@ -406,21 +406,21 @@
             <table class="table table-inverse">
               <thead>
               <tr>
-                <th style="width: 5%">#</th>
-                <th style="width: 65%">Stealth Address / Addresses</th>
-                <th style="width: 10%">Block Height</th>
-                <th style="width: 10%">Ring Size</th>
-                <th style="width: 10%">Transaction Time</th>
+                <th class="text-light" style="width: 5%">#</th>
+                <th class="text-light" style="width: 65%">Stealth Address / Addresses</th>
+                <th class="text-light" style="width: 10%">Block Height</th>
+                <th class="text-light" style="width: 10%">Ring Size</th>
+                <th class="text-light" style="width: 10%">Transaction Time</th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let item2 of tx_key_images_ring_address_array[count]; let count2 = index">
-                <td>{{count2 + 1}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{count2 + 1}}</td>
                 <td *ngIf="item2.tx_key_images_ring_address_tx_ring_size !== '0'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.tx_key_images_ring_tx_hash}">{{item2.tx_key_images_ring_address}}</a></td>
                 <td *ngIf="item2.tx_key_images_ring_address_tx_ring_size === '0'"><a style="color:#8af1f0;" [routerLink]="['/BlockRewardTransaction']" [queryParams]="{'data':item2.tx_key_images_ring_tx_hash}">{{item2.tx_key_images_ring_address}}</a></td>
-                <td><a style="color:#8af1f0;" [routerLink]="['/Block']" [queryParams]="{'data':item2.tx_key_images_ring_address_tx_block_height}">{{item2.tx_key_images_ring_address_tx_block_height | number}}</a></td> 
-                <td>{{item2.tx_key_images_ring_address_tx_ring_size}}</td>
-                <td>{{item2.tx_key_images_ring_address_tx_block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'"><a style="color:#8af1f0;" [routerLink]="['/Block']" [queryParams]="{'data':item2.tx_key_images_ring_address_tx_block_height}">{{item2.tx_key_images_ring_address_tx_block_height | number}}</a></td> 
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.tx_key_images_ring_address_tx_ring_size}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.tx_key_images_ring_address_tx_block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
               </tr>                
               </tbody>
             </table>

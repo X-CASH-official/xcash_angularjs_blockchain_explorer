@@ -13973,7 +13973,7 @@ app.get('/getnodeslist', (req, res) =>
 {
   try
   {
-    let nodes_list = fs.readFileSync("/home/ubuntu/nodejs/nodes_list.txt") + "";
+    let nodes_list = fs.readFileSync(nodes_list_file) + "";
     if (nodes_list.substr(nodes_list.length - 1, 1) === "|")
     {
       nodes_list = nodes_list.substring(0, nodes_list.length - 1);
@@ -15442,7 +15442,7 @@ app.post('/getblocktransactiondata', urlencodedParser, async(req, res) =>
       get_transaction_data.txs_hashes[count] = block_transaction_data.tx_hashes[count];
     }
     tx_hashes = tx_hashes.substr(0, tx_hashes.length - 1);
-    result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, get_transaction_data);
+    result = await send_post_request(DAEMON_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA, JSON.stringify(get_transaction_data));
     let tx_hash_data = JSON.parse(result);
     let tx_hash_data_results;
     if (result == "" || result.indexOf("error") != -1)

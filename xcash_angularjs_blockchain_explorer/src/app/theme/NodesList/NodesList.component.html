@@ -2694,12 +2694,12 @@ circle {
                 </thead>
                 <tbody>
                 <tr *ngFor="let item of remote_nodes_array">
-                  <td>{{item.node_name}}</td>
-                  <td>{{item.node_port}}</td>
-                  <td>{{item.node_continent}}</td>
-                  <td>{{item.node_country}}</td>
-                  <td>{{item.node_city}}</td>
-                  <td>{{item.node_cli}}</td>
+                  <td class="text-light">{{item.node_name}}</td>
+                  <td class="text-light">{{item.node_port}}</td>
+                  <td class="text-light">{{item.node_continent}}</td>
+                  <td class="text-light">{{item.node_country}}</td>
+                  <td class="text-light">{{item.node_city}}</td>
+                  <td class="text-light">{{item.node_cli}}</td>
                   <td><button class="btn btn-primary text-dark" (click)="copyMessage(item.node_cli)">Copy</button></td>
                 </tr>                
                 </tbody>

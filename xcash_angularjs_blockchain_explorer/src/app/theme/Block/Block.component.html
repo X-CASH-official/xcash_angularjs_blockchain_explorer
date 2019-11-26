@@ -153,25 +153,25 @@
                     <table class="table table-inverse">
                       <thead>
                       <tr>
-                        <th>#</th>
-                        <th>TX Hash</th>
-                        <th>Ring Size</th>
-                        <th>Fee</th>
-                        <th>Transaction Size</th>
-                        <th>Payment ID Settings</th>
-                        <th>Privacy Settings</th>
+                        <th class="text-light">#</th>
+                        <th class="text-light">TX Hash</th>
+                        <th class="text-light">Ring Size</th>
+                        <th class="text-light">Fee</th>
+                        <th class="text-light">Transaction Size</th>
+                        <th class="text-light">Payment ID Settings</th>
+                        <th class="text-light">Privacy Settings</th>
                       </tr>
                       </thead>
                       <tbody>
                       <tr *ngFor="let item of block_tx_array;" [ngClass]="item.block_tx_privacy_settings === 'public' ? 'bg-primary text-dark' : '' ">
-                        <td>{{item.id}}</td>
+                        <td [ngClass]="item.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.id}}</td>
                         <td *ngIf="item.block_tx_privacy_settings === 'private'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.block_tx_hash}">{{item.block_tx_hash}}</a></td>
                         <td *ngIf="item.block_tx_privacy_settings === 'public'"><a class="text-dark" [routerLink]="['/Transaction']" [queryParams]="{'data':item.block_tx_hash}">{{item.block_tx_hash}}</a></td>
-                        <td>{{item.block_tx_ringsizes}}</td>
-                        <td>{{item.block_tx_fees}}</td>
-                        <td>{{item.block_tx_sizes}}</td>
-                        <td>{{item.block_tx_paymentid_settings}}</td>
-                        <td>{{item.block_tx_privacy_settings}}</td>
+                        <td [ngClass]="item.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.block_tx_ringsizes}}</td>
+                        <td [ngClass]="item.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.block_tx_fees}}</td>
+                        <td [ngClass]="item.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.block_tx_sizes}}</td>
+                        <td [ngClass]="item.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.block_tx_paymentid_settings}}</td>
+                        <td [ngClass]="item.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.block_tx_privacy_settings}}</td>
                       </tr>                
                       </tbody>
                     </table>

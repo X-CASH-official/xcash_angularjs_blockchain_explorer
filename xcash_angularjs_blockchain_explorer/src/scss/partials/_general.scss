@@ -1067,14 +1067,12 @@ button.close {
         margin: -7px 0 0 -15px;
         width: 30px;
         height: 20px;
-        background: url("../assets/images/tooltip/tooltip1.svg") center center no-repeat;
         background-size: 100%;
     }
 }
 
 .tooltip-content3 {
     position: absolute;
-    background: url("../assets/images/tooltip/shape1.svg") center bottom no-repeat;
     background-size: 100% 100%;
     z-index: 9999;
     width: 200px;
@@ -1259,7 +1257,6 @@ a.mytooltip {
 }
 
 .jstree-default > .jstree-container-ul .jstree-loading > .jstree-ocl {
-    background: url("../assets/images/treeview/throbber.gif") center center no-repeat;
 }
 /**====== Tree-view css end ======**/
 /**  =====================

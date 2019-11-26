@@ -141,25 +141,25 @@
             <table class="table table-inverse">
               <thead>
               <tr>
-                <th>#</th>
-                <th>TX Hash</th>
-                <th>Ring Size</th>
-                <th>Fee</th>
-                <th>Transaction Size</th>
-                <th>Payment ID Settings</th>
-                <th>Privacy Settings</th>
+                <th class="text-light">#</th>
+                <th class="text-light">TX Hash</th>
+                <th class="text-light">Ring Size</th>
+                <th class="text-light">Fee</th>
+                <th class="text-light">Transaction Size</th>
+                <th class="text-light">Payment ID Settings</th>
+                <th class="text-light">Privacy Settings</th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let item2 of tx_array[count]; let count2 = index" [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'bg-primary text-dark' : '' ">
-                <td>{{count2 + 1}}</td>
-                <td *ngIf="item2.block_tx_privacy_settings === 'private'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.block_tx_hashes}">{{item2.block_tx_hashes}}</a></td>
-                <td *ngIf="item2.block_tx_privacy_settings === 'public'"><a class="text-dark" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.block_tx_hashes}">{{item2.block_tx_hashes}}</a></td>
-                <td>{{item2.block_tx_ringsizes}}</td>
-                <td>{{item2.block_tx_fees}}</td>
-                <td>{{item2.block_tx_sizes}}</td>
-                <td>{{item2.block_tx_paymentid_settings}}</td>
-                <td>{{item2.block_tx_privacy_settings}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{count2 + 1}}</td>
+                <td style="color:white;" *ngIf="item2.block_tx_privacy_settings === 'private'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.block_tx_hashes}">{{item2.block_tx_hashes}}</a></td>
+                <td style="color:white;"*ngIf="item2.block_tx_privacy_settings === 'public'"><a class="text-dark" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.block_tx_hashes}">{{item2.block_tx_hashes}}</a></td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_ringsizes}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_fees}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_sizes}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_paymentid_settings}}</td>
+                <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_privacy_settings}}</td>
               </tr>                
               </tbody>
             </table>

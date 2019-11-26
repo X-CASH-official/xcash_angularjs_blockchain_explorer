@@ -10,26 +10,26 @@
           <table class="table table-inverse">
             <thead>
             <tr>
-              <th>#</th>
-              <th>TX Hash</th>
-              <th>Ring Size</th>
-              <th>Date and Time</th>
-              <th>Fee</th>
-              <th>Size</th>
-              <th>Payment ID Settings</th>
-              <th>Privacy Settings</th>
+              <th class="text-light">#</th>
+              <th class="text-light">TX Hash</th>
+              <th class="text-light">Ring Size</th>
+              <th class="text-light">Date and Time</th>
+              <th class="text-light">Fee</th>
+              <th class="text-light">Size</th>
+              <th class="text-light">Payment ID Settings</th>
+              <th class="text-light">Privacy Settings</th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let item of tx_data_array">
-              <td>{{item._id}}</td>
+              <td class="text-light">{{item._id}}</td>
               <td><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx}">{{item.tx}}</a></td>
-              <td>{{item.tx_ringsize}}</td>
-              <td>{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
-              <td>{{item.tx_fee}}</td>
-              <td>{{item.tx_size}}</td>
-              <td>{{item.tx_paymentid_settings}}</td>
-              <td>{{item.tx_privacy_settings}}</td>
+              <td class="text-light">{{item.tx_ringsize}}</td>
+              <td class="text-light">{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+              <td class="text-light">{{item.tx_fee}}</td>
+              <td class="text-light">{{item.tx_size}}</td>
+              <td class="text-light" >{{item.tx_paymentid_settings}}</td>
+              <td class="text-light">{{item.tx_privacy_settings}}</td>
             </tr>                
             </tbody>
           </table>
@@ -41,28 +41,28 @@
             <table class="table table-inverse">
               <thead>
               <tr>
-                <th>#</th>
-                <th>TX Hash</th>
-                <th>Ring Size</th>
-                <th>Date and Time</th>
-                <th>Fee</th>
-                <th>Size</th>
-                <th>Payment ID Settings</th>
-                <th>Receiver</th>
-                <th>Amount</th>
+                <th class="text-light">#</th>
+                <th class="text-light">TX Hash</th>
+                <th class="text-light">Ring Size</th>
+                <th class="text-light">Date and Time</th>
+                <th class="text-light">Fee</th>
+                <th class="text-light">Size</th>
+                <th class="text-light">Payment ID Settings</th>
+                <th class="text-light">Receiver</th>
+                <th class="text-light">Amount</th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let item of public_tx_sender_data_array">
-                <td>{{item._id}}</td>
+                <td class="text-light">{{item._id}}</td>
                 <td><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx}">{{item.tx}}</a></td>
-                <td>{{item.tx_ringsize}}</td>
-                <td>{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
-                <td>{{item.tx_fee}}</td>
-                <td>{{item.tx_size}}</td>
-                <td>{{item.tx_paymentid_settings}}</td>
+                <td class="text-light">{{item.tx_ringsize}}</td>
+                <td class="text-light">{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+                <td class="text-light">{{item.tx_fee}}</td>
+                <td class="text-light">{{item.tx_size}}</td>
+                <td class="text-light">{{item.tx_paymentid_settings}}</td>
                 <td><a style="color:#8af1f0;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'public_address|' + item.tx_receiver}">{{item.tx_receiver}}</a></td>
-                <td>{{item.tx_amount}}</td>
+                <td class="text-light">{{item.tx_amount}}</td>
               </tr>                
               </tbody>
             </table>
@@ -74,28 +74,28 @@
               <table class="table table-inverse">
                 <thead>
                 <tr>
-                  <th>#</th>
-                  <th>TX Hash</th>
-                  <th>Ring Size</th>
-                  <th>Date and Time</th>
-                  <th>Fee</th>
-                  <th>Size</th>
-                  <th>Payment ID Settings</th>
-                  <th>Sender</th>
-                  <th>Amount</th>
+                  <th class="text-light">#</th>
+                  <th class="text-light">TX Hash</th>
+                  <th class="text-light">Ring Size</th>
+                  <th class="text-light">Date and Time</th>
+                  <th class="text-light">Fee</th>
+                  <th class="text-light">Size</th>
+                  <th class="text-light">Payment ID Settings</th>
+                  <th class="text-light">Sender</th>
+                  <th class="text-light">Amount</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let item of public_tx_receiver_data_array">
-                  <td>{{item._id}}</td>
+                  <td class="text-light">{{item._id}}</td>
                   <td><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx}">{{item.tx}}</a></td>
-                  <td>{{item.tx_ringsize}}</td>
-                  <td>{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
-                  <td>{{item.tx_fee}}</td>
-                  <td>{{item.tx_size}}</td>
-                  <td>{{item.tx_paymentid_settings}}</td>
+                  <td class="text-light">{{item.tx_ringsize}}</td>
+                  <td class="text-light">{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
+                  <td class="text-light">{{item.tx_fee}}</td>
+                  <td class="text-light">{{item.tx_size}}</td>
+                  <td class="text-light">{{item.tx_paymentid_settings}}</td>
                   <td><a style="color:#8af1f0;" [routerLink]="['/TXSearchResults']" [queryParams]="{'data':'public_address|' + item.tx_sender}">{{item.tx_sender}}</a></td>
-                  <td>{{item.tx_amount}}</td>
+                  <td class="text-light">{{item.tx_amount}}</td>
                 </tr>                
                 </tbody>
               </table>
