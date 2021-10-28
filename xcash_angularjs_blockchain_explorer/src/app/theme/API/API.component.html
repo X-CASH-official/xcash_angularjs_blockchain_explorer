@@ -2,12 +2,12 @@
     <div class="row">
       <div class="col-sm-12">
       <h1 class="text-center" >API</h1>
-      <br><br>  
+      <br><br>
       <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
-              <div *ngIf="htmlcode === true">     
-        <h3 class="text-center text-primary" >X-CASH Coin Supply Data</h3>
+              <div *ngIf="htmlcode === true">
+        <h3 class="text-center text-primary" >X-CASH Coin Supply Data API</h3>
         <br><br>
-        <app-card [title]="' '">    
+        <app-card [title]="' '">
           <h4 class="text-center" >Get X-CASH Total Supply</h4>
           <br><br>
           <p>Method: GET</p>
@@ -17,10 +17,10 @@
                 <div class="col-sm-12">
                   <textarea rows="1" cols="5" class="form-control form-bg-primary" readonly>100000000000</textarea>
                 </div>
-              </div> 
-          </app-card>         
-          <app-card [title]="' '">    
-            <h4 class="text-center" >Get X-CASH Generated Supply</h4>
+              </div>
+          </app-card>
+          <app-card [title]="' '">
+            <h4 class="text-center" >Get X-CASH Generated Supply API</h4>
             <br><br>
             <p>Method: GET</p>
             <p>URL: https://explorer.x-cash.org/getgeneratedsupply</p>
@@ -29,10 +29,10 @@
                   <div class="col-sm-12">
                     <textarea rows="1" cols="5" class="form-control form-bg-primary" readonly>{{apijson_generated_supply}}</textarea>
                   </div>
-                </div> 
+                </div>
             </app-card>
-            <app-card [title]="' '">    
-              <h4 class="text-center" >Get X-CASH Circulating Supply</h4>
+            <app-card [title]="' '">
+              <h4 class="text-center" >Get X-CASH Circulating Supply API</h4>
               <br><br>
               <p>Method: GET</p>
               <p>URL: https://explorer.x-cash.org/getcirculatingsupply</p>
@@ -41,11 +41,11 @@
                     <div class="col-sm-12">
                       <textarea rows="1" cols="5" class="form-control form-bg-primary" readonly>{{apijson_circulating_supply}}</textarea>
                     </div>
-                  </div> 
+                  </div>
               </app-card>
-              <h3 class="text-center text-primary" >X-CASH Blockchain Data</h3>
-              <br><br>              
-            <app-card [title]="' '">    
+              <h3 class="text-center text-primary" >X-CASH Blockchain Data API</h3>
+              <br><br>
+            <app-card [title]="' '">
               <h4 class="text-center" >Get X-CASH Blockchain Data</h4>
               <br><br>
               <p>Method: GET</p>
@@ -55,10 +55,10 @@
                     <div class="col-sm-12">
                       <textarea rows="23" cols="5" class="form-control form-bg-primary" readonly>{{apijson_blockchain_data}}</textarea>
                     </div>
-                  </div> 
+                  </div>
               </app-card>
-              <app-card [title]="' '">    
-                <h4 class="text-center" >Get Current Block Height</h4>
+              <app-card [title]="' '">
+                <h4 class="text-center" >Get Current Block Height API</h4>
                 <br><br>
                 <p>Method: GET</p>
                 <p>URL: https://explorer.x-cash.org/getcurrentblockheight</p>
@@ -67,10 +67,10 @@
                       <div class="col-sm-12">
                         <textarea rows="3" cols="5" class="form-control form-bg-primary" readonly>{{apijson_current_block_height}}</textarea>
                       </div>
-                    </div> 
+                    </div>
                 </app-card>
-                <app-card [title]="' '">    
-                  <h4 class="text-center" >Get Last Block Data</h4>
+                <app-card [title]="' '">
+                  <h4 class="text-center" >Get Last Block Data API</h4>
                   <br><br>
                   <p>Method: GET</p>
                   <p>URL: https://explorer.x-cash.org/getlastblockdata</p>
@@ -79,10 +79,10 @@
                         <div class="col-sm-12">
                           <textarea rows="9" cols="5" class="form-control form-bg-primary" readonly>{{apijson_get_last_block_data}}</textarea>
                         </div>
-                      </div> 
+                      </div>
                   </app-card>
-                  <app-card [title]="' '">    
-                    <h4 class="text-center" >Get Block Data</h4>
+                  <app-card [title]="' '">
+                    <h4 class="text-center" >Get Block Data API</h4>
                     <br><br>
                     <p>Method: GET</p>
                     <p>URL: https://explorer.x-cash.org/getblockdata?block_data=parameter1</p>
@@ -92,10 +92,10 @@
                           <div class="col-sm-12">
                             <textarea rows="9" cols="5" class="form-control form-bg-primary" readonly>{{apijson_get_block_data}}</textarea>
                           </div>
-                        </div> 
+                        </div>
                     </app-card>
-                    <app-card [title]="' '">    
-                      <h4 class="text-center" >Get Transaction Data</h4>
+                    <app-card [title]="' '">
+                      <h4 class="text-center" >Get Transaction Data API</h4>
                       <br><br>
                       <p>Method: GET</p>
                       <p>URL: https://explorer.x-cash.org/gettransactiondata?tx_hash=parameter1</p>
@@ -105,10 +105,10 @@
                             <div class="col-sm-12">
                               <textarea rows="45" cols="5" class="form-control form-bg-primary" readonly>{{apijson_get_transaction_data}}</textarea>
                             </div>
-                          </div> 
-                      </app-card>                     
-                      <app-card [title]="' '">    
-                        <h4 class="text-center" >Get Transaction Confirmations</h4>
+                          </div>
+                      </app-card>
+                      <app-card [title]="' '">
+                        <h4 class="text-center" >Get Transaction Confirmations API</h4>
                         <br><br>
                         <p>Method: GET</p>
                         <p>URL: https://explorer.x-cash.org/gettransactionconfirmations?tx_hash=parameter1</p>
@@ -118,11 +118,11 @@
                               <div class="col-sm-12">
                                 <textarea rows="3" cols="5" class="form-control form-bg-primary" readonly>{{apijson_get_transaction_confirmations}}</textarea>
                               </div>
-                            </div> 
+                            </div>
                         </app-card>
-                        <h3 class="text-center text-primary" >X-CASH Wallet Data</h3>
+                        <h4 class="text-center text-primary" >X-CASH Wallet Data API</h4>
               <br><br>
-              <app-card [title]="' '">    
+              <app-card [title]="' '">
                 <h4 class="text-center" >Verify X-CASH Reserve Proof</h4>
                 <br><br>
                 <p>Method: GET</p>
@@ -135,19 +135,19 @@
                       <div class="col-sm-12">
                         <textarea rows="6" cols="5" class="form-control form-bg-primary" readonly>{{apijson_verify_reserve_proof1}}</textarea>
                       </div>
-                    </div> 
+                    </div>
                     <div class="form-group row">
                       <div class="col-sm-12">
                         <textarea rows="6" cols="5" class="form-control form-bg-primary" readonly>{{apijson_verify_reserve_proof2}}</textarea>
                       </div>
-                    </div> 
+                    </div>
                     <div class="form-group row">
                       <div class="col-sm-12">
                         <textarea rows="6" cols="5" class="form-control form-bg-primary" readonly>{{apijson_verify_reserve_proof3}}</textarea>
                       </div>
-                    </div> 
-                </app-card>              
-            <app-card [title]="' '">    
+                    </div>
+                </app-card>
+            <app-card [title]="' '">
               <h4 class="text-center" >Create X-CASH Integrated Address</h4>
               <br><br>
               <p>Method: GET</p>
@@ -159,10 +159,9 @@
                     <div class="col-sm-12">
                       <textarea rows="5" cols="5" class="form-control form-bg-primary" readonly>{{apijson_create_integrated_address}}</textarea>
                     </div>
-                  </div> 
+                  </div>
               </app-card>
             </div>
       </div>
     </div>
   </div>
-  
