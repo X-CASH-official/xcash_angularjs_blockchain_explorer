@@ -65,7 +65,7 @@ const MENUITEMS = [
       {
         state: 'VerifyReserveProof',
         short_label: 'S',
-        name: 'Verify Res. Proof',
+        name: 'Verify Reserv. Proof',
         type: 'link',
         icon: 'fa fa-check-circle'
       },
