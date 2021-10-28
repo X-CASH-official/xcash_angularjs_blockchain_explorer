@@ -1,4 +1,27 @@
 <div class="page-body">
+
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-primary notification-card">
+          <div class="card-block text-dark">
+            <div class="row align-items-center">
+              <div class="col-2 notify-icon"><i class="fa fa-info-circle" style="font-size: 50px;"></i></div>
+              <div class="col-10 notify-cont">
+                <h3>WXCASH on the Polygon (Matic) Network</h3>
+                <p>WXCASH(Polygon) is a 1:1 ERC20 token representing a wrapped version of XCASH on the Polygon (Matic) Network</p>
+                <br />
+                <h4>Contract address: <br /><span style="color: white;">0x03678f2c2c762dc63c2bb738c3a837d366eda560</span></h4>
+                <br />
+                <a href="https://polygonscan.com/token/0x03678f2c2c762dc63c2bb738c3a837d366eda560" title=" XCASH Token at Polygonscan"><h4>XCASH (Polygon) Token Tracker <i class="fa fa-external-link"></i></h4></a>
+                <br />
+                <a href="https://polygonscan.com/address/0x03678f2c2c762dc63c2bb738c3a837d366eda560" title="XCASH Contract at Polygonscan"><h4>XCASH (Polygon) Contract <i class="fa fa-external-link"></i></h4></a>
+                <br />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
   <div class="row">
     <div class="col-sm-12">
     <h2 class="text-center" >X-CASH Blockchain Explorer</h2>
@@ -13,12 +36,9 @@
 
       <div class="row">
         <div class="col-12">
-            <!-- <h4 class="text-center">Block </h4>
-            <h2 class="text-center"> {{item.block_height}}</h2> -->
             <div class="card bg-primary notification-card">
               <div class="card-block text-dark">
                 <div class="row align-items-center">
-                  <!-- <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div> -->
                   <div class="col-12 notify-cont">
                     <h5>Block Hash</h5>
                     <br />
@@ -35,7 +55,6 @@
               <div class="card bg-primary notification-card">
                 <div class="card-block text-dark">
                   <div class="row align-items-center">
-                    <!-- <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div> -->
                      <div class="col-12 notify-cont">
                       <h5>Block Mining Reward Transaction Hash</h5>
                       <br />
@@ -49,83 +68,80 @@
 
           <div class="row">
 
-            <div class="col-md-6 col-xl-4">
-              <div class="card bg-primary notification-card">
-                <div class="card-block text-dark">
-                  <div class="row align-items-center">
-                    <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
-                     <div class="col-10 notify-cont">
-                      <h5>Block Height</h5>
-                      <br/>
-                      <a [routerLink]="['/Block']" [queryParams]="{'data':item.block_height}"><h4>{{item.block_height | number}}</h4></a>
-                    </div>
+      <div class="col-md-6 col-xl-4">
+        <div class="card bg-primary notification-card">
+          <div class="card-block text-dark">
+            <div class="row align-items-center">
+              <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
+               <div class="col-10 notify-cont">
+                <h5>Block Height</h5>
+                <br/>
+                <a [routerLink]="['/Block']" [queryParams]="{'data':item.block_height}"><h4>{{item.block_height | number}}</h4></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xl-4">
+          <div class="card bg-primary notification-card">
+            <div class="card-block text-dark">
+              <div class="row align-items-center">
+                <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
+                 <div class="col-10 notify-cont">
+                  <h5>Block Time</h5>
+                  <br/>
+                  <h4>{{item.block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+         <div class="col-md-6 col-xl-4">
+            <div class="card bg-primary notification-card">
+              <div class="card-block text-dark">
+                <div class="row align-items-center">
+                  <div class="col-2 notify-icon"><i class="fa fa-cloud"></i></div>
+                   <div class="col-10 notify-cont">
+                    <h5>Block Size</h5>
+                    <br/>
+                    <h4>{{item.block_size}}</h4>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="col-md-6 col-xl-4">
-                <div class="card bg-primary notification-card">
-                  <div class="card-block text-dark">
-                    <div class="row align-items-center">
-                      <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
-                       <div class="col-10 notify-cont">
-                        <h5>Block Time</h5>
-                        <br/>
-                        <h4>{{item.block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</h4>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-           <div class="col-md-6 col-xl-4">
-              <div class="card bg-primary notification-card">
-                <div class="card-block text-dark">
-                  <div class="row align-items-center">
-                    <div class="col-2 notify-icon"><i class="fa fa-cloud"></i></div>
-                     <div class="col-10 notify-cont">
-                      <h5>Block Size</h5>
-                      <br/>
-                      <h4>{{item.block_size}}</h4>
-                    </div>
+          <div class="col-md-6 col-xl-4">
+            <div class="card bg-primary notification-card">
+              <div class="card-block text-dark">
+                <div class="row align-items-center">
+                  <div class="col-2 notify-icon"><i class="fa fa-bars"></i></div>
+                   <div class="col-10 notify-cont">
+                    <h5>Block Transaction Amount</h5>
+                    <br/>
+                    <h4>{{item.block_tx_amount | number}}</h4>
                   </div>
                 </div>
               </div>
             </div>
-        <!-- </div>
+          </div>
 
-        <div class="row"> -->
-
-            <div class="col-md-6 col-xl-4">
-              <div class="card bg-primary notification-card">
-                <div class="card-block text-dark">
-                  <div class="row align-items-center">
-                    <div class="col-2 notify-icon"><i class="fa fa-bars"></i></div>
-                     <div class="col-10 notify-cont">
-                      <h5>Block Transaction Amount</h5>
-                      <br/>
-                      <h4>{{item.block_tx_amount | number}}</h4>
-                    </div>
+          <div class="col-md-6 col-xl-4">
+            <div class="card bg-primary notification-card">
+              <div class="card-block text-dark">
+                <div class="row align-items-center">
+                  <div class="col-2 notify-icon"><i class="fa fa-cube"></i></div>
+                   <div class="col-10 notify-cont">
+                    <h5>Block Difficulty</h5>
+                    <br/>
+                    <h4>{{item.block_difficulty | number}}</h4>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div class="col-md-6 col-xl-4">
-                <div class="card bg-primary notification-card">
-                  <div class="card-block text-dark">
-                    <div class="row align-items-center">
-                      <div class="col-2 notify-icon"><i class="fa fa-cube"></i></div>
-                       <div class="col-10 notify-cont">
-                        <h5>Block Difficulty</h5>
-                        <br/>
-                        <h4>{{item.block_difficulty | number}}</h4>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          </div>
 
            <div class="col-md-6 col-xl-4">
               <div class="card bg-primary notification-card">
