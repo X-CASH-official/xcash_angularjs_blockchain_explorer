@@ -4,57 +4,70 @@
       <h2 class="text-center" >X-CASH Statistics</h2>
         <br><br>
         <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
-        <div *ngIf="htmlcode === true"> 
-        <app-card [title]="'X-CASH Data'"> 
+        <div *ngIf="htmlcode === true">
+        <app-card [title]="'X-CASH Data'">
             <div class="row">
-                <div class="col-md-6 col-xl-4">
+                <div class="col-md-6 col-xl-3">
                   <div class="card bg-primary notification-card">
                     <div class="card-block text-dark">
                       <div class="row align-items-center">
                           <div class="col-2 notify-icon"><i class="fa fa-bars"></i></div>
                         <div class="col-10 notify-cont">
-                            <p>Algorithm</p>
+                            <h5>Algorithm</h5>
                             <br>
-                          <h4>{{blockchain_algorithm}}</h4>                       
+                          <h4>{{blockchain_algorithm}}</h4>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-  
-                <div class="col-md-6 col-xl-4">
+                <div class="col-md-6 col-xl-3">
+                  <div class="card bg-primary notification-card">
+                    <div class="card-block text-dark">
+                      <div class="row align-items-center">
+                          <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
+                        <div class="col-10 notify-cont">
+                            <h5>Block Height</h5>
+                            <br>
+                          <h4>{{block_height | number}}</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
                     <div class="card bg-primary notification-card">
                       <div class="card-block text-dark">
                         <div class="row align-items-center">
                             <div class="col-2 notify-icon"><i class="fa fa-clock-o"></i></div>
-                          <div class="col-10 notify-cont">                             
-                              <p>Block Time</p>
+                          <div class="col-10 notify-cont">
+                              <h5>Block Time</h5>
                               <br>
-                            <h4>Two Minutes</h4>                       
+                              <h4>5 Minutes</h4>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-  
-                  <div class="col-md-6 col-xl-4">
+
+                  <div class="col-md-6 col-xl-3">
                       <div class="card bg-primary notification-card">
                         <div class="card-block text-dark">
                           <div class="row align-items-center">
                               <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
                             <div class="col-10 notify-cont">
-                                <p>Current Block Reward</p>
+                                <h5>Current Block Reward</h5>
                                 <br>
-                              <h4>{{block_reward | number}}</h4>                       
+                              <h4>{{block_reward | number}}</h4>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>              
-             </div>          
+                    </div>
+             </div>
           </app-card>
 
-      <app-card [title]="'X-CASH Supply Statistics'"> 
+      <app-card [title]="'X-CASH Supply Statistics'">
           <div class="row">
               <div class="col-md-6 col-xl-4">
                 <div class="card bg-primary notification-card">
@@ -62,9 +75,9 @@
                     <div class="row align-items-center">
                         <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
                       <div class="col-10 notify-cont">
-                          <p>Maximum Supply</p>
+                          <h5>Maximum Supply</h5>
                           <br>
-                        <h4>100,000,000,000 (100 Billion)</h4>                       
+                        <h4>100,000,000,000</h4>
                       </div>
                     </div>
                   </div>
@@ -77,9 +90,9 @@
                       <div class="row align-items-center">
                           <div class="col-2 notify-icon"><i class="fa fa-dashboard"></i></div>
                         <div class="col-10 notify-cont">
-                            <p>Generated Supply</p>
+                            <h5>Generated Supply</h5>
                             <br>
-                          <h4>{{generated_supply | number}}</h4>                       
+                          <h4>{{generated_supply | number}}</h4>
                         </div>
                       </div>
                     </div>
@@ -92,88 +105,75 @@
                         <div class="row align-items-center">
                             <div class="col-2 notify-icon"><i class="fa fa-refresh"></i></div>
                           <div class="col-10 notify-cont">
-                              <p>Circulating Supply</p>
+                              <h5>Circulating Supply</h5>
                               <br>
-                            <h4>{{circulating_supply | number}}</h4>                       
+                            <h4>{{circulating_supply | number}}</h4>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>              
-           </div>          
+                  </div>
+           </div>
         </app-card>
 
-        <app-card [title]="'X-CASH Mining Statistics'"> 
+        <!-- <app-card [title]="'X-CASH Mining Statistics'">
             <div class="row">
-                <div class="col-md-6 col-xl-4">
-                  <div class="card bg-primary notification-card">
-                    <div class="card-block text-dark">
-                      <div class="row align-items-center">
-                          <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
-                        <div class="col-10 notify-cont">
-                            <p>Block Height</p>
-                            <br>
-                          <h4>{{block_height | number}}</h4>                       
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-  
+
+
                 <div class="col-md-6 col-xl-4">
                     <div class="card bg-primary notification-card">
                       <div class="card-block text-dark">
                         <div class="row align-items-center">
                             <div class="col-2 notify-icon"><i class="fa fa-cube"></i></div>
                           <div class="col-10 notify-cont">
-                              <p>Difficulty</p>
+                              <h5>Difficulty</h5>
                               <br>
-                            <h4>{{current_blockchain_difficulty | number}}</h4>                       
+                            <h4>{{current_blockchain_difficulty | number}}</h4>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-  
+
                   <div class="col-md-6 col-xl-4">
                       <div class="card bg-primary notification-card">
                         <div class="card-block text-dark">
                           <div class="row align-items-center">
                               <div class="col-2 notify-icon"><i class="fa fa-dashboard"></i></div>
                             <div class="col-10 notify-cont">
-                                <p>HashRate</p>
+                                <h5>HashRate</h5>
                                 <br>
-                              <h4>{{current_blockchain_hashrate}}</h4>                       
+                              <h4>{{current_blockchain_hashrate}}</h4>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>              
-             </div>          
-          </app-card>
-          
-         
-          <app-card [title]="network_hashrate_chart_title" > 
+                    </div>
+             </div>
+          </app-card> -->
+
+
+          <!-- <app-card [title]="network_hashrate_chart_title" >
             <div class="row">
                 <div class="col-md-6 col-xl-12">
                     <div align="center" *ngIf="htmlcodechart === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
                 <div id="network_hashrate_chart"></div>
               </div>
             </div>
-         </app-card>         
+         </app-card> -->
 
-          <app-card [title]="'X-CASH Blockchain Data Statistics'"> 
+          <app-card [title]="'X-CASH Blockchain Data Statistics'">
               <div class="row">
-                      
+
                   <div class="col-md-6 col-xl-4">
                       <div class="card bg-primary notification-card">
                         <div class="card-block text-dark">
                           <div class="row align-items-center">
                               <div class="col-2 notify-icon"><i class="fa fa-lock"></i></div>
                             <div class="col-10 notify-cont">
-                                <p>Total Private Transactions</p>
+                                <h5>Total Private Transactions</h5>
                                 <br>
-                              <h4>{{private_tx_count | number}}</h4>                       
+                              <h4>{{private_tx_count | number}}</h4>
                             </div>
                           </div>
                         </div>
@@ -186,33 +186,33 @@
                           <div class="row align-items-center">
                               <div class="col-2 notify-icon"><i class="fa fa-unlock"></i></div>
                             <div class="col-10 notify-cont">
-                                <p>Total Public Transactions</p>
+                                <h5>Total Public Transactions</h5>
                                 <br>
-                              <h4>{{public_tx_count | number}}</h4>                       
+                              <h4>{{public_tx_count | number}}</h4>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>      
-    
+                    </div>
+
                     <div class="col-md-6 col-xl-4">
                         <div class="card bg-primary notification-card">
                           <div class="card-block text-dark">
                             <div class="row align-items-center">
                                 <div class="col-2 notify-icon"><i class="fa fa-cloud"></i></div>
                               <div class="col-10 notify-cont">
-                                  <p>Estimated Size of the Blockchain</p>
+                                  <h5>Estimated Size of the Blockchain</h5>
                                   <br>
-                                <h4>{{current_estimated_blockchain_size}}</h4>                       
+                                <h4>{{current_estimated_blockchain_size}}</h4>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>              
-               </div>          
+                      </div>
+               </div>
             </app-card>
 
-            <app-card [title]="'X-CASH Blockchain Current Version Statistics'"> 
+            <!-- <app-card [title]="'X-CASH Blockchain Current Version Statistics'">
                 <div class="row">
                     <div class="col-md-6 col-xl-4">
                       <div class="card bg-primary notification-card">
@@ -220,48 +220,48 @@
                           <div class="row align-items-center">
                               <div class="col-2 notify-icon"><i class="fa fa-tag"></i></div>
                             <div class="col-10 notify-cont">
-                                <p>Current Version</p>
+                                <h5>Current Version</h5>
                                 <br>
-                              <h4>{{blockchain_current_version}}</h4>                       
+                              <h4>{{blockchain_current_version}}</h4>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-      
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card bg-primary notification-card">
-                          <div class="card-block text-dark">
-                            <div class="row align-items-center">
-                                <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
-                              <div class="col-10 notify-cont">
-                                  <p>Current Version Block Height</p>
-                                  <br>
-                                <h4>{{blockchain_current_version_block_height | number}}</h4>                       
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-      
-                      <div class="col-md-6 col-xl-4">
-                          <div class="card bg-primary notification-card">
-                            <div class="card-block text-dark">
-                              <div class="row align-items-center">
-                                  <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
-                                <div class="col-10 notify-cont">
-                                    <p>Current Version Date (DD/MM/YYYY)</p>
-                                    <br>
-                                  <h4>{{blockchain_current_version_date}}</h4>                       
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>              
-                 </div>          
-              </app-card>
 
-              <app-card [title]="'X-CASH Blockchain Next Version Statistics'"> 
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card bg-primary notification-card">
+                          <div class="card-block text-dark">
+                            <div class="row align-items-center">
+                                <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
+                              <div class="col-10 notify-cont">
+                                  <h5>Current Version Block Height</h5>
+                                  <br>
+                                <h4>{{blockchain_current_version_block_height | number}}</h4>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6 col-xl-4">
+                          <div class="card bg-primary notification-card">
+                            <div class="card-block text-dark">
+                              <div class="row align-items-center">
+                                  <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
+                                <div class="col-10 notify-cont">
+                                    <h5>Current Version Date (DD/MM/YYYY)</h5>
+                                    <br>
+                                  <h4>{{blockchain_current_version_date}}</h4>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                 </div>
+              </app-card> -->
+
+              <!-- <app-card [title]="'X-CASH Blockchain Next Version Statistics'">
                 <div class="row">
                     <div class="col-md-6 col-xl-4">
                       <div class="card bg-primary notification-card">
@@ -269,48 +269,49 @@
                           <div class="row align-items-center">
                               <div class="col-2 notify-icon"><i class="fa fa-tag"></i></div>
                             <div class="col-10 notify-cont">
-                                <p>Next Version</p>
+                                <h5>Next Version</h5>
                                 <br>
-                              <h4>{{blockchain_next_version}}</h4>                       
+                              <h4>{{blockchain_next_version}}</h4>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-      
+
                     <div class="col-md-6 col-xl-4">
                         <div class="card bg-primary notification-card">
                           <div class="card-block text-dark">
                             <div class="row align-items-center">
                                 <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
                               <div class="col-10 notify-cont">
-                                  <p>Next Version Block Height</p>
+                                  <h5>Next Version Block Height</h5>
                                   <br>
-                                <h4>{{blockchain_next_version_block_height | number}}</h4>                       
+                                <h4>{{blockchain_next_version_block_height | number}}</h4>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-      
+
                       <div class="col-md-6 col-xl-4">
                           <div class="card bg-primary notification-card">
                             <div class="card-block text-dark">
                               <div class="row align-items-center">
                                   <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
                                 <div class="col-10 notify-cont">
-                                    <p>Next Version Estimated Date (DD/MM/YYYY)</p>
+                                    <h5>Next Version Estimated Date (DD/MM/YYYY)</h5>
                                     <br>
-                                  <h4>{{blockchain_next_version_estimated_date}}</h4>                       
+                                  <h4>{{blockchain_next_version_estimated_date}}</h4>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>              
-                 </div>          
-              </app-card>
+                        </div>
+                 </div>
+              </app-card> -->
+
+
               </div>
       </div>
     </div>
   </div>
-  

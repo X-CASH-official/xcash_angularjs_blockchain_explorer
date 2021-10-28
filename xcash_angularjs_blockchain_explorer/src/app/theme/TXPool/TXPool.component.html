@@ -4,8 +4,8 @@
       <h2 class="text-center" >Transaction Pool - {{txpoolcount}} Total Transactions</h2>
         <br><br>
         <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
-        <div *ngIf="htmlcode === true"> 
-      <app-card [title]="' '">        
+        <div *ngIf="htmlcode === true">
+      <app-card [title]="' '">
         <div class="table-responsive" *ngIf="txpoolhtml == true">
           <table class="table table-inverse">
             <thead>
@@ -24,7 +24,7 @@
             <tbody>
             <tr *ngFor="let item of txpoolarray" [ngClass]="item.tx_privacy_settings == 'public' ? 'bg-primary text-dark' : '' ">
               <td [ngClass]="item.tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.tx_id}}</td>
-              <td *ngIf="item.tx_privacy_settings === 'private'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx_hash}">{{item.tx_hash}}</a></td>
+              <td *ngIf="item.tx_privacy_settings === 'private'"><a style="color:#1189a5;" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx_hash}">{{item.tx_hash}}</a></td>
               <td *ngIf="item.tx_privacy_settings === 'public'"><a class="text-dark" [routerLink]="['/Transaction']" [queryParams]="{'data':item.tx_hash}">{{item.tx_hash}}</a></td>
               <td [ngClass]="item.tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.tx_ringsize}}</td>
               <td [ngClass]="item.tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.tx_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</td>
@@ -33,7 +33,7 @@
               <td [ngClass]="item.tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.tx_size}}</td>
               <td [ngClass]="item.tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.tx_paymentidsettings}}</td>
               <td [ngClass]="item.tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item.tx_privacy_settings}}</td>
-            </tr>                
+            </tr>
             </tbody>
           </table>
         </div>
@@ -42,4 +42,3 @@
       </div>
     </div>
   </div>
-  

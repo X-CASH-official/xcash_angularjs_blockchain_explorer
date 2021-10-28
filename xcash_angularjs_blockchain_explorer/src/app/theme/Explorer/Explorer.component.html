@@ -3,45 +3,51 @@
     <div class="col-sm-12">
     <h2 class="text-center" >X-CASH Blockchain Explorer</h2>
       <br><br>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
       <div align="center" *ngIf="htmlcode === false"><i class="fa fa-refresh fa-spin fa-5x fa-fw"></i></div>
-        <div *ngIf="htmlcode === true"> 
-      <app-card *ngFor="let item of tx_block_array; let count = index" [title]="item.block_height"> 
-            
-        <div class="row">  
-          <div class="col-md-6 col-xl-12">
+        <div *ngIf="htmlcode === true">
+      <app-card *ngFor="let item of tx_block_array; let count = index" [title]="'Block ' + item.block_height">
+
+      <div class="row">
+        <div class="col-12">
+            <!-- <h4 class="text-center">Block </h4>
+            <h2 class="text-center"> {{item.block_height}}</h2> -->
+            <div class="card bg-primary notification-card">
+              <div class="card-block text-dark">
+                <div class="row align-items-center">
+                  <!-- <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div> -->
+                  <div class="col-12 notify-cont">
+                    <h5>Block Hash</h5>
+                    <br />
+                    <a [routerLink]="['/Block']" [queryParams]="{'data':item.block_hash}"><h4>{{item.block_hash}}</h4></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
               <div class="card bg-primary notification-card">
                 <div class="card-block text-dark">
                   <div class="row align-items-center">
-                    <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div>
-                     <div class="col-11 notify-cont">
-                      <p>Block Hash</p>
-                      <br>
-                      <a style="color:#0000FF;" [routerLink]="['/Block']" [queryParams]="{'data':item.block_hash}"><h4>{{item.block_hash}}</h4></a> 
+                    <!-- <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div> -->
+                     <div class="col-12 notify-cont">
+                      <h5>Block Mining Reward Transaction Hash</h5>
+                      <br />
+                      <a [routerLink]="['/BlockRewardTransaction']" [queryParams]="{'data':item.block_mining_reward_tx_hash}"><h4>{{item.block_mining_reward_tx_hash}}</h4></a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            </div>
+          </div>
 
-            <div class="row">  
-                <div class="col-md-6 col-xl-12">
-                    <div class="card bg-primary notification-card">
-                      <div class="card-block text-dark">
-                        <div class="row align-items-center">
-                          <div class="col-1 notify-icon"><i class="fa fa-dashboard"></i></div>
-                           <div class="col-11 notify-cont">
-                            <p>Block Mining Reward Transaction Hash</p>
-                            <br>
-                            <a style="color:#0000FF;" [routerLink]="['/BlockRewardTransaction']" [queryParams]="{'data':item.block_mining_reward_tx_hash}"><h4>{{item.block_mining_reward_tx_hash}}</h4></a> 
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  </div>
-
-            <div class="row">  
+          <div class="row">
 
             <div class="col-md-6 col-xl-4">
               <div class="card bg-primary notification-card">
@@ -49,24 +55,24 @@
                   <div class="row align-items-center">
                     <div class="col-2 notify-icon"><i class="fa fa-cubes"></i></div>
                      <div class="col-10 notify-cont">
-                      <p>Block Height</p>
-                      <br>
-                      <a style="color:#0000FF;" [routerLink]="['/Block']" [queryParams]="{'data':item.block_height}"><h4>{{item.block_height | number}}</h4></a> 
+                      <h5>Block Height</h5>
+                      <br/>
+                      <a [routerLink]="['/Block']" [queryParams]="{'data':item.block_height}"><h4>{{item.block_height | number}}</h4></a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-  
+
             <div class="col-md-6 col-xl-4">
                 <div class="card bg-primary notification-card">
                   <div class="card-block text-dark">
                     <div class="row align-items-center">
                       <div class="col-2 notify-icon"><i class="fa fa-calendar"></i></div>
                        <div class="col-10 notify-cont">
-                        <p>Block Time</p>
-                        <br>
-                        <h4>{{item.block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</h4>      
+                        <h5>Block Time</h5>
+                        <br/>
+                        <h4>{{item.block_timestamp * 1000 | date:'MMM d, y, h:mm:ss a'}}</h4>
                       </div>
                     </div>
                   </div>
@@ -79,17 +85,17 @@
                   <div class="row align-items-center">
                     <div class="col-2 notify-icon"><i class="fa fa-cloud"></i></div>
                      <div class="col-10 notify-cont">
-                      <p>Block Size</p>
-                      <br>
-                      <h4>{{item.block_size}}</h4>      
+                      <h5>Block Size</h5>
+                      <br/>
+                      <h4>{{item.block_size}}</h4>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-        </div>
+        <!-- </div>
 
-        <div class="row">  
+        <div class="row"> -->
 
             <div class="col-md-6 col-xl-4">
               <div class="card bg-primary notification-card">
@@ -97,24 +103,24 @@
                   <div class="row align-items-center">
                     <div class="col-2 notify-icon"><i class="fa fa-bars"></i></div>
                      <div class="col-10 notify-cont">
-                      <p>Block Transaction Amount</p>
-                      <br>
-                      <h4>{{item.block_tx_amount | number}}</h4>      
+                      <h5>Block Transaction Amount</h5>
+                      <br/>
+                      <h4>{{item.block_tx_amount | number}}</h4>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-  
+
             <div class="col-md-6 col-xl-4">
                 <div class="card bg-primary notification-card">
                   <div class="card-block text-dark">
                     <div class="row align-items-center">
                       <div class="col-2 notify-icon"><i class="fa fa-cube"></i></div>
                        <div class="col-10 notify-cont">
-                        <p>Block Difficulty</p>
-                        <br>
-                        <h4>{{item.block_difficulty | number}}</h4>      
+                        <h5>Block Difficulty</h5>
+                        <br/>
+                        <h4>{{item.block_difficulty | number}}</h4>
                       </div>
                     </div>
                   </div>
@@ -127,9 +133,9 @@
                   <div class="row align-items-center">
                     <div class="col-2 notify-icon"><i class="fa fa-database"></i></div>
                      <div class="col-10 notify-cont">
-                      <p>Block Reward</p>
-                      <br>
-                      <h4>{{item.block_reward | number}}</h4>      
+                      <h5>Block Reward</h5>
+                      <br/>
+                      <h4>{{item.block_reward | number}}</h4>
                     </div>
                   </div>
                 </div>
@@ -153,20 +159,20 @@
               <tbody>
               <tr *ngFor="let item2 of tx_array[count]; let count2 = index" [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'bg-primary text-dark' : '' ">
                 <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{count2 + 1}}</td>
-                <td style="color:white;" *ngIf="item2.block_tx_privacy_settings === 'private'"><a style="color:#8af1f0;" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.block_tx_hashes}">{{item2.block_tx_hashes}}</a></td>
+                <td style="color:white;" *ngIf="item2.block_tx_privacy_settings === 'private'"><a style="color:#1189a5 ;" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.block_tx_hashes}">{{item2.block_tx_hashes}}</a></td>
                 <td style="color:white;"*ngIf="item2.block_tx_privacy_settings === 'public'"><a class="text-dark" [routerLink]="['/Transaction']" [queryParams]="{'data':item2.block_tx_hashes}">{{item2.block_tx_hashes}}</a></td>
                 <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_ringsizes}}</td>
                 <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_fees}}</td>
                 <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_sizes}}</td>
                 <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_paymentid_settings}}</td>
                 <td [ngClass]="item2.block_tx_privacy_settings === 'public' ? 'text-dark' : 'text-light'">{{item2.block_tx_privacy_settings}}</td>
-              </tr>                
+              </tr>
               </tbody>
             </table>
-          </div>  
+          </div>
 
-       
-             
+
+
         </app-card>
         </div>
     </div>
