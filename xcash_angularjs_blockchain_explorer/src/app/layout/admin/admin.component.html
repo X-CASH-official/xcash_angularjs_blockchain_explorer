@@ -71,25 +71,25 @@
                       <span class="pcoded-micon"><i class="{{ asideItem.icon }}"></i><b>{{ asideItem.short_label }}</b></span>
                       <span class="pcoded-mtext">{{ asideItem.name }}</span>
                       <span *ngFor="let asideBadge of asideItem.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                      <!-- <span class="pcoded-mcaret"></span> -->
+                      <span class="pcoded-mcaret"></span>
                     </a>
                     <a [routerLink]="['/', asideItem.main_state, asideItem.state]" target="_blank" appAccordionToggle *ngIf="asideItem.target && asideItem.main_state">
                       <span class="pcoded-micon"><i class="{{ asideItem.icon }}"></i><b>{{ asideItem.short_label }}</b></span>
                       <span class="pcoded-mtext">{{ asideItem.name }}</span>
                       <span *ngFor="let asideBadge of asideItem.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                      <!-- <span class="pcoded-mcaret"></span> -->
+                      <span class="pcoded-mcaret"></span>
                     </a>
                     <a appTrigger [routerLink]="['/', asideItem.state]" *ngIf="!asideItem.target && !asideItem.main_state" appAccordionToggle>
                       <span class="pcoded-micon"><i class="{{ asideItem.icon }}"></i><b>{{ asideItem.short_label }}</b></span>
                       <span class="pcoded-mtext">{{ asideItem.name }}</span>
                       <span *ngFor="let asideBadge of asideItem.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                      <!-- <span class="pcoded-mcaret"></span> -->
+                      <span class="pcoded-mcaret"></span>
                     </a>
                     <a [routerLink]="['/', asideItem.state]" *ngIf="asideItem.target && !asideItem.main_state" target="_blank" appAccordionToggle>
                       <span class="pcoded-micon"><i class="{{ asideItem.icon }}"></i><b>{{ asideItem.short_label }}</b></span>
                       <span class="pcoded-mtext">{{ asideItem.name }}</span>
                       <span *ngFor="let asideBadge of asideItem.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                      <!-- <span class="pcoded-mcaret"></span> -->
+                      <span class="pcoded-mcaret"></span>
                     </a>
                   </li>
                   <li [routerLinkActive]="['active']" *ngIf="asideItem.type === 'sub'" class="pcoded-hasmenu" [attr.dropdown-icon]="dropDownIcon" [attr.subitem-icon]="subItemIcon" appAccordionLink group="{{asideItem.state}}">
@@ -97,7 +97,7 @@
                       <span class="pcoded-micon"><i class="{{ asideItem.icon }}"></i><b>{{ asideItem.short_label }}</b></span>
                       <span class="pcoded-mtext">{{ asideItem.name }}</span>
                       <span *ngFor="let asideBadge of asideItem.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                      <!-- <span class="pcoded-mcaret"></span> -->
+                      <span class="pcoded-mcaret"></span>
                     </a>
                     <ul class="pcoded-submenu">
                       <ng-template ngFor let-asideChildren [ngForOf]="asideItem.children">
@@ -107,98 +107,98 @@
                             <span class="pcoded-micon"><i class="icon-angle-right"></i></span>
                             <span class="pcoded-mtext">{{ asideChildren.name }}</span>
                             <span *ngFor="let asideChildrenBadge of asideChildren.badge" class="pcoded-badge label label-{{ asideChildrenBadge.type }}">{{asideChildrenBadge.value}}</span>
-                            <!-- <span class="pcoded-mcaret"></span> -->
+                            <span class="pcoded-mcaret"></span>
                           </a>
                           <ng-template #mainContentExternal>
                             <a appTrigger [routerLink]="['/', asideChildren.main_state, asideChildren.state]" appAccordionToggle *ngIf="!asideChildren.target && asideChildren.main_state">
                               <span class="pcoded-micon"><i class="{{ asideChildren.icon }}"></i><b>{{ asideChildren.short_label }}</b></span>
                               <span class="pcoded-mtext">{{ asideChildren.name }}</span>
                               <span *ngFor="let asideBadge of asideChildren.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                              <!-- <span class="pcoded-mcaret"></span> -->
+                              <span class="pcoded-mcaret"></span>
                             </a>
                             <a [routerLink]="['/', asideChildren.main_state, asideChildren.state]" target="_blank" appAccordionToggle *ngIf="asideChildren.target && asideChildren.main_state">
                               <span class="pcoded-micon"><i class="{{ asideChildren.icon }}"></i><b>{{ asideChildren.short_label }}</b></span>
                               <span class="pcoded-mtext">{{ asideChildren.name }}</span>
                               <span *ngFor="let asideBadge of asideChildren.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                              <!-- <span class="pcoded-mcaret"></span> -->
+                              <span class="pcoded-mcaret"></span>
                             </a>
                             <a appTrigger [routerLink]="['/', asideChildren.state]" *ngIf="!asideChildren.target && !asideChildren.main_state" appAccordionToggle>
                               <span class="pcoded-micon"><i class="{{ asideChildren.icon }}"></i><b>{{ asideChildren.short_label }}</b></span>
                               <span class="pcoded-mtext">{{ asideChildren.name }}</span>
                               <span *ngFor="let asideBadge of asideChildren.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                              <!-- <span class="pcoded-mcaret"></span> -->
+                              <span class="pcoded-mcaret"></span>
                             </a>
                             <a [routerLink]="['/', asideChildren.state]" *ngIf="asideChildren.target && !asideChildren.main_state" target="_blank" appAccordionToggle>
                               <span class="pcoded-micon"><i class="{{ asideChildren.icon }}"></i><b>{{ asideChildren.short_label }}</b></span>
                               <span class="pcoded-mtext">{{ asideChildren.name }}</span>
                               <span *ngFor="let asideBadge of asideChildren.badge" class="pcoded-badge label label-{{ asideBadge.type }}">{{asideBadge.value}}</span>
-                              <!-- <span class="pcoded-mcaret"></span> -->
+                              <span class="pcoded-mcaret"></span>
                             </a>
                           </ng-template>
                         </li>
 
-                        <li [routerLinkActive]="['active']" class="pcoded-hasmenu" [attr.dropdown-icon]="dropDownIcon" [attr.subitem-icon]="subItemIcon" *ngIf="asideChildren.type === 'sub'" appAccordionLink group="sub-toggled">
-                          <a href="javascript:;" appAccordionToggle>
-                            <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
-                            <span class="pcoded-mtext">{{ asideChildren.name }}</span>
-                            <span *ngFor="let asideChildrenBadge of asideChildren.badge" class="pcoded-badge label label-{{ asideChildrenBadge.type }}">{{asideChildrenBadge.value}}</span>
-                            <!-- <span class="pcoded-mcaret"></span> -->
-                          </a>
-                          <ul class="pcoded-submenu">
-                            <ng-template ngFor let-asideChildrenSub [ngForOf]="asideChildren.children">
-                              <li [routerLinkActive]="['active']" *ngIf="asideChildrenSub.type !== 'sub'" appAccordionLink>
-                                <a appTrigger [routerLink]="['/', asideChildren.state, asideChildrenSub.state]" *ngIf="!asideChildrenSub.target">
-                                  <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                  <span class="pcoded-mtext">{{ asideChildrenSub.name }}</span>
-                                  <span *ngFor="let asideChildrenSubBadge of asideChildrenSub.badge" class="pcoded-badge label label-{{ asideChildrenSubBadge.type }}">{{asideChildrenSubBadge.value}}</span>
-                                  <!-- <span class="pcoded-mcaret"></span> -->
-                                </a>
-                                <a [routerLink]="['/', asideChildren.state, asideChildrenSub.state]" *ngIf="asideChildrenSub.target" target="_blank">
-                                  <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                  <span class="pcoded-mtext">{{ asideChildrenSub.name }}</span>
-                                  <span *ngFor="let asideChildrenSubBadge of asideChildrenSub.badge" class="pcoded-badge label label-{{ asideChildrenSubBadge.type }}">{{asideChildrenSubBadge.value}}</span>
-                                  <!-- <span class="pcoded-mcaret"></span> -->
-                                </a>
-                              </li>
+                          <li [routerLinkActive]="['active']" class="pcoded-hasmenu" [attr.dropdown-icon]="dropDownIcon" [attr.subitem-icon]="subItemIcon" *ngIf="asideChildren.type === 'sub'" appAccordionLink group="sub-toggled">
+                            <a href="javascript:;" appAccordionToggle>
+                              <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                              <span class="pcoded-mtext">{{ asideChildren.name }}</span>
+                              <span *ngFor="let asideChildrenBadge of asideChildren.badge" class="pcoded-badge label label-{{ asideChildrenBadge.type }}">{{asideChildrenBadge.value}}</span>
+                              <span class="pcoded-mcaret"></span>
+                            </a>
+                            <ul class="pcoded-submenu">
+                              <ng-template ngFor let-asideChildrenSub [ngForOf]="asideChildren.children">
+                                <li [routerLinkActive]="['active']" *ngIf="asideChildrenSub.type !== 'sub'" appAccordionLink>
+                                  <a appTrigger [routerLink]="['/', asideChildren.state, asideChildrenSub.state]" *ngIf="!asideChildrenSub.target">
+                                    <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                    <span class="pcoded-mtext">{{ asideChildrenSub.name }}</span>
+                                    <span *ngFor="let asideChildrenSubBadge of asideChildrenSub.badge" class="pcoded-badge label label-{{ asideChildrenSubBadge.type }}">{{asideChildrenSubBadge.value}}</span>
+                                    <span class="pcoded-mcaret"></span>
+                                  </a>
+                                  <a [routerLink]="['/', asideChildren.state, asideChildrenSub.state]" *ngIf="asideChildrenSub.target" target="_blank">
+                                    <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                    <span class="pcoded-mtext">{{ asideChildrenSub.name }}</span>
+                                    <span *ngFor="let asideChildrenSubBadge of asideChildrenSub.badge" class="pcoded-badge label label-{{ asideChildrenSubBadge.type }}">{{asideChildrenSubBadge.value}}</span>
+                                    <span class="pcoded-mcaret"></span>
+                                  </a>
+                                </li>
 
-                              <li [routerLinkActive]="['active']" class="pcoded-hasmenu" [attr.dropdown-icon]="dropDownIcon" [attr.subitem-icon]="subItemIcon" *ngIf="asideChildrenSub.type === 'sub'" appAccordionLink group="sub-super-toggled">
-                                <a href="javascript:;" appAccordionToggle>
-                                  <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
-                                  <span class="pcoded-mtext">{{ asideChildrenSub.name }}</span>
-                                  <span *ngFor="let asideChildrenSubBadge of asideChildrenSub.badge" class="pcoded-badge label label-{{ asideChildrenSubBadge.type }}">{{asideChildrenSubBadge.value}}</span>
-                                  <!-- <span class="pcoded-mcaret"></span> -->
-                                </a>
-                                <ul class="pcoded-submenu">
-                                  <ng-template ngFor let-asideChildrenSubSuper [ngForOf]="asideChildrenSub.children">
-                                    <li [routerLinkActive]="['active']" appAccordionLink>
-                                      <a [routerLinkActive]="['active']" href="{{asideChildrenSubSuper.external}}" target="{{asideChildrenSubSuper.target ? '_blank' : '_self'}}" *ngIf="asideChildrenSubSuper.type === 'external'; else mainContentExternalSub">
-                                        <div class="ripple menu-ripple"></div>
-                                        <span class="pcoded-micon"><i class="icon-angle-right"></i></span>
-                                        <span class="pcoded-mtext">{{ asideChildrenSubSuper.name }}</span>
-                                        <span *ngFor="let asideChildrenBadge of asideChildrenSubSuper.badge" class="pcoded-badge label label-{{ asideChildrenBadge.type }}">{{asideChildrenBadge.value}}</span>
-                                        <!-- <span class="pcoded-mcaret"></span> -->
-                                      </a>
-                                      <ng-template #mainContentExternalSub>
-                                        <a appTrigger [routerLink]="['/', asideChildren.state, asideChildrenSub.state, asideChildrenSubSuper.state]" *ngIf="!asideChildrenSubSuper.target">
-                                          <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                <li [routerLinkActive]="['active']" class="pcoded-hasmenu" [attr.dropdown-icon]="dropDownIcon" [attr.subitem-icon]="subItemIcon" *ngIf="asideChildrenSub.type === 'sub'" appAccordionLink group="sub-super-toggled">
+                                  <a href="javascript:;" appAccordionToggle>
+                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                    <span class="pcoded-mtext">{{ asideChildrenSub.name }}</span>
+                                    <span *ngFor="let asideChildrenSubBadge of asideChildrenSub.badge" class="pcoded-badge label label-{{ asideChildrenSubBadge.type }}">{{asideChildrenSubBadge.value}}</span>
+                                    <span class="pcoded-mcaret"></span>
+                                  </a>
+                                  <ul class="pcoded-submenu">
+                                    <ng-template ngFor let-asideChildrenSubSuper [ngForOf]="asideChildrenSub.children">
+                                      <li [routerLinkActive]="['active']" appAccordionLink>
+                                        <a [routerLinkActive]="['active']" href="{{asideChildrenSubSuper.external}}" target="{{asideChildrenSubSuper.target ? '_blank' : '_self'}}" *ngIf="asideChildrenSubSuper.type === 'external'; else mainContentExternalSub">
+                                          <div class="ripple menu-ripple"></div>
+                                          <span class="pcoded-micon"><i class="icon-angle-right"></i></span>
                                           <span class="pcoded-mtext">{{ asideChildrenSubSuper.name }}</span>
-                                          <span *ngFor="let asideChildrenSubSuperBadge of asideChildrenSubSuper.badge" class="pcoded-badge label label-{{ asideChildrenSubSuperBadge.type }}">{{asideChildrenSubSuperBadge.value}}</span>
-                                          <!-- <span class="pcoded-mcaret"></span> -->
+                                          <span *ngFor="let asideChildrenBadge of asideChildrenSubSuper.badge" class="pcoded-badge label label-{{ asideChildrenBadge.type }}">{{asideChildrenBadge.value}}</span>
+                                          <span class="pcoded-mcaret"></span>
                                         </a>
-                                        <a [routerLink]="['/', asideChildren.state, asideChildrenSub.state, asideChildrenSubSuper.state]" *ngIf="asideChildrenSubSuper.target" target="_blank">
-                                          <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                          <span class="pcoded-mtext">{{ asideChildrenSubSuper.name }}</span>
-                                          <span *ngFor="let asideChildrenSubSuperBadge of asideChildrenSubSuper.badge" class="pcoded-badge label label-{{ asideChildrenSubSuperBadge.type }}">{{asideChildrenSubSuperBadge.value}}</span>
-                                          <!-- <span class="pcoded-mcaret"></span> -->
-                                        </a>
-                                      </ng-template>
-                                    </li>
-                                  </ng-template>
-                                </ul>
-                              </li>
-                            </ng-template>
-                          </ul>
-                        </li>
+                                        <ng-template #mainContentExternalSub>
+                                          <a appTrigger [routerLink]="['/', asideChildren.state, asideChildrenSub.state, asideChildrenSubSuper.state]" *ngIf="!asideChildrenSubSuper.target">
+                                            <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                            <span class="pcoded-mtext">{{ asideChildrenSubSuper.name }}</span>
+                                            <span *ngFor="let asideChildrenSubSuperBadge of asideChildrenSubSuper.badge" class="pcoded-badge label label-{{ asideChildrenSubSuperBadge.type }}">{{asideChildrenSubSuperBadge.value}}</span>
+                                            <span class="pcoded-mcaret"></span>
+                                          </a>
+                                          <a [routerLink]="['/', asideChildren.state, asideChildrenSub.state, asideChildrenSubSuper.state]" *ngIf="asideChildrenSubSuper.target" target="_blank">
+                                            <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                            <span class="pcoded-mtext">{{ asideChildrenSubSuper.name }}</span>
+                                            <span *ngFor="let asideChildrenSubSuperBadge of asideChildrenSubSuper.badge" class="pcoded-badge label label-{{ asideChildrenSubSuperBadge.type }}">{{asideChildrenSubSuperBadge.value}}</span>
+                                            <span class="pcoded-mcaret"></span>
+                                          </a>
+                                        </ng-template>
+                                      </li>
+                                    </ng-template>
+                                  </ul>
+                                </li>
+                              </ng-template>
+                            </ul>
+                          </li>
                       </ng-template>
                     </ul>
                   </li>
