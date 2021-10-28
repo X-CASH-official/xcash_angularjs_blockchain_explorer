@@ -373,10 +373,14 @@
 
         .notify-cont {
             padding: 15px 0;
-            border-left: 1px solid #fff;
-
+            border-left: 1px solid #1f1f1f;
+            background-color: #1f1f1f;
             p {
-                margin-bottom: 0;
+              margin-bottom: 0;
+              color:#1189a5;
+            }
+            h4{
+              color:#fa741c;
             }
         }
     }
@@ -474,7 +478,8 @@
 .map-visitor-card {
     .card-header {
         h5 {
-            color: #fff;
+            //color: #fff;
+            color: #fa741c;
         }
     }
 

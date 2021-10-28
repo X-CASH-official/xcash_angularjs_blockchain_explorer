@@ -14,7 +14,7 @@ body {
     font-family: $theme-font-family;
     background-attachment: fixed;
     // background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-    background-image: linear-gradient(45deg, rgba(255,255,255,.15) 20%, transparent 20%, transparent 40%, rgba(255,255,255,.15) 40%, rgba(255,255,255,.15) 60%, transparent 60%, transparent 80%,rgba(255,255,255,.15) 80%, transparent);
+    // background-image: linear-gradient(45deg, rgba(255,255,255,.15) 20%, transparent 20%, transparent 40%, rgba(255,255,255,.15) 40%, rgba(255,255,255,.15) 60%, transparent 60%, transparent 80%,rgba(255,255,255,.15) 80%, transparent);
 }
 
 ul {
@@ -34,7 +34,7 @@ a {
     @media only screen and(min-width: 1400px) {
         font-size: 14px;
     }
-    color: $inverse-color;
+    color: #1189a5;//$inverse-color;
 
     &:focus,
     &:hover {
@@ -258,7 +258,8 @@ h6 {
 
 .card {
     border-radius: 5px;
-    box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
+    //box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
+    box-shadow: 0 0 25px -5px #1f1f1f;
     border: none;
     margin-bottom: 30px;
     // overflow: hidden;
@@ -272,7 +273,7 @@ h6 {
     .card-header {
         background-color: transparent;
         border-bottom: none;
-        padding: 25px;
+        padding: 15px;
 
         .card-header-left {
             display: inline-block;

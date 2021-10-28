@@ -22,7 +22,10 @@ body.dark {
 
         .card-header {
             h5 {
-                color: $light-color-text;
+                //color: $light-color-text;
+              color: $primary-color;
+              font-size: 28px;
+              margin-left: 10px;
             }
 
             .card-header-right i {
@@ -122,7 +125,7 @@ body.dark {
     }
 
     .pcoded-main-container {
-        background-color: lighten($dark-layout-color,10%);
+        background-color: lighten($dark-layout-color,5%);
     }
 
     .header-navbar {

@@ -999,17 +999,19 @@ $header-theme: #3b4650,#f78ea4,#00bcd4,#2ed8b6,#4099ff,#f1c40f;
             background-color: #fff;
         }
         &[navbar-theme="theme1"]{
-            background-color: #3b4650;
+            //background-color: #3b4650;
+            background-color: darken($dark-layout-color,5%);
         }
     }
     .pcoded-header {
-        @each $value in $header-theme {
-            $i: index($header-theme, $value);
-
-            &[header-theme="theme#{$i}"] {
-                background: linear-gradient(to right, darken($value,15%), lighten($value,10%));
-            }
-        }
+        // @each $value in $header-theme {
+        //     $i: index($header-theme, $value);
+        //
+        //     &[header-theme="theme#{$i}"] {
+        //         background: linear-gradient(to right, darken($value,15%), lighten($value,10%));
+        //     }
+        // }
+        background-color: lighten($dark-layout-color,5%);
     }
 }
 
