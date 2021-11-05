@@ -9,7 +9,7 @@ WALLET_DECIMAL_PLACES_AMOUNT = 1000000;
 UNENCRYPTED_PAYMENT_ID:string = "022100";
 ENCRYPTED_PAYMENT_ID:string = "020901";
 
-/*SERVER_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION:string = "https://explorer.x-cash.org/sendhexadecimaltransaction";
+SERVER_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION:string = "https://explorer.x-cash.org/sendhexadecimaltransaction";
 SERVER_HOSTNAME_AND_PORT_GET_CURRENT_BLOCK_HEIGHT:string = "https://explorer.x-cash.org/getcurrentblockheight";
 SERVER_HOSTNAME_AND_PORT_GET_BLOCKCHAIN_DATA:string = "https://explorer.x-cash.org/getblockchaindata";
 SERVER_HOSTNAME_AND_PORT_GET_NODES_LIST:string = "https://explorer.x-cash.org/getnodeslist";
@@ -32,9 +32,9 @@ SERVER_HOSTNAME_AND_PORT_GET_LAST_BLOCKS_TRANSACTION_DATA:string = "https://expl
 SERVER_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA_SEARCH_RESULTS:string = "https://explorer.x-cash.org/gettransactiondatasearchresults";
 SERVER_HOSTNAME_AND_PORT_GET_CHART_DATA:string = "https://explorer.x-cash.org/getchartdata";
 SERVER_HOSTNAME_AND_PORT_GET_MARKET_DATA:string = "https://explorer.x-cash.org/getmarketdata";
-SERVER_HOSTNAME_AND_PORT_GET_HISTORICAL_MARKET_DATA:string = "https://explorer.x-cash.org/gethistoricalmarketdata";*/
+SERVER_HOSTNAME_AND_PORT_GET_HISTORICAL_MARKET_DATA:string = "https://explorer.x-cash.org/gethistoricalmarketdata";
 
-SERVER_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION:string = "http://localhost:8000/sendhexadecimaltransaction";
+/*SERVER_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION:string = "http://localhost:8000/sendhexadecimaltransaction";
 SERVER_HOSTNAME_AND_PORT_GET_CURRENT_BLOCK_HEIGHT:string = "http://localhost:8000/getcurrentblockheight";
 SERVER_HOSTNAME_AND_PORT_GET_BLOCKCHAIN_DATA:string = "http://localhost:8000/getblockchaindata";
 SERVER_HOSTNAME_AND_PORT_GET_NODES_LIST:string = "http://localhost:8000/getnodeslist";
@@ -57,7 +57,32 @@ SERVER_HOSTNAME_AND_PORT_GET_LAST_BLOCKS_TRANSACTION_DATA:string = "http://local
 SERVER_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA_SEARCH_RESULTS:string = "http://localhost:8000/gettransactiondatasearchresults";
 SERVER_HOSTNAME_AND_PORT_GET_CHART_DATA:string = "http://localhost:8000/getchartdata";
 SERVER_HOSTNAME_AND_PORT_GET_MARKET_DATA:string = "http://localhost:8000/getmarketdata";
-SERVER_HOSTNAME_AND_PORT_GET_HISTORICAL_MARKET_DATA:string = "http://localhost:8000/gethistoricalmarketdata";
+SERVER_HOSTNAME_AND_PORT_GET_HISTORICAL_MARKET_DATA:string = "http://localhost:8000/gethistoricalmarketdata";*/
+
+/*SERVER_HOSTNAME_AND_PORT_SEND_HEXADECIMAL_TRANSACTION:string = "http://94.130.96.48/sendhexadecimaltransaction";
+SERVER_HOSTNAME_AND_PORT_GET_CURRENT_BLOCK_HEIGHT:string = "http://94.130.96.48/getcurrentblockheight";
+SERVER_HOSTNAME_AND_PORT_GET_BLOCKCHAIN_DATA:string = "http://94.130.96.48/getblockchaindata";
+SERVER_HOSTNAME_AND_PORT_GET_NODES_LIST:string = "http://94.130.96.48/getnodeslist";
+SERVER_HOSTNAME_AND_PORT_GET_GENERATED_SUPPLY:string = "http://94.130.96.48/getgeneratedsupply";
+SERVER_HOSTNAME_AND_PORT_GET_CIRCULATING_SUPPLY:string = "http://94.130.96.48/getcirculatingsupply";
+SERVER_HOSTNAME_AND_PORT_GET_LAST_BLOCK_DATA:string = "http://94.130.96.48/getlastblockdata";
+SERVER_HOSTNAME_AND_PORT_GET_BLOCK_DATA:string = "http://94.130.96.48/getblockdata";
+SERVER_HOSTNAME_AND_PORT_GET_TX_POOL_DATA:string = "http://94.130.96.48/gettransactionpooldata";
+SERVER_HOSTNAME_AND_PORT_GET_BLOCKCHAIN_DATA_SETTINGS:string = "http://94.130.96.48/getblockchaindatasettings";
+SERVER_HOSTNAME_AND_PORT_GET_BLOCK_TRANSACTION_DATA:string = "http://94.130.96.48/getblocktransactiondata";
+SERVER_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA:string = "http://94.130.96.48/gettransactiondata";
+SERVER_HOSTNAME_AND_PORT_VERIFY_RESERVE_PROOF:string = "http://94.130.96.48/verifyreserveproofapi";
+SERVER_HOSTNAME_AND_PORT_VERIFY_PREMINE_FUNDS_AIRDROP:string = "http://94.130.96.48/verifypreminefundsairdrop";
+SERVER_HOSTNAME_AND_PORT_VERIFY_PREMINE_FUNDS_XCASH:string = "http://94.130.96.48/verifypreminefundsxcash";
+SERVER_HOSTNAME_AND_PORT_VERIFY_PREMINE_FUNDS_XCASH_REWARDS:string = "http://94.130.96.48/verifypreminefundsxcashrewards";
+SERVER_HOSTNAME_AND_PORT_VERIFY_PREMINE_FUNDS_XCASH_INVESTORS:string = "http://94.130.96.48/verifypreminefundsxcashinvestors";
+SERVER_HOSTNAME_AND_PORT_GET_TRANSACTION_CONFIRMATIONS:string = "http://94.130.96.48/gettransactionconfirmations";
+SERVER_HOSTNAME_AND_PORT_CREATE_INTEGRATED_ADDRESS:string = "http://94.130.96.48/createintegratedaddressapi";
+SERVER_HOSTNAME_AND_PORT_GET_LAST_BLOCKS_TRANSACTION_DATA:string = "http://94.130.96.48/getlastblockstransactiondata";
+SERVER_HOSTNAME_AND_PORT_GET_TRANSACTION_DATA_SEARCH_RESULTS:string = "http://94.130.96.48/gettransactiondatasearchresults";
+SERVER_HOSTNAME_AND_PORT_GET_CHART_DATA:string = "http://94.130.96.48/getchartdata";
+SERVER_HOSTNAME_AND_PORT_GET_MARKET_DATA:string = "http://94.130.96.48/getmarketdata";
+SERVER_HOSTNAME_AND_PORT_GET_HISTORICAL_MARKET_DATA:string = "http://94.130.96.48/gethistoricalmarketdata";*/
 
 
 
