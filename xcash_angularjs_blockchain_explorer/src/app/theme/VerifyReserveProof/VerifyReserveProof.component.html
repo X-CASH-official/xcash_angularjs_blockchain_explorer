@@ -5,8 +5,8 @@
       <br>
       <h5 class="text-center" >Note these calculations are sent to the server.</h5>
         <br><br>
-      <app-card [title]="' '">  
-         
+      <app-card [title]="' '">
+
           <div class="form-group row">
               <div class="col-sm-12">
                 <input type="text" class="form-control form-bg-primary" placeholder="Public Address" [value]="public_address" #public_address_textbox>
@@ -22,30 +22,30 @@
                     <input type="text" class="form-control form-bg-primary" placeholder="Message (optional)" [value]="message" #message_textbox>
                   </div>
                 </div>
-             
+
             <div class="text-center">
               <button class="btn btn-primary text-dark" (click)="VerifyReserveProof(public_address_textbox.value,reserve_proof_textbox.value,message_textbox.value);">Verify Reserve Proof</button>
             </div>
-                      
+
            <br><br>
                 <div *ngIf="VerifyReserveProofhtml == true" class="">
                 <h5 *ngIf="verifyreserveproofresults == 1">
-                  Reserve Proof Settings: <font color="#8af1f0">valid</font><br>
-                  Reserve Proof Amount: <font color="#8af1f0">{{reserve_proof_amount | number}}</font><br>
-                  Reserve Proof Spent Amount: <font color="#8af1f0">0</font><br>
-                  Message: <font color="#8af1f0">{{reserve_proof_api_message}}</font><br>
-                </h5>  
+                  Reserve Proof Settings: <font color="#fa741c">valid</font><br>
+                  Reserve Proof Amount: <font color="#fa741c">{{reserve_proof_amount | number}}</font><br>
+                  Reserve Proof Spent Amount: <font color="#fa741c">0</font><br>
+                  Message: <font color="#fa741c">{{reserve_proof_api_message}}</font><br>
+                </h5>
                 <h5 *ngIf="verifyreserveproofresults == 0">
-                    Reserve Proof Settings: <font color="#d09ebb">{{reserve_proof_settings}}</font><br>
-                    Reserve Proof Amount: <font color="#d09ebb">{{reserve_proof_amount | number}}</font><br>
-                    Reserve Proof Spent Amount: <font color="#d09ebb">{{reserve_proof_spent_amount | number}}</font><br>
-                    Message: <font color="#d09ebb">{{reserve_proof_api_message}}</font><br>
-                  </h5>                    
+                    Reserve Proof Settings: <font color="#1189a5">{{reserve_proof_settings}}</font><br>
+                    Reserve Proof Amount: <font color="#1189a5">{{reserve_proof_amount | number}}</font><br>
+                    Reserve Proof Spent Amount: <font color="#1189a5">{{reserve_proof_spent_amount | number}}</font><br>
+                    Message: <font color="#1189a5">{{reserve_proof_api_message}}</font><br>
+                  </h5>
                 </div>
 
 
-            
-  
+
+
         </app-card>
       </div>
     </div>

@@ -60,49 +60,57 @@ const MENUITEMS = [
         short_label: 'S',
         name: 'Verify Sender',
         type: 'link',
-        icon: 'fa fa-key'
+        icon: 'fa fa-check-circle'
       },
       {
         state: 'VerifyReserveProof',
         short_label: 'S',
-        name: 'Verify Reserve Proof',
+        name: 'Verify Reserv. Proof',
         type: 'link',
-        icon: 'fa fa-key'
+        icon: 'fa fa-check-circle'
       },
       {
         state: 'CreateIntegratedAddress',
         short_label: 'S',
-        name: 'Create Integrated Address',
+        name: 'Integr. Addr.',
         type: 'link',
-        icon: 'fa fa-shopping-cart'
+        icon: 'fa fa-plus'
       },
       {
         state: 'SendHexadecimalTX',
         short_label: 'S',
-        name: 'Send Hexadecimal TX',
+        name: 'Send HEX TX',
         type: 'link',
         icon: 'fa fa-send'
       },
       {
         state: 'SegregatedFunds',
         short_label: 'S',
-        name: 'Segregated Funds',
+        name: 'Funds',
         type: 'link',
         icon: 'fa fa-database'
       },
+      // {
+      //   state: 'NodesList',
+      //   short_label: 'S',
+      //   name: 'Nodes',
+      //   type: 'link',
+      //   icon: 'fa fa-list'
+      // },
+      // {
+      //   state: 'Price',
+      //   short_label: 'S',
+      //   name: 'Price',
+      //   type: 'link',
+      //   icon: 'fa fa-database'
+      // },
       {
-        state: 'NodesList',
+        state: 'Statistics',
         short_label: 'S',
-        name: 'Nodes List',
+        name: 'Stats',
         type: 'link',
-        icon: 'fa fa-cloud'
-      },
-      {
-        state: 'Price',
-        short_label: 'S',
-        name: 'Price',
-        type: 'link',
-        icon: 'fa fa-database'
+        icon: 'fa fa-dashboard'
+
       },
       {
         state: 'API',
@@ -110,13 +118,6 @@ const MENUITEMS = [
         name: 'API',
         type: 'link',
         icon: 'fa fa-cloud'
-      },
-      {
-        state: 'Statistics',
-        short_label: 'S',
-        name: 'Statistics',
-        type: 'link',
-        icon: 'fa fa-dashboard'
       }
     ]
   }

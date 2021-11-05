@@ -1,6 +1,6 @@
-$menu-title: #000,#624e89,#3c4fb1,#919aa3,#999,#fff;
+$menu-title: #1f1f1f,#624e89,#3c4fb1,#919aa3,#999,#fff;
 
-$header-theme:#3b4650,#473B7B,#000000,#ff5858,#4099ff,#2d0102;
+$header-theme:#3b4650,#473B7B,#1f1f1f,#ff5858,#4099ff,#2d0102;
 $header-right-theme:#647688,#30D2BE,#0fb3c2,#f09819,#6E7FF3,#091991;
 
 //#038f9e, #4DD0E1
@@ -13,10 +13,10 @@ $box-bg-color: #3b4650,#f78ea4,#6E7FF3,#39ADB5,#4099ff,#f09819;
 $left-navbar-theme: #3b4650;
 $left-navbar-light-theme: #fff;
 
-//$active-item:#3b4650,#473B7B,#000000,#ff5858,#4099ff,#2d0102,#11c788,#FF5252,#ff784f,#38a9f9,#038f9e,#39ADB5;
+//$active-item:#3b4650,#473B7B,#1f1f1f,#ff5858,#4099ff,#2d0102,#11c788,#FF5252,#ff784f,#38a9f9,#038f9e,#39ADB5;
 //$icon-color: #4099ff,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
-$active-item:#8af1f0,#473B7B,#000000,#ff5858,#4099ff,#2d0102,#11c788,#FF5252,#ff784f,#38a9f9,#038f9e,#39ADB5;
-$icon-color: #8af1f0,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
+$active-item:#fa741c,#473B7B,#1f1f1f,#ff5858,#4099ff,#2d0102,#11c788,#FF5252,#ff784f,#38a9f9,#038f9e,#39ADB5;
+$icon-color: #fa741c,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
 .pcoded {
     &[nav-type="st1"] {
         .pcoded-item.pcoded-left-item {
@@ -169,33 +169,97 @@ $icon-color: #8af1f0,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
     .navbar-wrapper {
         .navbar-logo {
             position: relative;
-            align-items: center;
+            align-items: stretch;
             display: flex;
-            float: left;
-            height: 56px;
             text-align: center;
+            justify-content: space-between;
+            height: 56px;
             text-transform: uppercase;
-            width: 235px;
+            //width: 235px;
+            width: 100%;
             padding: 10px;
-            @media only screen and (max-width: 992px) {
-                justify-content: center;
-            }
 
             h5 {
                 margin-bottom: 0;
             }
-
+            .logo {
+              float: left;
+              width: 30px;
+            }
             .mobile-menu {
                 position: absolute;
                 right: 22px;
                 top: calc(50% - 8px);
                 font-size: 16px;
+                float: right;
             }
-            @media only screen and(max-width: 768px) {
-                .mobile-search {
-                    display: none !important;
+            .header-search {
+                float: right;
+                float: left;
+                line-height: 0.8;
+                text-align: center;
+                @media only screen and(max-width: 992px) {
+                      width: 80%;
+                      margin-left: 5px;
+                      margin-right: 5px;
+
+                }
+
+                .main-search {
+                    padding: 0px 0;
+
+                    .input-group {
+                        margin-bottom: 0;
+                        background-color: transparent;
+                        border-radius: 20px;
+
+                        .form-control {
+                            width: auto;
+                            border: none;
+                            background-color: transparent;
+                            overflow: none;
+                        }
+
+                        .input-group-addon {
+                            padding: 0.3rem 0.75rem 0.3rem 0;
+                            background-color: transparent;
+                            border: none;
+
+                            &.search-close {
+                                padding: 0.3rem 0 0.3rem 0.75rem;
+                                display: none;
+                            }
+                        }
+                    }
+
+                    &.open {
+                        color: #000;
+
+                        .input-group {
+                            background-color: #fff;
+
+                            .form-control {
+                                display: block;
+                                color: #000;
+                            }
+
+                            .input-group-addon {
+                                color: #000;
+
+                                &.search-close {
+                                    display: block;
+                                }
+                            }
+                        }
+                    }
                 }
             }
+
+            // @media only screen and (max-width: 768px) {
+            //     .mobile-search {
+            //         display: none !important;
+            //     }
+            // }
 
             .mobile-options,
             .mobile-search {
@@ -420,59 +484,7 @@ $icon-color: #8af1f0,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
 
         }
 
-        .header-search {
-            line-height: 0.8;
 
-            .main-search {
-                padding: 13px 0;
-
-                .input-group {
-                    margin-bottom: 0;
-                    background-color: transparent;
-                    border-radius: 20px;
-
-                    .form-control {
-                        padding: 0.3rem 0.75rem;
-                        // display: none;
-                        width: 0;
-                        border: none;
-                        background-color: transparent;
-                    }
-
-                    .input-group-addon {
-                        padding: 0.3rem 0.75rem 0.3rem 0;
-                        background-color: transparent;
-                        border: none;
-
-                        &.search-close {
-                            padding: 0.3rem 0 0.3rem 0.75rem;
-                            display: none;
-                        }
-                    }
-                }
-
-                &.open {
-                    color: #000;
-
-                    .input-group {
-                        background-color: #fff;
-
-                        .form-control {
-                            display: block;
-                            color: #000;
-                        }
-
-                        .input-group-addon {
-                            color: #000;
-
-                            &.search-close {
-                                display: block;
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 @keyframes not-blink {
@@ -543,7 +555,7 @@ $icon-color: #8af1f0,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
             > a {
                 display: block;
                 font-size: 14px;
-                padding: 0 15px;
+                padding: 0 0px;
                 text-decoration: none;
                 position: relative;
                 transition: all 0.3s ease-in-out;
@@ -592,7 +604,7 @@ $icon-color: #8af1f0,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
 
                 > a .pcoded-micon {
                     font-size: 10px;
-                    padding-right: 5px;
+                    padding-right: 2px;
                 }
             }
         }
@@ -600,12 +612,12 @@ $icon-color: #8af1f0,#f78ea4,#2ed8b6,#f1c40f,#ab7967,#39ADB5,#7C4DFF,#FF5370;
         > li > a > .pcoded-micon {
             font-size: 14px;
             padding: 4px;
-            margin-right: 10px;
+            margin-right: 3px;
             color: #fff;
             border-radius: 4px;
-            width: 30px;
+            width: 15px;
             display: inline-block;
-            height: 30px;
+            height: 15px;
             text-align: center;
 
             b {
@@ -3830,31 +3842,31 @@ body {
 
         &[sidebar-img-type="img1"] {
             .pcoded-navbar {
-                
+
             }
         }
 
         &[sidebar-img-type="img2"] {
             .pcoded-navbar {
-                
+
             }
         }
 
         &[sidebar-img-type="img3"] {
             .pcoded-navbar {
-                
+
             }
         }
 
         &[sidebar-img-type="img4"] {
             .pcoded-navbar {
-                
+
             }
         }
 
         &[sidebar-img-type="img5"] {
             .pcoded-navbar {
-                
+
             }
         }
     }
@@ -4364,8 +4376,8 @@ body {
             &[header-theme="theme#{$i}"] {
                 .head {
                     // background: linear-gradient(to right, darken($value,15%), lighten($value,10%));
-                    background: linear-gradient(to right, $value, nth($header-right-theme,$i));
-
+                    //background: linear-gradient(to right, $value, nth($header-right-theme,$i));
+                    background-color: lighten($dark-layout-color,5%);
                     &:after,
                     &:before {
                         background: transparent;
@@ -4377,8 +4389,8 @@ body {
             $i: index($header-theme-light, $value);
             &[header-theme="themelight#{$i}"] {
                 .head {
-                    background: linear-gradient(to right, $value, nth($header-right-theme-light,$i));
-
+                    //background: linear-gradient(to right, $value, nth($header-right-theme-light,$i));
+                    background-color: lighten($dark-layout-color,5%);
                     &:after,
                     &:before {
                         background: transparent;
@@ -4524,8 +4536,8 @@ body {
             $i: index($header-theme, $value);
 
             &[header-theme="theme#{$i}"] {
-                background: linear-gradient(to right, $value, nth($header-right-theme,$i));
-
+                //background: linear-gradient(to right, $value, nth($header-right-theme,$i));
+                background-color: lighten($dark-layout-color,5%);
                 a,.input-group-addon {
                     color: #fff;
                 }

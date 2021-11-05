@@ -14,7 +14,7 @@ import * as c3 from 'c3';
   encapsulation: ViewEncapsulation.None
 })
 export class StatisticsComponent implements OnInit {
-  BLOCKS_PER_DAY:number = 1440; 
+  BLOCKS_PER_DAY:number = 1440;
 
   generated_supply:string;
   circulating_supply:string;
@@ -34,14 +34,14 @@ export class StatisticsComponent implements OnInit {
   block_reward:String;
   network_hashrate_chart_title:string = "Network Hashrate Chart";
   miningpoolchartdata:any [];
-  difficultychartdata:any [];  
+  difficultychartdata:any [];
   public_tx_count:number;
   private_tx_count:number;
   htmlcode:boolean = false;
   htmlcodechart:boolean = false;
-  
+
   constructor(private httpdataservice: httpdataservice) { }
- 
+
   ngOnInit() {
     clearInterval(this.httpdataservice.Timer);
     this.httpdataservice.get_request(this.httpdataservice.SERVER_HOSTNAME_AND_PORT_GET_BLOCKCHAIN_DATA).subscribe(
@@ -73,7 +73,7 @@ export class StatisticsComponent implements OnInit {
           this.circulating_supply = res['circulating_supply'];
           this.block_height = res['block_height'];
           this.current_blockchain_difficulty = res['current_blockchain_difficulty'];
-          this.blockchain_algorithm = res["blockchain_algorithm"];
+          this.blockchain_algorithm = "DPOPS/CryptoNote"; //+ res["blockchain_algorithm"];
           this.current_blockchain_hashrate = res['current_blockchain_hashrate'];
           this.total_tx = res['total_tx'];
           this.total_tx_pool = res['total_tx_pool'];
@@ -86,10 +86,10 @@ export class StatisticsComponent implements OnInit {
           this.blockchain_next_version_estimated_date = res['blockchain_next_version_estimated_date'];
           this.public_tx_count = res['public_tx_count'];
           this.private_tx_count = res['private_tx_count'];
-        }   
-        this.htmlcode = true;     
+        }
+        this.htmlcode = true;
       },
-      (error) => 
+      (error) =>
       {
         this.generated_supply = "Error";
         this.circulating_supply = "Error";
@@ -116,26 +116,26 @@ export class StatisticsComponent implements OnInit {
       {
         if (JSON.stringify(res).indexOf("Error") !== -1)
         {
-          this.block_reward = "Error";          
+          this.block_reward = "Error";
         }
         else
         {
           this.block_reward = Math.round(res['block_reward']).toString();
-        }        
+        }
       },
-      (error) => 
+      (error) =>
       {
         this.block_reward = "Error";
       }
-    );    
+    );
 
     this.httpdataservice.get_request(this.httpdataservice.SERVER_HOSTNAME_AND_PORT_GET_CHART_DATA).subscribe(
       (res) =>
       {
         this.network_hashrate_chart_title = "Network Hashrate Chart From ";
         var data = {bindto: '#network_hashrate_chart',data:{columns:[],types: {network_hashrate: 'area-spline'},colors: {network_hashrate:'#8af1f0'},groups:[['network_hashrate']]}};
-        var chartdataarray1 = ['network_hashrate'];  
-        var chart_data:any = res; 
+        var chartdataarray1 = ['network_hashrate'];
+        var chart_data:any = res;
         for (var counter = 0; counter < chart_data.length; counter++)
         {
           if (counter === 0)
@@ -149,14 +149,14 @@ export class StatisticsComponent implements OnInit {
             this.network_hashrate_chart_title += " to " + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
           }
           chartdataarray1.push((chart_data[counter][1] / 120000000).toString());
-        } 
+        }
         data.data.columns[0] = chartdataarray1;
         setTimeout(() => {
           this.htmlcodechart = true;
           var chart = c3.generate(data);
         }, 1000);
       },
-      (error) => 
+      (error) =>
       {
         this.htmlcodechart = true;
         this.network_hashrate_chart_title = "Network Hashrate Chart - Error";
