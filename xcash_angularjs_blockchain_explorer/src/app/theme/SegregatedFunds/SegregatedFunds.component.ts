@@ -101,7 +101,7 @@ export class SegregatedFundsComponent implements OnInit {
             this.verifyreserveproofresults_airdrop_amountspent = 20000000000 - this.verifyreserveproofresults_airdrop_amount;
             this.verifyreserveproofresults_airdrop_amount = Math.round(this.verifyreserveproofresults_airdrop_amount);
             this.verifyreserveproofresults_airdrop_amountspent = Math.round(this.verifyreserveproofresults_airdrop_amountspent);
-            this.verifypreminefundsairdroptitle = "Airdrop Funds";
+            this.verifypreminefundsairdroptitle = "Community Funds";
 
             var data2 = {bindto: '#preminefundsairdropchart',data:{columns:[],type:'donut', colors: {Unspent_Funds:'#fa741c',Spent_Funds:'#1189a5'}}};
             data2.data.columns.push(['Unspent_Funds', this.verifyreserveproofresults_airdrop_amount]);
@@ -115,7 +115,7 @@ export class SegregatedFundsComponent implements OnInit {
           {
             counter++;
             this.htmlcodeairdropchart = false;
-            this.verifypreminefundsairdroptitle = "Airdrop Funds - Error";
+            this.verifypreminefundsairdroptitle = "Community Funds - Error";
           }
         );
 
@@ -152,7 +152,7 @@ export class SegregatedFundsComponent implements OnInit {
             this.verifyreserveproofresults_xcash_amountspent = 10000000000 - this.verifyreserveproofresults_xcash_amount;
             this.verifyreserveproofresults_xcash_amount = Math.round(this.verifyreserveproofresults_xcash_amount);
             this.verifyreserveproofresults_xcash_amountspent = Math.round(this.verifyreserveproofresults_xcash_amountspent);
-            this.verifypreminefundsxcashtitle = "XCASH Funds";
+            this.verifypreminefundsxcashtitle = "X-Network Inventory Fund";
 
             var data2 = {bindto: '#preminefundsxcashchart',data:{columns:[],type:'donut', colors: {Unspent_Funds:'#fa741c',Spent_Funds:'#1189a5'}}};
             data2.data.columns.push(['Unspent_Funds', this.verifyreserveproofresults_xcash_amount]);
@@ -166,7 +166,7 @@ export class SegregatedFundsComponent implements OnInit {
           {
             counter++;
             this.htmlcodexcashchart = false;
-            this.verifypreminefundsxcashtitle = "XCASH Funds - Error";
+            this.verifypreminefundsxcashtitle = "X-Network Inventory Fund - Error";
           }
         );
 
@@ -203,7 +203,7 @@ export class SegregatedFundsComponent implements OnInit {
             this.verifyreserveproofresults_xcashrewards_amountspent = 5000000000 - this.verifyreserveproofresults_xcashrewards_amount;
             this.verifyreserveproofresults_xcashrewards_amount = Math.round(this.verifyreserveproofresults_xcashrewards_amount);
             this.verifyreserveproofresults_xcashrewards_amountspent = Math.round(this.verifyreserveproofresults_xcashrewards_amountspent);
-            this.verifypreminefundsxcashrewardstitle = "XCASH Rewards Funds";
+            this.verifypreminefundsxcashrewardstitle = "Team Funds";
 
             var data2 = {bindto: '#preminefundsxcashrewardschart',data:{columns:[],type:'donut', colors: {Unspent_Funds:'#fa741c',Spent_Funds:'#1189a5'}}};
             data2.data.columns.push(['Unspent_Funds', this.verifyreserveproofresults_xcashrewards_amount]);
@@ -217,7 +217,7 @@ export class SegregatedFundsComponent implements OnInit {
           {
             counter++;
             this.htmlcodexcashrewardschart = false;
-            this.verifypreminefundsxcashrewardstitle = "XCASH Rewards Funds - Error";
+            this.verifypreminefundsxcashrewardstitle = "Team Funds - Error";
           }
         );
 
@@ -254,7 +254,7 @@ export class SegregatedFundsComponent implements OnInit {
             this.verifyreserveproofresults_xcashinvestors_amountspent = 5000000000 - this.verifyreserveproofresults_xcashinvestors_amount;
             this.verifyreserveproofresults_xcashinvestors_amount = Math.round(this.verifyreserveproofresults_xcashinvestors_amount);
             this.verifyreserveproofresults_xcashinvestors_amountspent = Math.round(this.verifyreserveproofresults_xcashinvestors_amountspent);
-            this.verifypreminefundsxcashinvestorstitle = "XCASH investors Funds";
+            this.verifypreminefundsxcashinvestorstitle = "Private Investors Funds";
 
             var data2 = {bindto: '#preminefundsxcashinvestorschart',data:{columns:[],type:'donut', colors: {Unspent_Funds:'#fa741c',Spent_Funds:'#1189a5'}}};
             data2.data.columns.push(['Unspent_Funds', this.verifyreserveproofresults_xcashinvestors_amount]);
@@ -268,7 +268,7 @@ export class SegregatedFundsComponent implements OnInit {
           {
             counter++;
             this.htmlcodexcashinvestorschart = false;
-            this.verifypreminefundsxcashinvestorstitle = "XCASH investors Funds - Error";
+            this.verifypreminefundsxcashinvestorstitle = "Private Investors Funds - Error";
           }
         );
         this.httpdataservice.Timer = setInterval(() => {
